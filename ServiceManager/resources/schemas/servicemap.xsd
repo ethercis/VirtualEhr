@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ehrserver.ethercis.com/servicemap"
+	xmlns:tns="http://ehrserver.ethercis.com/servicemap"
+	elementFormDefault="qualified">
+
+	<complexType name="Action">
+		<sequence>
+			<element name="service" maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="resource" type="string" minOccurs="0">
+							<annotation>
+								<documentation>
+									Optional resource indication for documentation
+									purpose. For example, "Demographics", "Calendar" etc.
+									If
+									resource is "__sys__LocalInstance", the mapping is
+									done with an instance registered in ClusterController
+									If resource is
+									"__sys__RemoteInstance" and RMI resolution
+									is performed (NOT
+									IMPLEMENTED YET)
+									If resource is "__sys__MapOnly", the mapping is
+									done only
+									to resolve the return type of an internal method.
+									All
+									constants are defined in Constants.
+								</documentation>
+							</annotation>
+						</element>
+						<element name="path" type="string">
+							<annotation>
+								<documentation>
+									The actual path to map with a run time service. A
+									path
+									consists of a slash delimited fragment of a URL. For
+									example:
+									/calendar/appointments
+									/calendar/notification
+								</documentation>
+							</annotation>
+						</element>
+						<element name="serviceid" type="string" minOccurs="0">
+							<annotation>
+								<documentation>
+									the identificator of a declared runlevel service
+									as defined in services.xml
+								</documentation>
+							</annotation>
+						</element>
+						<element name="serviceversion" type="string" minOccurs="0"
+							default="1.0">
+							<annotation>
+								<documentation>
+									the service version, defaulted to "1.0"
+								</documentation>
+							</annotation>
+
+						</element>
+						<element name="method" minOccurs="0" maxOccurs="unbounded">
+							<annotation>
+								<documentation>
+									<html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+										<body>
+											Mapping to methods exposed by the service
+											<p>
+												The mapping consists of:
+												<p>
+													<ul>
+														<li>name - the method name passed in the URL, for example:
+															get
+														</li>
+														<li>implementation - the method in service which is
+															invoked
+														</li>
+														<li>return - the return type of this method</li>
+													</ul>
+												</p>
+												<p>the parameters of methods are passed as ClientProperties
+												</p>
+											</p>
+										</body>
+									</html>
+								</documentation>
+							</annotation>
+
+							<complexType>
+								<sequence>
+									<element name="name" type="string" />
+									<element name="implementation" type="string" minOccurs="0">
+									</element>
+									<element name="return" type="string">
+										<annotation>
+											<documentation>
+												<html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+													<body>
+														the return type code as defined in MethodName
+														<p>
+															<ul>
+																<li>Void</li>
+																<li>String</li>
+																<li>StringArr</li>
+																<li>Property</li>
+																<li>Html</li>
+																<li>Json</li>
+																<li>Xml</li>
+																<li>XmlArray</li>
+																<li>Base64</li>
+															</ul>
+														</p>
+													</body>
+												</html>
+											</documentation>
+										</annotation>
+									</element>
+									<element name="parameters" minOccurs="0">
+										<annotation>
+											<documentation>
+												defines the signature of the method (default
+												is ClientPropertiesInfo)
+											</documentation>
+										</annotation>
+										<complexType>
+											<sequence>
+												<element name="class" type="string" minOccurs="1"
+													maxOccurs="unbounded" />
+											</sequence>
+										</complexType>
+									</element>
+								</sequence>
+								<!-- if true, the call to this method is non blocking -->
+								<attribute name="async" type="boolean" use="optional" />
+							</complexType>
+						</element>
+					</sequence>
+				</complexType>
+			</element>
+						
+		</sequence>
+		<attribute name="category" type="string" use="required" />
+	</complexType>
+	
+	<complexType name="Mapper">
+		<sequence>
+			<element name="action" type="tns:Action" maxOccurs="unbounded"/>			
+		</sequence>
+		<attribute name="id" type="string" use="required" />
+		<attribute name="version" type="string" use="required" />
+		<attribute name="author" type="string" use="optional" />
+		<attribute name="organization" type="string" use="optional" />		
+	</complexType>	
+	
+	<element name="mapper" type="tns:Mapper">
+		<annotation>
+			<documentation>
+				<html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+					<body>
+						<h1>Definitions Element</h1>
+						<p>The definition element is the global container (eg. the ROOT
+							element) which holds all
+							the definition, rules and configuration
+							for a given deployment.
+						</p>
+						<h2>Object key attributes</h2>
+						<ul>
+							<li>
+								<strong>ID </strong>
+								the unique id of this deployment (syntax is strictly enforced)
+							</li>
+						</ul>
+						<p>
+							the deployment element
+							<strong>must</strong>
+							contain a version attribute (which format is free)
+						</p>
+						<h2>Foreign keys</h2>
+						<p>None</p>
+					</body>
+				</html>
+			</documentation>
+		</annotation>		
+		
+	</element>
+</schema>

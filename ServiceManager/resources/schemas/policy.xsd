@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Policy configuration XML schema    
+    Author: C. Chevalley
+-->
+<xs:schema     targetNamespace = "http://ehrserver.ethercis.com/policy/1.0"
+               xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               xmlns:tns="http://ehrserver.ethercis.com/policy/1.0"
+               xmlns:si="http://ehrserver.ethercis.com/definitions/1.0"               
+               elementFormDefault="qualified"
+               version="1.0">
+    <xs:annotation>
+        <xs:documentation>
+            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                <body>
+                    <h1>Security policy</h1>
+                    <p>
+                        Define the security policy to use for a server instance.<br/>
+                        The security policy implements Role Based Access Control (RBAC) in the context 
+                        of XCare<br/>
+                        The sequence of elements is as follows:
+                    </p>
+                    <ul>
+                        <li>rights: definition of access rights with their associated bit mask</li>
+                        <li>subject: definition of users with public/private credentials, associated principals (roles)
+                            and access control parameters</li>
+                        <li>Principal: a principal is a role with a set of associated permission</li>
+                        <li>Permission: rule specification to access an object and granted or revoked right associated to it</li>
+                    </ul>
+                </body>
+            </html>     
+        </xs:documentation>
+    </xs:annotation>               
+    <xs:import namespace="http://ehrserver.ethercis.com/definitions/1.0" schemaLocation="definitions.xsd"/>
+    <xs:complexType name="rights">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>rights</h1>
+                        <p>
+                            Rights are defined by a symbolic name 'publish' and an associated bit mask.
+                            A right is uniquely defined
+                            <br/>
+                            <ul>
+                                <li>name: the unique name of this right</li>
+                                <li>mask: an hexadecimal representation of the bit mask set for the right</li>
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:sequence>
+            <xs:element name="right" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="name" type="xs:IDREF" use="required"/>
+                    <xs:attribute name="mask" type="xs:hexBinary" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>               
+    <xs:complexType name="contact">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Contact</h1>
+                        <p>
+                            Contact is part of user's public credential.
+                            <br/>
+                            <ul>
+                                <li>location: usual location of a user</li>
+                                <li>fixed phone number</li>
+                                <li>mobile phone number</li>
+                                <li>email address</li>
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:sequence>
+            <xs:element name="location" type="xs:string" minOccurs="0"/>
+            <xs:element name="phone" type="xs:string" minOccurs="0"/>
+            <xs:element name="mobile" type="xs:string" minOccurs="0"/>
+            <xs:element name="email" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>    
+    <xs:complexType name="publicCredentials">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Public credential</h1>
+                        <p>
+                            Public credentials are public information describing a user
+                            <br/>
+                            <ul>
+                                <li>real name of user</li>
+                                <li>Job title</li>
+                                <li>contact information</li>
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:sequence>
+            <xs:element name="realName" type="xs:string"/>
+            <xs:element name="jobTitle" type="xs:string" minOccurs="0"/>
+            <xs:element name="contact" type="tns:contact" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="accessPolicy">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Access policy</h1>
+                        <p>
+                            Access control rule for a user
+                            <br/>
+                            <ul>
+                                <li>locked: true if account is locked</li>
+                                <li>disabled: true if account is disabled (required administrator to enable it)</li>
+                                <li>last login date and time</li>
+                                <li>authorized inactivity timeout</li>
+                                <li>calendar specifying allowed times for accesses</li>
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>              
+        <xs:sequence>
+            <xs:element name="locked" type="xs:boolean"/>
+            <xs:element name="disabled" type="xs:boolean"/>
+            <xs:element name="lastLogin" type="xs:date" minOccurs="0"/>
+            <xs:element name="timeout" type="xs:int" minOccurs="0"/>
+            <xs:element name="allowedOn" type="si:WeekPlan" minOccurs="0"></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="simplePasswordPolicy">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Simple password policy</h1>
+                        <p>
+                            Define rule for password management
+                            <br/>
+                            <ul>
+                                <li>must change password: true if user is required to change password</li>
+                                <li>expires on: date/time for password expiration</li>
+                                <li>grace login: number of allowed logins after password expired</li>
+                                <li>grace login count: number of grace logins already used</li>
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>                
+        <xs:sequence>
+            <xs:element name="mustChangePassword" type="xs:boolean"/>
+            <xs:element name="expiresOn" type="xs:date" minOccurs="0"/>
+            <xs:element name="graceLogin" type="xs:integer" minOccurs="0"/>
+            <xs:element name="graceLoginCount" type="xs:integer" minOccurs="0"/>
+        </xs:sequence>       
+    </xs:complexType>
+    <xs:complexType name="passwordPolicy">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Password policy</h1>
+                        <p>
+                            Password are either managed by a simple policy as described above or the 
+                            management is delegated to a specified class. This class may implement complex
+                            management rules enforcing password complexity and history.
+                            <br/>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:choice>
+            <xs:element name="simplePasswordPolicy" type="tns:simplePasswordPolicy"/>
+            <xs:element name="delegatedPasswordPolicy" type="xs:anyURI"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="privateCredentials">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Private credential</h1>
+                        <p>
+                            Private credentials are secret information used to control a user access
+                            <br/>
+                            <ul>
+                                <li>id: is the logon id (unique)</li>
+                                <li>password: encrypted password (htpasswd)</li>
+                                <li>code: a mandatory internal code (e.g. unix uid for example)</li>
+                                <li>access management: define rules to control access from this user</li>
+                                <li>password management: define rules to manage user password</li>
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:sequence>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="password" type="xs:string"/>
+            <xs:element name="code" type="xs:string" minOccurs="1" /> 
+            <xs:element name="accessManagement" type="tns:accessPolicy"/>
+            <xs:element name="passwordManagement" type="tns:passwordPolicy"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="user">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>User</h1>
+                        <p>
+                            A user is a subject with associated credentials and roles
+                            <br/>
+                            <ul>
+                                <li>unique id identifying the user internally</li>
+                                <li>Public Credential</li>
+                                <li>Private Credential</li>
+                                <li>list of principals (roles)</li>
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:sequence>
+            <xs:sequence>
+                <xs:element name="publicCredential" type="tns:publicCredentials"/>
+                <xs:element name="privateCredential" type="tns:privateCredentials"/>
+                <xs:element name="principal" type="xs:string" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:IDREF" use="required"/>
+        <xs:attribute name="system" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="principal">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Principal</h1>
+                        <p>
+                            Principal is a role defining a set of permissions
+                            <br/>
+                            <ul>
+                                <li>id: uniquely identify a principal</li>
+                                <li>code: internal code for principal</li>
+                                <li>description: descriptive literal for this role</li>
+                                <li>list of permission reference:</li>
+                                <ul>
+                                    <li>group of permissions</li>
+                                    <li>atomic permission</li>
+                                </ul>    
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:sequence>
+        	<xs:element name="code" type="xs:string" minOccurs="1"/>
+        	<xs:element name="description" type="xs:string"/>
+            <xs:element name="permissionsRef" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="ref" type="xs:IDREF"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:IDREF" use="required"/>
+    </xs:complexType>
+    <xs:annotation>
+        <xs:documentation>
+            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                <body>
+                    <h1>Filter</h1>
+                    <p>
+                        A filter is an association of an object name and pattern<br/>
+                        The name is required but can be a pattern (ex. 'OID')<br/>
+                        The pattern is any valid regular expression
+                        <br/>
+                        <ul>
+                            <li>name of object</li>
+                            <li>pattern used to filter a set of object with this name</li>
+                        </ul>
+                    </p>                                                
+                </body>
+            </html>
+        </xs:documentation>
+    </xs:annotation>        
+    <xs:complexType name="filter">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="pattern" type="xs:string" use="optional"/>        
+    </xs:complexType>
+    <xs:complexType name="atomicPermission">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Atomic permission</h1>
+                        <p>
+                            Permission is defined by a filter and a number of granted and/or revoked rights<br/>
+                            the filter is used to identify if an action is filtered by the policy. The action consists
+                            of an optional action name ('get'), a required target object (PATH = 'report') and an optional list of
+                            parameters used to invoke the action.<br/>
+                            NB: the required target may contain only a pattern for the object name.
+                            <br/>
+                            <ul>
+                                <li>name uniquely identifying the permission</li>
+                                <li>filtered object</li>
+                                <li>optional list of reference of granted rights</li>
+                                <li>optional list of reference of revoked rights</li>
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:sequence>
+            <xs:element name="filteredObject">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- optional description, used to display narative in end-user form (for defining user rights for example) -->
+                    	<xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    	<!-- action is for example the HTTP method: GET, POST, DELETE etc. Optional -->
+                        <xs:element name="action" type="xs:string" minOccurs="0"/>
+                        <!-- the target object, generally a target resource in a query -->
+                        <xs:element name="target" type="tns:filter"/>
+                        <!-- the parameters associated to the resource -->
+                        <xs:element name="parameter" type="tns:filter" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="grant" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                   <xs:sequence/>
+                   <xs:attribute name="right" type="xs:IDREF" use="required"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="revoke" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence/>
+                    <xs:attribute name="right" type="xs:IDREF" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="permissions">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Group of permissions</h1>
+                        <p>
+                            Atomic permissions can be defined in a group to provide more flexibility in role definition
+                            <br/>
+                            <ul>
+                                <li>name uniquely identifying the group</li>
+                                <li>list of atomic permission references</li>
+                            </ul>
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:sequence>
+            <xs:element name="permission" type="tns:atomicPermission" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="optional"/>
+        <xs:attribute name="system" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+    <xs:element name="policy">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Policy</h1>
+                        <p>
+                            a policy is a consistent set of rights, subjects (users), principals (roles) and permissions.  
+                        </p>                                                
+                    </body>
+                </html>
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="rights" type="tns:rights"/>
+                <xs:element name="subject" type="tns:user" maxOccurs="unbounded"/>
+                <xs:element name="principal" type="tns:principal" maxOccurs="unbounded"/>
+                <xs:element name="permissions" type="tns:permissions" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

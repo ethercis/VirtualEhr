@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper author="CCH" id="dummyMap" organization="org"
+	version="TEST" xmlns="http://ehrserver.ethercis.com/definitions/1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ehrserver.privantis.com/servicemap ">
+	<action category="GET">
+		<service>
+			<resource>DummyTestService</resource>
+			<path>dummy</path>
+			<serviceid>DUMMY</serviceid>
+			<serviceversion>1.0</serviceversion>
+			<method>
+				<name>get</name>
+				<implementation>method1</implementation>
+				<return>Base64</return>
+			</method>
+			<method>
+				<name>post</name>
+				<implementation>method2</implementation>
+				<return>Json</return>
+			</method>
+			<method>
+				<name>execute</name>
+				<implementation>method3</implementation>
+				<return>Html</return>
+			</method>
+			<method async="true">
+				<name>read</name>
+				<implementation>method4</implementation>
+				<return>Xml</return>
+				<parameters>
+					<class>java.lang.String</class>
+					<class>java.lang.Integer</class>
+					<class>java.lang.Long</class>
+				</parameters>
+			</method>
+			<method>
+				<name>ping</name>
+				<implementation>method5</implementation>
+				<return>Xml</return>
+				<parameters>
+					<class>com.privantis.servicemanager.session.SessionClientProperties</class>
+				</parameters>
+			</method>
+		</service>
+		<service>
+			<resource>CalendarService</resource>
+			<path>calendar/appointment</path>
+			<serviceid>CalendarService</serviceid>
+			<serviceversion>1.0</serviceversion>
+			<method>
+				<name>get</name>
+				<implementation>getAppointmentMonthly</implementation>
+				<return>Xml</return>
+			</method>
+		</service>
+		<service>
+			<resource>__sys__MapOnly</resource>
+			<path>vehr/policy</path>
+			<method>
+				<name>connect</name>
+				<return>Property</return>
+			</method>
+			<method>
+				<name>disconnect</name>
+				<return>Property</return>
+			</method>
+		</service>
+	</action>
+	<action category="POST">
+		<service>
+			<resource>DummyTestService</resource>
+			<path>dummy</path>
+			<serviceid>DUMMY</serviceid>
+			<serviceversion>1.0</serviceversion>
+			<method>
+				<name>post</name>
+				<implementation>method2</implementation>
+				<return>Json</return>
+			</method>
+		</service>
+	</action>
+</mapper>

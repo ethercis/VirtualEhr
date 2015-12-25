@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/target/classes" />
+    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="ecis-core" level="project" />
+    <orderEntry type="library" name="ecis-ehrdao" level="project" />
+    <orderEntry type="library" name="ecis-knowledge-cache" level="project" />
+    <orderEntry type="module-library">
+      <library name="JUnit4">
+        <CLASSES>
+          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.11.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/lib/hamcrest-core-1.3.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/lib/hamcrest-library-1.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../Dropbox/eCIS_Development/eCIS-LIB/composition_xml.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="xmlbeans-2.5.0" level="application" />
+    <orderEntry type="library" name="adl-parser-1.0.9" level="application" />
+    <orderEntry type="library" name="log4j:log4j:1.2.17" level="application" />
+    <orderEntry type="library" name="org.jscience:jscience:4.3.1" level="application" />
+    <orderEntry type="library" name="org.jdom:jdom:1.1.3" level="application" />
+    <orderEntry type="module" module-name="LogonService" />
+    <orderEntry type="library" name="Maven: ethercis:ecis-core:1.0.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: ethercis:ecis-knowledge-cache:1.0.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: ethercis:ecis-ehrdao:1.0.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: ethercis:ecis-servicemanager:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: ethercis:ecis-logon-service:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.openehr:openEHR.v1.OperationalTemplate:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.openehr:adl-parser:1.0.9" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlbeans:xmlbeans:2.5.0" level="project" />
+    <orderEntry type="library" name="Maven: stax:stax-api:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.jscience:jscience:4.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.javolution:javolution:5.2.3" level="project" />
+    <orderEntry type="library" name="Maven: org.jdom:jdom:1.1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.jooq:jooq:3.5.3" level="project" />
+    <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
+    <orderEntry type="library" name="Maven: junit:junit:4.11" level="project" />
+    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+  </component>
+</module>

@@ -17,16 +17,24 @@
 //Copyright
 package com.ethercis.ehr.knowledge;
 
-import com.ethercis.servicemanager.annotation.RunLevelAction;
-import com.ethercis.servicemanager.annotation.RunLevelActions;
-import com.ethercis.servicemanager.annotation.Service;
+import com.ethercis.logonservice.session.I_SessionManager;
+import com.ethercis.servicemanager.annotation.*;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
 import com.ethercis.servicemanager.cluster.I_Info;
+import com.ethercis.servicemanager.common.I_SessionClientProperties;
+import com.ethercis.servicemanager.common.MetaBuilder;
+import com.ethercis.servicemanager.common.def.Constants;
+import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Cache Knowledge Service class
@@ -93,7 +101,7 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
         try {
             this.cache = new KnowledgeCache(global.getProperty().getProperties(), serviceInfo.getParameters());
         } catch (Exception e){
-            throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, "Severe error while loading cache:"+e);
+            throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "Severe error while loading cache:"+e);
         }
 
         putObject(I_Info.JMX_PREFIX+ME, this);
@@ -101,6 +109,54 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
         log.info(ME + " successfully started");
         log.info("Statistics:\n"+statistics());
 	}
+
+    @QuerySetting(dialect = {
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "GET", method = "get", path = "vehr/template", responseType = ResponseType.Json),
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "GET", method = "get", path = "rest/v1/template", responseType = ResponseType.Json)
+    })
+    public Object retrieve(I_SessionClientProperties props) throws ServiceManagerException {
+
+        try {
+            Map retmap = this.getKnowledgeCache().listOperationalTemplates();
+            if (retmap.size() == 0){
+                global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_NO_CONTENT);
+                //build the relative part of the link to the existing last version
+                Map<String, Object> retMap = new HashMap<>();
+                retMap.put("Reason", "No templates");
+                return retMap;
+            }
+            Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG);
+            retmap.putAll(metaref);
+            return retmap;
+        } catch (IOException e) {
+            throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "Could not generate templates list, reason:" + e);
+        }
+    }
+
+    @QuerySetting(dialect = {
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "GET", method = "create", path = "vehr/template", responseType = ResponseType.Json),
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "POST", method = "post", path = "rest/v1/template", responseType = ResponseType.Json)
+    })
+    public Object create(I_SessionClientProperties props) throws Exception {
+
+        //get body stuff
+        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String) null);
+
+        String templateId;
+        try {
+            templateId = this.getKnowledgeCache().addOperationalTemplate(content.getBytes());
+        } catch (Exception e){
+            throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, ME, "Could not add template, reason:" + e);
+        }
+
+        Map<String, Object> retmap = new HashMap<>();
+        retmap.put("action", "CREATE");
+        retmap.put("templateId", templateId);
+        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG);
+        retmap.putAll(metaref);
+        return retmap;
+    }
+
 
     @Override
     public String usage() {

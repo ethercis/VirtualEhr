@@ -1,0 +1,76 @@
+
+<!-- scomp -compiler %JAVA_HOME%\bin\javac.exe -d ..\..\build -out ehrxml.jar *.xsd -->
+<project name="ehrrxml" basedir=".">
+
+    <property name="source.dir" value="src/"/>
+    <property name="schema.dir" value="resources/schemas/"/>
+    <property name="out.dir" value="build/"/>
+    <property name="out.dir.src" value="${out.dir}/src"/>
+    <property name="out.dir.classes" value="${out.dir}/classes"/>
+    <property name="out.dir.dist" value="${out.dir}/dist"/>
+    <property name="jar.name" value="ehrxml.jar" />
+    <property name="xmlbeans.home" value="\\Development\\xmlbeans-2.5.0"/>
+
+
+    <path id="ehrxml.path">
+        <path refid="xmlbeans.path"/>
+        <fileset dir="${out.dir.dist}" includes="*.jar"/>
+        <pathelement path="${out.dir.classes}"/>
+    </path>
+
+<!-- ================================XMLBEANS SCHEMA COMPILATION======================================== -->
+    <target name="xmlbean_init">
+        <echo message="xmlbeans.home: ${xmlbeans.home}"/>
+        <!-- check for xbean.jar from binary distribution -->
+        <available property="xmlbeans.lib" value="${xmlbeans.home}\\lib"
+                   file="${xmlbeans.home}\\lib\\xbean.jar"/>
+        <!-- check for xbean.jar compiled from source -->
+        <available property="xmlbeans.lib" value="${xmlbeans.home}\\lib"
+                   file="${xmlbeans.home}\\lib\\xbean.jar"/>
+        <fail message="Set XMLBEANS_HOME in your environment." unless="xmlbeans.lib"/>
+        <echo message="xmlbeans.lib: ${xmlbeans.lib}"/>
+        <path id="xmlbeans.path">
+            <fileset dir="${xmlbeans.lib}" includes="*.jar"/>
+        </path>
+        <taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpathref="xmlbeans.path"/>
+    </target>
+
+    <target name="ehrxml_init" depends="xmlbean_init">
+        <cvs cvsRoot="${cvs-anon}"  tag="${tag}" package="OakXML/schema" dest="${src}"/>
+        <uptodate property="schemas.notRequired" targetfile="${disttmp}/lib/XOak.jar">
+            <srcfiles dir="${src}/OakXML/schema" includes="**/*.xsd"/>
+        </uptodate>
+    </target>
+
+    <target name="ehrxml.jar" unless="schemas.notRequired">
+        <mkdir dir="${out.dir}"/>
+        <mkdir dir="${out.dir.src}"/>
+        <mkdir dir="${out.dir.classes}"/>
+        <mkdir dir="${out.dir.dist}"/>
+
+        <xmlbean schema="${schema.dir}" destfile="${out.dir.dist}/{jar.name}"
+                 srcgendir="${out.dir.src}" classpathref="xmlbeans.path" debug="on"/>
+    </target>
+
+    <target name="ehrxml.classes" depends="xmlbean_init">
+        <mkdir dir="${out.dir.classes}"/>
+        <javac srcdir="${out.dir.src}" destdir="${out.dir.classes}"
+               classpathref="ehrxml.path" debug="on" source="1.7"/>
+    </target>
+
+    <!-- =========================== GENERATE THE SCHEMA DOC ================================== -->
+    <!-- uses xs3p XSLT for the generation see: http://titanium.dstc.edu.au/xml/xs3p/ for info -->
+    <!--
+    <target name="xsd_doc" description="Generate documentation for ehrxml schema"
+            depends="ehrxml_init">
+        <mkdir dir="${doc}/schema"/>
+        <xslt basedir="${src}/OakXML/schema" destdir="${doc}/schema" extension=".html"
+                    style="${xs3p_path}/${xslt-file}">
+            <include name="*.xsd"/>
+        </xslt>
+        <copy todir="${doc_base}/schema">
+            <fileset dir="${doc}/schema"/>
+        </copy>
+    </target>
+    -->
+</project>

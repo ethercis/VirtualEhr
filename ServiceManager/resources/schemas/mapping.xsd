@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:edt="http://schemas.openehr.org/basetype/v1"
+	targetNamespace="http://www.ethercis.com/mapping" 
+	xmlns:cns="http://www.ethercis.com/mapping">
+	<xs:import namespace="http://schemas.openehr.org/basetype/v1" schemaLocation="BaseTypes.xsd" />
+	<xs:annotation>
+		<xs:documentation>
+			<html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+				<body>
+					<h1>Data Mapping for Form Pre-fill</h1>
+					<p>This structure holds the required data to allow form prefilling. The attributes
+					allow various constraints specifications for data validation
+					</p>
+					<p>Project: EtherCIS</p>
+					<p>Author: C.Chevalley, 2012</p>
+					<h2>Attributes</h2>
+					<p>
+					<ul>
+					<li><strong>TemplatePath </strong>full path referencing the data item</li>
+					<li><strong>Attribute </strong>specifies if item is name or value (not used)</li>
+					<li>
+					<strong>Datatype </strong>openEHR RM datatype:
+					<p>
+					<ul>
+					<li>DV_ANY</li>
+					<li>DV_BOOLEAN</li>
+					<li>DV_CODED_TEXT </li>
+					<li>DV_COUNT </li>
+					<li>DV_DATE </li>
+					<li>DV_DATE_TIME </li>
+					<li>DV_DURATION </li>
+					<li>DV_IDENTIFIER </li>
+					<li>DV_INTERVAL </li>
+					<li>DV_MULTIMEDIA </li>
+					<li>DV_PARSABLE </li>
+					<li>DV_QUANTITY </li>
+					<li>DV_STATE </li>
+					<li>DV_TEXT </li>
+					<li>DV_TIME </li>
+					<li>DV_URI </li>
+					</ul>
+					Please refer to openEHR Information Model (IM) for more details on the types.
+					</p>
+					</li>
+					<li><strong>Input </strong>the actual value passed for pre-fill</li>
+					<li><strong>Type </strong>'literal' or 'xpath' not used</li>
+					<li><strong>Test </strong>indicate optionally a pattern or list of values for tests</li>
+					<li><strong>ClassType </strong>openEHR classtype of this element</li>
+					</ul>
+					</p>
+				</body>
+			</html>
+		</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="Mappings">
+		<xs:sequence>
+			<!-- full path to item value -->		
+			<xs:element name="TemplatePath" type="xs:string" minOccurs="1" />
+			<!-- either /name or /value -->			
+			<xs:element name="Attribute" type="xs:string" minOccurs="1" />
+			<!-- openEHR RM data type (see note above) -->
+			<xs:element name="DataType" type="xs:string" minOccurs="1"/>
+			<!-- sample data if applicable -->
+			<xs:element name="Input">
+				<xs:complexType>
+					<xs:choice>
+						<element name="dvBoolean" type="edt:DV_BOOLEAN"/>
+						<element name="dvText" type="edt:DV_TEXT"/>
+						<element name="dvCodedText" type="edt:DV_CODED_TEXT"/>
+						<element name="dvCount" type="edt:DV_COUNT"/>
+						<element name="dvDate" type="edt:DV_DATE"/>
+						<element name="dvDateTime" type="edt:DV_DATE_TIME"/>
+						<element name="dvDuration" type="edt:DV_DURATION"/>
+						<element name="dvIdentifier" type="edt:DV_IDENTIFIER"/>
+						<element name="dvInterval" type="edt:DV_INTERVAL"/>
+						<element name="dvMultimedia" type="edt:DV_MULTIMEDIA"/>
+						<element name="dvOrdinal" type="edt:DV_ORDINAL"/>
+						<element name="dvParsable" type="edt:DV_PARSABLE"/>
+						<element name="dvQuantity" type="edt:DV_QUANTITY"/>
+						<element name="dvState" type="edt:DV_STATE"/>
+						<element name="dvTime" type="edt:DV_TIME"/>
+						<element name="dvURI" type="edt:DV_URI"/>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<!-- either 'literal' or 'xpath' -->
+			<xs:element name="Type" type="xs:string" minOccurs="0" />
+			<!-- sample value, pattern or list of possible values -->
+			<xs:element name="Test" type="xs:string" minOccurs="0"/>
+			<!-- openEHR class type (Element, Cluster etc.) -->
+			<xs:element name="ClassType" type="xs:string" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="mapping">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="dtMappings" type="cns:Mappings"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</schema>

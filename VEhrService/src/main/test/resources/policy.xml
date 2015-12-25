@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policy
+	xsi:schemaLocation="http://ehrserver.ethercis.com/policy/1.0 "
+	xmlns="http://ehrserver.ethercis.com/policy/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ns:rights xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<!--mask="8.7.6.5.4.3.2.1." -->
+		<ns:right name="none" mask="0000000000000000" />
+		<ns:right name="connect" mask="0000000000000001" />
+		<ns:right name="disconnect" mask="0000000000000002" />
+		<ns:right name="get" mask="0000000000000004" />
+		<ns:right name="post" mask="0000000000000008" />
+		<ns:right name="read" mask="0000000000000010" />
+		<ns:right name="execute" mask="0000000000000020" />
+		<ns:right name="change" mask="0000000000000040" />
+		<ns:right name="delete" mask="0000000000000080" />
+		<ns:right name="extend" mask="0000000000000100" />
+		<ns:right name="exist" mask="0000000000000200" />
+		<ns:right name="communicate" mask="0000000000000400" />
+		<ns:right name="query" mask="0000000000000800" />
+		<ns:right name="ping" mask="0000000000001000" />
+		<ns:right name="dummy" mask="0000000000002000" />
+		<ns:right name="unknown" mask="0000000000004000" />
+		<ns:right name="exception" mask="0000000000008000" />
+		<ns:right name="view" mask="0000000000010000" />
+		<ns:right name="feature" mask="0000000000020000" />
+		<ns:right name="all" mask="FFFFFFFFFFFFFFFF" />
+	</ns:rights>
+	<ns:subject id="JOE" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName>joe doe</ns:realName>
+			<ns:jobTitle>tester</ns:jobTitle>
+			<ns:contact>
+				<ns:location>test office</ns:location>
+				<ns:phone>12345</ns:phone>
+				<ns:mobile>67890</ns:mobile>
+				<ns:email>joe@test.com</ns:email>
+			</ns:contact>
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>joe</ns:id>
+			<ns:password />
+			<ns:accessManagement>
+				<ns:locked />
+				<ns:disabled />
+				<ns:lastLogin />
+				<!--timeout -->
+				<ns:allowedOn>
+					<Monday stat="true"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Tuesday stat="true"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Wednesday stat="true"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Thursday stat="true"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Friday stat="true"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Saturday stat="true"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Sunday stat="true"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+				</ns:allowedOn>
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal>USER</ns:principal>
+	</ns:subject>
+	<ns:subject id="SecurityManager" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName>security manager</ns:realName>
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>SecurityManager</ns:id>
+			<ns:password>yZwUfAYjtZ.xs</ns:password>
+			<ns:accessManagement>
+				<ns:locked />
+				<ns:disabled />
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal>SYSTEM</ns:principal>
+	</ns:subject>
+	<ns:subject id="testUserLocked" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName />
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>locked</ns:id>
+			<!--password: 'password' -->
+			<ns:password>yZEPH6exqDoqk</ns:password>
+			<ns:accessManagement>
+				<ns:locked>true</ns:locked>
+				<ns:disabled>false</ns:disabled>
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal />
+	</ns:subject>
+	<ns:subject id="testUserDisabled" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName />
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>disabled</ns:id>
+			<!--password: 'password' -->
+			<ns:password>yZEPH6exqDoqk</ns:password>
+			<ns:accessManagement>
+				<ns:locked>false</ns:locked>
+				<ns:disabled>true</ns:disabled>
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal />
+	</ns:subject>
+	<ns:subject id="testUserTimeOfDay" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName />
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>notToday</ns:id>
+			<!--password: 'password' -->
+			<ns:password>yZEPH6exqDoqk</ns:password>
+			<ns:accessManagement>
+				<ns:locked>false</ns:locked>
+				<ns:disabled>false</ns:disabled>
+				<ns:allowedOn>
+					<Monday stat="false"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Tuesday stat="false"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Wednesday stat="false"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Thursday stat="false"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Friday stat="false"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Saturday stat="false"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+					<Sunday stat="false"
+						xmlns="http://ehrserver.ethercis.com/definitions/1.0" />
+				</ns:allowedOn>
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal />
+	</ns:subject>
+	<ns:subject id="testUserTimeout" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName />
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>timeout</ns:id>
+			<!--password: 'password' -->
+			<ns:password>yZEPH6exqDoqk</ns:password>
+			<ns:accessManagement>
+				<ns:locked>false</ns:locked>
+				<ns:disabled>false</ns:disabled>
+				<!--1 millisec to make sure we trigger an inactivity timeout -->
+				<ns:timeout>1</ns:timeout>
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal />
+	</ns:subject>
+	<ns:subject id="testUser2" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName />
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>test2</ns:id>
+			<!--empty password -->
+			<ns:password />
+			<ns:accessManagement>
+				<ns:locked />
+				<ns:disabled />
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal>SYSTEM</ns:principal>
+	</ns:subject>
+	<ns:subject id="license" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName />
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>LicenseManager</ns:id>
+			<!--empty password -->
+			<ns:password />
+			<ns:accessManagement>
+				<ns:locked />
+				<ns:disabled />
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal>SYSTEM</ns:principal>
+	</ns:subject>
+	<ns:subject id="dummy" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName />
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>DummyPlugin</ns:id>
+			<!--empty password -->
+			<ns:password />
+			<ns:accessManagement>
+				<ns:locked />
+				<ns:disabled />
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal>SYSTEM</ns:principal>
+	</ns:subject>
+	<ns:subject id="testClient" xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:publicCredential>
+			<ns:realName />
+		</ns:publicCredential>
+		<ns:privateCredential>
+			<ns:id>tester</ns:id>
+			<!--empty password -->
+			<ns:password />
+			<ns:accessManagement>
+				<ns:locked />
+				<ns:disabled />
+			</ns:accessManagement>
+			<ns:passwordManagement />
+		</ns:privateCredential>
+		<ns:principal>CLIENT</ns:principal>
+	</ns:subject>
+	<ns:principal id="PRINCIPAL"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permissionsRef ref="P1" />
+		<ns:permissionsRef ref="P2" />
+		<ns:permissionsRef ref="P3" />
+	</ns:principal>
+	<ns:principal id="SYSTEM"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permissionsRef ref="SYSTEM_PLUGIN" />
+	</ns:principal>
+	<ns:principal id="GUEST"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permissionsRef ref="revokeAll" />
+	</ns:principal>
+	<ns:principal id="SUPERUSER"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permissionsRef ref="grantAll" />
+	</ns:principal>
+	<ns:principal id="USER"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permissionsRef ref="USER" />
+	</ns:principal>
+	<ns:principal id="CLIENT"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permissionsRef ref="CLIENT_GUI_SHORT" />
+		<ns:permissionsRef ref="CLIENT_SHORT" />
+	</ns:principal>
+	<ns:permissions id="TEST_PERMISSIONS"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permission name="P1">
+			<ns:filteredObject>
+				<ns:action />
+				<ns:target name="PATH" pattern="ReportQuery" />
+				<ns:parameter name="method" pattern="fill" />
+				<ns:parameter name="report" pattern="site.*" />
+			</ns:filteredObject>
+			<ns:grant right="get" />
+		</ns:permission>
+		<ns:permission name="P2">
+			<ns:filteredObject>
+				<ns:action />
+				<ns:target name="PATH" pattern="ReportQuery" />
+				<ns:parameter name="report" pattern="reportONE" />
+				<ns:parameter name="report" pattern="reportTWO" />
+				<ns:parameter name="report" pattern="reportTHREE" />
+			</ns:filteredObject>
+			<ns:grant right="get" />
+		</ns:permission>
+		<ns:permission name="P3">
+			<ns:filteredObject>
+				<ns:action />
+				<ns:target name="PATH" pattern="ReportQuery" />
+				<ns:parameter name="report" pattern="report.*" />
+			</ns:filteredObject>
+		</ns:permission>
+		<ns:permission name="DisplaySet">
+			<ns:filteredObject>
+				<ns:action />
+				<ns:target name=""/>
+				<ns:parameter name="menuItem" pattern="FileOpen" />
+				<ns:parameter name="menuItem" pattern="FileWrite" />
+				<ns:parameter name="menuItem" pattern="FileDelete" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="revokeAll">
+			<ns:filteredObject>
+				<ns:target name=".*" />
+			</ns:filteredObject>
+			<ns:revoke right="all" />
+		</ns:permission>
+		<ns:permission name="grantAll">
+			<ns:filteredObject>
+				<ns:target name=".*" />
+			</ns:filteredObject>
+			<ns:grant right="all" />
+		</ns:permission>
+	</ns:permissions>
+	<ns:permissions id="USER"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permission name="default">
+			<ns:filteredObject>
+				<ns:target name=".*" />
+			</ns:filteredObject>
+			<ns:revoke right="all" />
+		</ns:permission>
+		<ns:permission name="viewReport">
+			<ns:filteredObject>
+				<ns:target name="PATH" pattern="ReportQuery" />
+			</ns:filteredObject>
+			<ns:grant right="get" />
+		</ns:permission>
+		<ns:permission name="hello">
+			<ns:filteredObject>
+				<ns:target name="PATH" pattern="Hello" />
+			</ns:filteredObject>
+			<ns:grant right="publish" />
+			<ns:grant right="subscribe" />
+			<ns:grant right="unSubscribe" />
+			<ns:grant right="disconnect" />
+			<ns:revoke right="erase" />
+		</ns:permission>
+		<ns:permission name="VEHR">
+			<ns:filteredObject>
+				<ns:target name="PATH" pattern="vehr" />
+			</ns:filteredObject>
+			<ns:grant right="disconnect" />
+		</ns:permission>
+		<ns:permission name="VEHR_POLICY">
+			<ns:filteredObject>
+				<ns:target name="PATH" pattern="vehr/policy" />
+			</ns:filteredObject>
+			<ns:grant right="get" />
+			<ns:grant right="view" />
+			<ns:grant right="change" />
+			<ns:grant right="exist" />
+			<ns:grant right="exist" />
+		</ns:permission>
+	</ns:permissions>
+	<ns:permissions id="CLIENT"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permission name="publish">
+			<ns:filteredObject>
+				<ns:action>publish</ns:action>
+			</ns:filteredObject>
+			<ns:grant right="publish" />
+		</ns:permission>
+		<ns:permission name="connect">
+			<ns:filteredObject>
+				<ns:action>connect</ns:action>
+			</ns:filteredObject>
+			<ns:grant right="connect" />
+		</ns:permission>
+		<ns:permission name="disconnect">
+			<ns:filteredObject>
+				<ns:action>disconnect</ns:action>
+			</ns:filteredObject>
+			<ns:grant right="disconnect" />
+		</ns:permission>
+		<ns:permission name="erase">
+			<ns:filteredObject>
+				<ns:action>erase</ns:action>
+			</ns:filteredObject>
+			<ns:grant right="erase" />
+		</ns:permission>
+		<ns:permission name="subscribe">
+			<ns:filteredObject>
+				<ns:action>subscribe</ns:action>
+			</ns:filteredObject>
+			<ns:grant right="unSubscribe" />
+		</ns:permission>
+		<ns:permission name="get">
+			<ns:filteredObject>
+				<ns:action>get</ns:action>
+			</ns:filteredObject>
+			<ns:grant right="get" />
+		</ns:permission>
+	</ns:permissions>
+	<ns:permissions id="CLIENT_SHORT"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permission name="mom_comms">
+			<ns:filteredObject>
+				<ns:target name="PATH" pattern=".*" />
+			</ns:filteredObject>
+			<ns:grant right="connect" />
+			<ns:grant right="disconnect" />
+			<ns:grant right="get" />
+		</ns:permission>
+		<ns:permission name="VEHR_POLICY">
+			<ns:filteredObject>
+				<ns:target name="PATH" pattern="vehr/policy" />
+			</ns:filteredObject>
+			<ns:grant right="get" />
+			<ns:grant right="view" />
+			<ns:grant right="change" />
+			<ns:grant right="exist" />
+			<ns:grant right="extend" />
+			<ns:grant right="delete" />
+			<ns:grant right="execute" />
+		</ns:permission>
+		<ns:permission name="DUMMY">
+			<ns:filteredObject>
+				<ns:target name="PATH" pattern="dummy.*" />
+			</ns:filteredObject>
+			<ns:grant right="get" />
+			<ns:grant right="post" />
+			<ns:grant right="view" />
+			<ns:grant right="change" />
+			<ns:grant right="exist" />
+			<ns:grant right="extend" />
+			<ns:grant right="delete" />
+			<ns:grant right="execute" />
+		</ns:permission>
+		<ns:permission name="Calendar">
+			<ns:filteredObject>
+				<ns:target name="PATH" pattern="calendar.*" />
+			</ns:filteredObject>
+			<ns:grant right="get" />
+			<ns:grant right="post" />
+			<ns:grant right="view" />
+			<ns:grant right="change" />
+			<ns:grant right="exist" />
+			<ns:grant right="extend" />
+			<ns:grant right="delete" />
+			<ns:grant right="execute" />
+		</ns:permission>
+	</ns:permissions>
+	<ns:permissions id="CLIENT_GUI_SHORT"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permission name="menuItems">
+			<ns:filteredObject>
+				<ns:target name="menuItem"
+					pattern="Login|Map|Calls|Contacts|Residents|Reports|Admin|Settings" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="panels">
+			<ns:filteredObject>
+				<ns:target name="panel" pattern="PendingCalls" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="buttons">
+			<ns:filteredObject>
+				<ns:target name="button" pattern="SendNow|SendLater" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="items">
+			<ns:filteredObject>
+				<ns:target name="item" pattern="Keyboard|PresetMessages|CustomMessages" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+	</ns:permissions>
+	<ns:permissions id="CLIENT_GUI"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permission name="login">
+			<ns:filteredObject>
+				<ns:target name="menuItem" pattern="Login" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="map">
+			<ns:filteredObject>
+				<ns:target name="menuItem" pattern="Map" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="calls">
+			<ns:filteredObject>
+				<ns:target name="menuItem" pattern="Calls" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="contacts">
+			<ns:filteredObject>
+				<ns:target name="menuItem" pattern="Contacts" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="residents">
+			<ns:filteredObject>
+				<ns:target name="menuItem" pattern="Residents" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="reports">
+			<ns:filteredObject>
+				<ns:target name="menuItem" pattern="Reports" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="admin">
+			<ns:filteredObject>
+				<ns:target name="menuItem" pattern="Admin" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="settings">
+			<ns:filteredObject>
+				<ns:target name="menuItem" pattern="Settings" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="pendingCalls">
+			<ns:filteredObject>
+				<ns:target name="panel" pattern="PendingCalls" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="sendNow">
+			<ns:filteredObject>
+				<ns:target name="button" pattern="SendNow" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="sendLater">
+			<ns:filteredObject>
+				<ns:target name="button" pattern="SendLater" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="keyboard">
+			<ns:filteredObject>
+				<ns:target name="item" pattern="Keyboard" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="presetMessages">
+			<ns:filteredObject>
+				<ns:target name="item" pattern="PresetMessages" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+		<ns:permission name="customMessages">
+			<ns:filteredObject>
+				<ns:target name="item" pattern="CustomMessages" />
+			</ns:filteredObject>
+			<ns:grant right="view" />
+		</ns:permission>
+	</ns:permissions>
+	<ns:permissions id="SYSTEM_PLUGIN"
+		xmlns:ns="http://ehrserver.ethercis.com/policy/1.0">
+		<ns:permission name="default">
+			<ns:filteredObject>
+				<ns:target name=".*" />
+			</ns:filteredObject>
+			<ns:grant right="all" />
+		</ns:permission>
+	</ns:permissions>
+</policy>

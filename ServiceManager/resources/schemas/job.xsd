@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://ehrserver.ethercis.com/jobs/1.0"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:si="http://ehrserver.ethercis.com/definitions/1.0"
+    xmlns:cns="http://ehrserver.ethercis.com/jobs/1.0" elementFormDefault="qualified" version="1.0">
+    <xs:import namespace="http://ehrserver.ethercis.com/definitions/1.0" schemaLocation="definitions.xsd"/>
+    <xs:complexType name="FixedDate">
+        <xs:sequence>
+            <xs:element name="date" type="xs:dateTime"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="DateDef">
+        <xs:sequence/>
+        <xs:attribute name="field" type="xs:anySimpleType"/>
+        <xs:attribute name="value" type="xs:anySimpleType"/>
+    </xs:complexType>
+    <xs:complexType name="RecurentDate">
+        <xs:sequence>
+            <xs:element name="date" type="cns:DateDef" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ActionMap">
+        <xs:sequence>
+            <xs:element name="call" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Parameter">
+        <xs:attribute name="key" type="xs:string" use="required"/>
+        <xs:attribute name="value" type="xs:anySimpleType" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="Datasource">
+        <xs:sequence>
+            <xs:element name="document" type="xs:string"/>
+            <xs:element name="className" type="xs:string"/>
+            <xs:element name="select" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="Field">
+        <xs:sequence>
+            <xs:element name="source" type="xs:string"/>
+            <xs:element name="path" type="xs:string"/>
+            <xs:element name="className" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="Action">
+        <xs:sequence>
+            <!-- handler specify the service where the invocation is to take place -->
+            <xs:element name="service" type="xs:string"/>
+            <!-- optionally a method to access the actual handler can be specified (a getter for example) -->
+            <xs:element name="handler" type="xs:string" minOccurs="0"/>
+            <!-- list of parameters to be passed as a Map to the invoke handler -->
+            <xs:element name="parameter" type="cns:Parameter" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="remoteHosts" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="host" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <!-- host for remote invocation -->
+                                    <xs:element name="address" type="xs:string"/>
+                                    <!-- protocol used for remote invocation -->
+                                    <xs:element name="protocol" type="xs:string"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <!-- logon id/passwd for remote invocation -->
+            <xs:element name="logonid" type="xs:string" minOccurs="0"/>
+            <xs:element name="passwd" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="ActionRef">
+        <xs:attribute name="idref" type="xs:IDREF"/>
+    </xs:complexType>
+    <xs:complexType name="Task">
+        <xs:sequence>
+            <xs:element name="action" type="cns:Action" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="actionref" type="cns:ActionRef" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- list of parameters to be passed as a Map to the invoke handler -->
+            <xs:element name="parameter" type="cns:Parameter" minOccurs="0" maxOccurs="unbounded"/>            
+            <xs:element name="fixedDate" type="cns:FixedDate" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="recurentDate" type="cns:RecurentDate" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="weekPlan" type="si:WeekPlan" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID" use="required"/>
+        <xs:attribute name="occurs" type="xs:int" use="optional"/>
+        <xs:attribute name="completed" type="xs:int" use="optional"/>
+        <xs:attribute name="until" type="xs:dateTime" use="optional"/>
+    </xs:complexType>
+    <xs:element name="jobs">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="datasource" type="cns:Datasource" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="field" type="cns:Field" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="action" type="cns:Action" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="task" type="cns:Task" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

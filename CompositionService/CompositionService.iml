@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="ecis-core" level="project" />
+    <orderEntry type="library" name="ecis-ehrdao" level="project" />
+    <orderEntry type="library" name="ecis-knowledge-cache" level="project" />
+    <orderEntry type="module" module-name="CacheKnowledgeService" />
+    <orderEntry type="module" module-name="LogonService" />
+    <orderEntry type="module" module-name="ResourceAccessService" />
+    <orderEntry type="module" module-name="ServiceManager" />
+    <orderEntry type="library" name="log4j:log4j:1.2.17" level="application" />
+    <orderEntry type="library" name="joda-time:joda-time:2.2" level="application" />
+    <orderEntry type="library" name="commons-lang:commons-lang:2.6" level="application" />
+    <orderEntry type="library" name="commons-collections:commons-collections:3.2" level="application" />
+    <orderEntry type="library" name="gson-2.4" level="application" />
+    <orderEntry type="library" name="ecis-openehr" level="project" />
+    <orderEntry type="library" name="fst-2.40-onejar" level="application" />
+    <orderEntry type="library" name="org.apache.commons:commons-collections4:4.0" level="application" />
+    <orderEntry type="library" name="dom4j-1.6.1" level="project" />
+    <orderEntry type="module" module-name="SystemService" />
+  </component>
+</module>

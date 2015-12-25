@@ -1,0 +1,67 @@
+<!--
+# Name:     services.xml
+# Comment:   Services to load/unload on ClusterLoader startup/shutdown or with JMX (jconsole)
+# Configure: Attributes added to services are used as default settings
+#            You can activate/deactivate services with comments
+#            or with the attribute create='true' or 'false'
+-->
+<ehrserver>
+
+	<service create="false" id='DummyFileHandler' className='com.ethercis.service.filewatcher.test.DummyFileHandler'>
+		<action do='LOAD' onStartupRunlevel='9' sequence='1'
+			onFail='resource.configuration.serviceFailed' />
+		<action do='STOP' onShutdownRunlevel='8' sequence='5' />
+	</service>
+	
+	<service create="false" id='FileWatcher' className='com.ethercis.service.filewatcher.FileWatcher'>
+		<attribute id='filewatcher.directoryName'>${organization.home}/PostBox</attribute>
+		<attribute id='filewatcher.serviced'>Serviced</attribute>
+		<attribute id='filewatcher.discarded'>Discarded</attribute>
+		<attribute id='filewatcher.callback.name'>DummyFileHandler</attribute>
+		<attribute id='filewatcher.callback.version'>1.0</attribute>
+		<attribute id='filewatcher.copyOnMove'>true</attribute>
+		
+		<action do='LOAD' onStartupRunlevel='9' sequence='2'
+			onFail='resource.configuration.serviceFailed' />
+		<action do='STOP' onShutdownRunlevel='8' sequence='5' />
+	</service>
+
+	<!--=========== SYSTEM REQUIRED SERVICES ====================================-->
+	<service create="true" id='ServiceSecurityManager' className='com.ethercis.logonservice.security.ServiceSecurityManager'>
+		<action do='LOAD' onStartupRunlevel='6' sequence='1'
+			onFail='resource.configuration.serviceFailed' />
+		<action do='STOP' onShutdownRunlevel='8' sequence='5' />
+	</service>
+
+
+	<service create="true" id='DUMMY' className='com.ethercis.vehr.test.DummyService'>
+		<action do='LOAD' onStartupRunlevel='7' sequence='2'
+			onFail='resource.configuration.serviceFailed' />
+		<action do='STOP' onShutdownRunlevel='8' sequence='5' />
+	</service>
+
+	<service create="true" id='LogonService' className='com.ethercis.service.logon.LogonService'>
+		<action do='LOAD' onStartupRunlevel='7' sequence='3'
+			onFail='resource.configuration.serviceFailed' />
+		<action do='STOP' onShutdownRunlevel='8' sequence='5' />
+	</service>
+	
+	<service create="true" id='Dispatcher' className='com.ethercis.vehr.Dispatcher'>
+		<attribute id="dispatcher.map">src/test/resources/config/dispatchermap.xml</attribute>
+		<action do='LOAD' onStartupRunlevel='8' sequence='1'
+			onFail='resource.configuration.serviceFailed' />
+		<action do='STOP' onShutdownRunlevel='9' sequence='1' />
+	</service>
+
+	<service create="true" id='AEPController' className='com.ethercis.vehr.AEPController'>
+		<action do='LOAD' onStartupRunlevel='8' sequence='2'
+			onFail='resource.configuration.serviceFailed' />
+		<action do='STOP' onShutdownRunlevel='9' sequence='1' />
+	</service>
+	
+
+	<!--=============================================== -->
+	
+
+</ehrserver>
+

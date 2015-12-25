@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policy xmlns="http://ehrserver.ethercis.com/policy/1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ehrserver.ethercis.com/policy/1.0 ">
+	<rights>
+		<!-- mask="8.7.6.5.4.3.2.1." -->
+		<right name="none" mask="0000000000000000" />
+		<right name="connect" mask="0000000000000001" />
+		<right name="disconnect" mask="0000000000000002" />
+		<right name="get" mask="0000000000000004" />
+		<right name="post" mask="0000000000000008" />
+		<right name="read" mask="0000000000000010" />
+		<right name="execute" mask="0000000000000020" />
+		<right name="change" mask="0000000000000040" />
+		<right name="delete" mask="0000000000000080" />
+		<right name="extend" mask="0000000000000100" />
+		<right name="exist" mask="0000000000000200" />
+		<right name="communicate" mask="0000000000000400" />
+		<right name="query" mask="0000000000000800" />
+		<right name="ping" mask="0000000000001000" />
+		<right name="dummy" mask="0000000000002000" />
+		<right name="unknown" mask="0000000000004000" />
+		<right name="exception" mask="0000000000008000" />
+		<right name="view" mask="0000000000010000" />
+		<right name="feature" mask="0000000000020000" />
+		<right name="all" mask="FFFFFFFFFFFFFFFF" />
+	</rights>
+	<subject id="JOE">
+		<publicCredential>
+			<realName>joe doe</realName>
+			<jobTitle>tester</jobTitle>
+			<contact>
+				<location>test office</location>
+				<phone>12345</phone>
+				<mobile>67890</mobile>
+				<email>joe@test.com</email>
+			</contact>
+		</publicCredential>
+		<privateCredential>
+			<id>joe</id>
+			<password>12345</password>
+			<accessManagement>
+				<locked />
+				<disabled />
+				<lastLogin />
+				<timeout />
+				<allowedOn>
+					<Monday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="" />
+					<Tuesday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="" />
+					<Wednesday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="" />
+					<Thursday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="" />
+					<Friday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="" />
+					<Saturday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="" />
+					<Sunday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="" />
+				</allowedOn>
+			</accessManagement>
+			<passwordManagement />
+		</privateCredential>
+		<principal>USER</principal>
+	</subject>
+	<subject id="SecurityManager">
+		<publicCredential>
+			<realName>security manager</realName>
+		</publicCredential>
+		<privateCredential>
+			<id>SecurityManager</id>
+			<!-- XCareSystemPlugin -->
+			<password>yZwUfAYjtZ.xs</password>
+			<accessManagement>
+				<locked></locked>
+				<disabled></disabled>
+			</accessManagement>
+			<passwordManagement></passwordManagement>
+		</privateCredential>
+		<principal>SYSTEM</principal>
+	</subject>
+	<subject id="testUserLocked">
+		<publicCredential>
+			<realName></realName>
+		</publicCredential>
+		<privateCredential>
+			<id>locked</id>
+			<!-- password: 'password' -->
+			<password>yZEPH6exqDoqk</password>
+			<accessManagement>
+				<locked>true</locked>
+				<disabled>false</disabled>
+			</accessManagement>
+			<passwordManagement></passwordManagement>
+		</privateCredential>
+		<principal></principal>
+	</subject>
+	<subject id="testUserDisabled">
+		<publicCredential>
+			<realName></realName>
+		</publicCredential>
+		<privateCredential>
+			<id>disabled</id>
+			<!-- password: 'password' -->
+			<password>yZEPH6exqDoqk</password>
+			<accessManagement>
+				<locked>false</locked>
+				<disabled>true</disabled>
+			</accessManagement>
+			<passwordManagement></passwordManagement>
+		</privateCredential>
+		<principal></principal>
+	</subject>
+	<subject id="testUserTimeOfDay">
+		<publicCredential>
+			<realName></realName>
+		</publicCredential>
+		<privateCredential>
+			<id>notToday</id>
+			<!-- password: 'password' -->
+			<password>yZEPH6exqDoqk</password>
+			<accessManagement>
+				<locked>false</locked>
+				<disabled>false</disabled>
+				<allowedOn>
+					<Monday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="false" />
+					<Tuesday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="false" />
+					<Wednesday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="false" />
+					<Thursday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="false" />
+					<Friday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="false" />
+					<Saturday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="false" />
+					<Sunday xmlns="http://ehrserver.ethercis.com/definitions/1.0" stat="false" />
+				</allowedOn>
+			</accessManagement>
+			<passwordManagement></passwordManagement>
+		</privateCredential>
+		<principal></principal>
+	</subject>
+	<subject id="testUserTimeout">
+		<publicCredential>
+			<realName></realName>
+		</publicCredential>
+		<privateCredential>
+			<id>timeout</id>
+			<!-- password: 'password' -->
+			<password>yZEPH6exqDoqk</password>
+			<accessManagement>
+				<locked>false</locked>
+				<disabled>false</disabled>
+				<!-- 1 millisec to make sure we trigger an inactivity timeout -->
+				<timeout>1</timeout>
+			</accessManagement>
+			<passwordManagement></passwordManagement>
+		</privateCredential>
+		<principal></principal>
+	</subject>
+	<subject id="testUser2">
+		<publicCredential>
+			<realName></realName>
+		</publicCredential>
+		<privateCredential>
+			<id>test2</id>
+			<!-- empty password -->
+			<password />
+			<accessManagement>
+				<locked></locked>
+				<disabled></disabled>
+			</accessManagement>
+			<passwordManagement></passwordManagement>
+		</privateCredential>
+		<principal>SYSTEM</principal>
+	</subject>
+	<subject id="license">
+		<publicCredential>
+			<realName></realName>
+		</publicCredential>
+		<privateCredential>
+			<id>LicenseManager</id>
+			<!-- empty password -->
+			<password />
+			<accessManagement>
+				<locked></locked>
+				<disabled></disabled>
+			</accessManagement>
+			<passwordManagement></passwordManagement>
+		</privateCredential>
+		<principal>SYSTEM</principal>
+	</subject>
+	<subject id="dummy">
+		<publicCredential>
+			<realName></realName>
+		</publicCredential>
+		<privateCredential>
+			<id>DummyPlugin</id>
+			<!-- empty password -->
+			<password />
+			<accessManagement>
+				<locked></locked>
+				<disabled></disabled>
+			</accessManagement>
+			<passwordManagement></passwordManagement>
+		</privateCredential>
+		<principal>SYSTEM</principal>
+	</subject>
+	<subject id="testClient">
+		<publicCredential>
+			<realName></realName>
+		</publicCredential>
+		<privateCredential>
+			<id>xcare</id>
+			<!-- empty password -->
+			<password />
+			<accessManagement>
+				<locked></locked>
+				<disabled></disabled>
+			</accessManagement>
+			<passwordManagement></passwordManagement>
+		</privateCredential>
+		<principal>CLIENT</principal>
+	</subject>
+	<principal id="PRINCIPAL">
+		<permissionsRef ref="P1" />
+		<permissionsRef ref="P2" />
+		<permissionsRef ref="P3" />
+	</principal>
+	<principal id="SYSTEM">
+		<permissionsRef ref="SYSTEM_PLUGIN" />
+	</principal>
+	<principal id="GUEST">
+		<permissionsRef ref="revokeAll" />
+	</principal>
+	<principal id="SUPERUSER">
+		<permissionsRef ref="grantAll" />
+	</principal>
+	<principal id="USER">
+		<permissionsRef ref="USER" />
+	</principal>
+	<principal id="CLIENT">
+		<permissionsRef ref="XCARE_CLIENT_GUI_SHORT" />
+		<permissionsRef ref="XCARE_CLIENT_SHORT" />
+	</principal>
+	<permissions id="TEST_PERMISSIONS">
+		<permission name="P1">
+			<filteredObject>
+				<action />
+				<target name="PATH" pattern="ReportQuery" />
+				<parameter name="method" pattern="fill" />
+				<parameter name="report" pattern="site.*" />
+			</filteredObject>
+			<grant right="get" />
+		</permission>
+		<permission name="P2">
+			<filteredObject>
+				<action />
+				<target name="PATH" pattern="ReportQuery" />
+				<parameter name="report" pattern="reportONE" />
+				<parameter name="report" pattern="reportTWO" />
+				<parameter name="report" pattern="reportTHREE" />
+			</filteredObject>
+			<grant right="get" />
+		</permission>
+		<permission name="P3">
+			<filteredObject>
+				<action />
+				<target name="PATH" pattern="ReportQuery" />
+				<parameter name="report" pattern="report.*" />
+			</filteredObject>
+		</permission>
+		<permission name="P4">
+			<filteredObject>
+				<action>GET</action>
+				<target name="PATH" pattern="GetQuery" />
+				<parameter name="report" pattern="report.*" />
+			</filteredObject>
+		</permission>
+		<permission name="DisplaySet">
+			<filteredObject>
+				<action />
+				<target />
+				<parameter name="menuItem" pattern="FileOpen" />
+				<parameter name="menuItem" pattern="FileWrite" />
+				<parameter name="menuItem" pattern="FileDelete" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="revokeAll">
+			<filteredObject>
+				<target name=".*" />
+			</filteredObject>
+			<revoke right="all" />
+		</permission>
+		<permission name="grantAll">
+			<filteredObject>
+				<target name=".*" />
+			</filteredObject>
+			<grant right="all" />
+		</permission>
+	</permissions>
+	<permissions id="USER">
+		<permission name="default">
+			<filteredObject>
+				<target name=".*" />
+			</filteredObject>
+			<revoke right="all" />
+		</permission>
+		<permission name="viewReport">
+			<filteredObject>
+				<target name="PATH" pattern="ReportQuery" />
+			</filteredObject>
+			<grant right="get" />
+		</permission>
+		<permission name="hello">
+			<filteredObject>
+				<target name="PATH" pattern="Hello" />
+			</filteredObject>
+			<grant right="publish" />
+			<grant right="subscribe" />
+			<grant right="unSubscribe" />
+			<grant right="disconnect" />
+			<revoke right="erase" />
+		</permission>
+	</permissions>
+	<permissions id="XCARE_CLIENT">
+		<permission name="publish">
+			<filteredObject>
+				<action>publish</action>
+			</filteredObject>
+			<grant right="publish" />
+		</permission>
+		<permission name="connect">
+			<filteredObject>
+				<action>connect</action>
+			</filteredObject>
+			<grant right="connect" />
+		</permission>
+		<permission name="disconnect">
+			<filteredObject>
+				<action>disconnect</action>
+			</filteredObject>
+			<grant right="disconnect" />
+		</permission>
+		<permission name="erase">
+			<filteredObject>
+				<action>erase</action>
+			</filteredObject>
+			<grant right="erase" />
+		</permission>
+		<permission name="subscribe">
+			<filteredObject>
+				<action>subscribe</action>
+			</filteredObject>
+			<grant right="sunscribe" />
+		</permission>
+		<permission name="get">
+			<filteredObject>
+				<action>get</action>
+			</filteredObject>
+			<grant right="get" />
+		</permission>
+	</permissions>
+	<permissions id="XCARE_CLIENT_SHORT">
+		<permission name="mom_comms">
+			<filteredObject>
+				<target name="OID" pattern=".*" />
+			</filteredObject>
+			<grant right="publish" />
+			<grant right="connect" />
+			<grant right="disconnect" />
+			<grant right="erase" />
+			<grant right="subscribe" />
+			<grant right="get" />
+		</permission>
+	</permissions>
+	<permissions id="XCARE_CLIENT_GUI_SHORT">
+		<permission name="menuItems">
+			<filteredObject>
+				<target name="menuItem"
+					pattern="Login|Map|Calls|Contacts|Residents|Reports|Admin|Settings" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="panels">
+			<filteredObject>
+				<target name="panel" pattern="PendingCalls" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="buttons">
+			<filteredObject>
+				<target name="button" pattern="SendNow|SendLater" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="items">
+			<filteredObject>
+				<target name="item" pattern="Keyboard|PresetMessages|CustomMessages" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+	</permissions>
+	<permissions id="XCARE_CLIENT_GUI">
+		<permission name="login">
+			<filteredObject>
+				<target name="menuItem" pattern="Login" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="map">
+			<filteredObject>
+				<target name="menuItem" pattern="Map" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="calls">
+			<filteredObject>
+				<target name="menuItem" pattern="Calls" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="contacts">
+			<filteredObject>
+				<target name="menuItem" pattern="Contacts" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="residents">
+			<filteredObject>
+				<target name="menuItem" pattern="Residents" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="reports">
+			<filteredObject>
+				<target name="menuItem" pattern="Reports" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="admin">
+			<filteredObject>
+				<target name="menuItem" pattern="Admin" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="settings">
+			<filteredObject>
+				<target name="menuItem" pattern="Settings" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="pendingCalls">
+			<filteredObject>
+				<target name="panel" pattern="PendingCalls" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="sendNow">
+			<filteredObject>
+				<target name="button" pattern="SendNow" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="sendLater">
+			<filteredObject>
+				<target name="button" pattern="SendLater" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="keyboard">
+			<filteredObject>
+				<target name="item" pattern="Keyboard" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="presetMessages">
+			<filteredObject>
+				<target name="item" pattern="PresetMessages" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+		<permission name="customMessages">
+			<filteredObject>
+				<target name="item" pattern="CustomMessages" />
+			</filteredObject>
+			<grant right="view" />
+		</permission>
+	</permissions>
+	<permissions id="SYSTEM_PLUGIN">
+		<permission name="default">
+			<filteredObject>
+				<target name=".*" />
+			</filteredObject>
+			<grant right="all" />
+		</permission>
+	</permissions>
+</policy>
