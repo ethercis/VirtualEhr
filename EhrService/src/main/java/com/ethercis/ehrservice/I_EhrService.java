@@ -31,6 +31,8 @@ public interface I_EhrService {
 
     UUID create(UUID partyId, UUID systemId) throws Exception;
 
+    UUID create(UUID partyId, UUID systemId, String otherDetailsXml, String templateId) throws Exception;
+
     UUID retrieve(String subjectId, String nameSpace);
 
     Integer delete(UUID ehrId) throws Exception;

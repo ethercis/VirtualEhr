@@ -81,8 +81,84 @@ public class EhrHttpServerTest extends TestServerSimulator {
         }
     }
 
-//    @Test
-    public void _testCreateEhr() throws Exception {
+    //other_details
+    String other_details =
+            "<items xmlns=\"http://schemas.openehr.org/v1\" " +
+            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+            "archetype_node_id=\"openEHR-EHR-ITEM_TREE.person_anonymised_parents.v0\">\n" +
+            "    <name>\n" +
+            "        <value>Person anonymised parents</value>\n" +
+            "    </name>\n" +
+            "    <items xmlns:v1=\"http://schemas.openehr.org/v1\" archetype_node_id=\"at0001\" xsi:type=\"v1:CLUSTER\">\n" +
+            "        <name>\n" +
+            "            <value>person</value>\n" +
+            "        </name>\n" +
+            "        <items archetype_node_id=\"openEHR-EHR-CLUSTER.person_anoymised_parent.v0\" xsi:type=\"v1:CLUSTER\">\n" +
+            "            <name>\n" +
+            "                <value>Person anonymised parent</value>\n" +
+            "            </name>\n" +
+            "            <archetype_details>\n" +
+            "                <archetype_id>\n" +
+            "                    <value>openEHR-EHR-CLUSTER.person_anoymised_parent.v0</value>\n" +
+            "                </archetype_id>\n" +
+            "                <rm_version>1.0.1</rm_version>\n" +
+            "            </archetype_details>\n" +
+            "            <items archetype_node_id=\"at0002\" xsi:type=\"v1:ELEMENT\">\n" +
+            "                <name>\n" +
+            "                    <value>Administrative Gender</value>\n" +
+            "                </name>\n" +
+            "                <value xsi:type=\"v1:DV_CODED_TEXT\">\n" +
+            "                    <value>Male</value>\n" +
+            "                    <defining_code>\n" +
+            "                        <terminology_id>\n" +
+            "                            <value>local</value>\n" +
+            "                        </terminology_id>\n" +
+            "                        <code_string>at0003</code_string>\n" +
+            "                    </defining_code>\n" +
+            "                </value>\n" +
+            "            </items>\n" +
+            "            <items archetype_node_id=\"at0006\" xsi:type=\"v1:ELEMENT\">\n" +
+            "                <name>\n" +
+            "                    <value>Birth Sex</value>\n" +
+            "                </name>\n" +
+            "                <value xsi:type=\"v1:DV_CODED_TEXT\">\n" +
+            "                    <value>Male</value>\n" +
+            "                    <defining_code>\n" +
+            "                        <terminology_id>\n" +
+            "                            <value>local</value>\n" +
+            "                        </terminology_id>\n" +
+            "                        <code_string>at0007</code_string>\n" +
+            "                    </defining_code>\n" +
+            "                </value>\n" +
+            "            </items>\n" +
+            "            <items archetype_node_id=\"at0009\" xsi:type=\"v1:ELEMENT\">\n" +
+            "                <name>\n" +
+            "                    <value>Vital Status</value>\n" +
+            "                </name>\n" +
+            "                <value xsi:type=\"v1:DV_CODED_TEXT\">\n" +
+            "                    <value>OK</value>\n" +
+            "                    <defining_code>\n" +
+            "                        <terminology_id>\n" +
+            "                            <value>local</value>\n" +
+            "                        </terminology_id>\n" +
+            "                        <code_string>at0010</code_string>\n" +
+            "                    </defining_code>\n" +
+            "                </value>\n" +
+            "            </items>\n" +
+            "            <items archetype_node_id=\"at0012\" xsi:type=\"v1:ELEMENT\">\n" +
+            "                <name>\n" +
+            "                    <value>Birth Year</value>\n" +
+            "                </name>\n" +
+            "                <value xsi:type=\"v1:DV_DATE\">\n" +
+            "                    <value>2013-01-01</value>\n" +
+            "                </value>\n" +
+            "            </items>\n" +
+            "        </items>\n" +
+            "    </items>\n" +
+            "</items>";
+
+    @Test
+    public void testCreateEhr() throws Exception {
         String userId = "guest";
         String password = "guest";
         timings.clear();
@@ -96,8 +172,17 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertNotNull(response);
 
         //create a new EHR
-        String sessionId = response.getContentAsString().replaceAll("\\r\\n", "");
+        String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
         Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+
+        //pass other_details in body
+        Map<String, String> otherDetailsMap = new HashMap(){{
+            put("otherDetails", other_details);
+            put("otherDetailsTemplateId", "person anonymised parent");
+        }};
+        String otherDetailsMapAsString = json.toJson(otherDetailsMap, Map.class);
+        request.content(new BytesContentProvider(otherDetailsMapAsString.getBytes()));
+
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
 
