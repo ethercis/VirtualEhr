@@ -166,7 +166,8 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             put("queryable", ehrAccess.isQueryable());
             put("modifiable", ehrAccess.isModifiable());
             if (ehrAccess.isSetOtherDetails()){
-                put("other_details", "<![CDATA["+ehrAccess.exportOtherDetailsXml()+"]]>");
+                put("otherDetails", "<![CDATA["+ehrAccess.exportOtherDetailsXml()+"]]>");
+                put("otherDetailsTemplateId", ehrAccess.getOtherDetailsTemplateId());
             }
             put("systemSettings", systemAccess.getSettings());
             put("systemDescription", systemAccess.getDescription());
