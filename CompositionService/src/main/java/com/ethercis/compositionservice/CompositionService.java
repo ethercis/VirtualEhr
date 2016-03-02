@@ -18,12 +18,15 @@
 package com.ethercis.compositionservice;
 
 import com.ethercis.compositionservice.handler.CanonicalHandler;
+import com.ethercis.compositionservice.handler.FlatJsonHandler;
 import com.ethercis.dao.access.handler.PvCompoHandler;
 import com.ethercis.dao.access.interfaces.*;
 import com.ethercis.ehr.building.I_ContentBuilder;
 import com.ethercis.ehr.json.FlatJsonUtil;
 import com.ethercis.ehr.keyvalues.EcisFlattener;
 import com.ethercis.ehr.knowledge.I_CacheKnowledgeService;
+import com.ethercis.ehr.util.FlatJsonCompositionConverter;
+import com.ethercis.ehr.util.I_FlatJsonCompositionConverter;
 import com.ethercis.logonservice.session.I_SessionManager;
 import com.ethercis.persistence.ServiceDataCluster;
 import com.ethercis.servicemanager.annotation.*;
@@ -180,6 +183,24 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 retmap.putAll(metaref);
                 return retmap;
 
+            case FLAT:
+                I_FlatJsonCompositionConverter flatJsonCompositionConverter = FlatJsonCompositionConverter.getInstance(getDataAccess().getKnowledgeManager());
+                Map flatMap = FlatJsonUtil.inputStream2Map(new StringReader(new String(content.getBytes())));
+                Composition newComposition = flatJsonCompositionConverter.toComposition(templateId, flatMap);
+                I_CompositionAccess access = I_CompositionAccess.getNewInstance(getDataAccess(), newComposition, DateTime.now(), ehrId);
+                I_EntryAccess entry= I_EntryAccess.getNewInstance(getDataAccess(), templateId, 0, access.getId(), newComposition);
+                access.addContent(entry);
+                compositionId = access.commit(committerUuid, systemUuid, auditSetter.getDescription());
+                //create json response
+                global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
+                retmap = new HashMap<>();
+                retmap.put("action", "CREATE");
+                retmap.put(COMPOSITION_UID, encodeUuid(compositionId,1));
+                metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, compositionId, 1, null));
+                retmap.putAll(metaref);
+                return retmap;
+
+
             default:
                 throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "This format is not supported:"+format);
         }
@@ -257,6 +278,19 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                     retmap.putAll(metaref);
                     retObj =  retmap;
                     break;
+
+                case FLAT:
+                    I_FlatJsonCompositionConverter flatJsonCompositionConverter = FlatJsonCompositionConverter.getInstance(getDataAccess().getKnowledgeManager());
+                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
+                    retmap = new HashMap<>();
+                    retmap.put("format", CompositionFormat.FLAT.toString());
+                    retmap.put("templateId", entryAccess.getTemplateId());
+                    retmap.put("composition", flatJsonCompositionConverter.fromComposition(entryAccess.getTemplateId(), entryAccess.getComposition()));
+                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, uid, 1, null));
+                    retmap.putAll(metaref);
+                    retObj =  retmap;
+                    break;
+
                 default:
                     throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Unsupported format:"+format);
             }
@@ -296,6 +330,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 CanonicalHandler canonicalHandler = new CanonicalHandler(knowledgeCache.getKnowledgeCache(), templateId, null);
                 result = canonicalHandler.update(getGlobal(), getDataAccess(), compositionId, content, auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
                 break;
+
             case ECISFLAT:
                 I_CompositionAccess compositionAccess = I_CompositionAccess.retrieveInstance(getDataAccess(), compositionId);
                 if (compositionAccess == null)
@@ -312,6 +347,17 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 }
                 result = pvCompoHandler.updateComposition(kvPairs, auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
                 break;
+
+            case FLAT:
+                compositionAccess = I_CompositionAccess.retrieveInstance(getDataAccess(), compositionId);
+                if (compositionAccess == null)
+                    throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Could not find composition:"+compositionId);
+
+                //get the template id
+                FlatJsonHandler flatJsonHandler = new FlatJsonHandler(getDataAccess(), compositionAccess, null, null);
+                result = flatJsonHandler.update(global, getDataAccess(), compositionId, new String(content.getBytes()), auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
+                break;
+
             default:
                 throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "This format is not supported:"+format);
         }

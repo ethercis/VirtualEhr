@@ -30,7 +30,7 @@ import java.util.UUID;
 public abstract class QueryBodyHandler implements I_QueryBodyHandler  {
 
     protected final I_KnowledgeCache knowledgeCache;
-    protected final String templateId;
+    protected String templateId;
 
     protected QueryBodyHandler(I_KnowledgeCache cache, String templateId){
         this.knowledgeCache = cache;

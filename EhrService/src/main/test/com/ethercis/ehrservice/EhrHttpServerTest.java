@@ -18,10 +18,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -372,6 +369,14 @@ public class EhrHttpServerTest extends TestServerSimulator {
         response = stopWatchRequestSend(requestTemplateService);
         assertNotNull(response);
 
+        //get an example
+        requestTemplateService = client.newRequest("http://"+hostname+":8080/rest/v1/template/prescription/example");
+        requestTemplateService.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        requestTemplateService.method(HttpMethod.GET);
+        requestTemplateService.content(new BytesContentProvider(content), "text/xml;charset=UTF-8");
+        response = stopWatchRequestSend(requestTemplateService);
+        assertNotNull(response);
+
         //create ehr
 
         Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
@@ -597,6 +602,145 @@ public class EhrHttpServerTest extends TestServerSimulator {
         request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?uid=" + compositionId+"&format=ECISFLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
+        response = stopWatchRequestSend(request);
+        assertNotNull(response);
+        //output the content
+        System.out.println(response.getContentAsString());
+
+
+        //house keeping
+        request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?ehrId=" + ehrId);
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.method(HttpMethod.DELETE);
+        response = stopWatchRequestSend(request);
+
+        request = client.newRequest("http://" + hostname + ":8080/rest/v1/session");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.method(HttpMethod.DELETE);
+        response = stopWatchRequestSend(request);
+        assertEquals(200, response.getStatus());
+
+        dumpTimings();
+    }
+
+    private BytesContentProvider jsonContentFromTestFile(String file) throws Exception {
+        File flatjsonFile = new File(file);
+        InputStream is = new FileInputStream(flatjsonFile);
+        byte[] jsonContent = new byte[(int)flatjsonFile.length()];
+        int i = is.read(jsonContent);
+        return new BytesContentProvider(jsonContent);
+    }
+
+    String[] testFlatJsonFile = {
+        "RIPPLE_conformanceTesting_RAW_FLATJSON",
+        "IDCR-LabReportRAW1_FLATJSON",
+        "Vital_signs_TEST_FLATJSON",
+        "IDCR Problem List.v1_FLATJSON",
+        "IDCR Procedures List_1 RAW_FLATJSON",
+        "IDCR Lab Order RAW1_FLATJSON"
+    };
+
+    String[] testTemplateId = {
+        "RIPPLE - Conformance Test template",
+        "IDCR - Laboratory Test Report.v0",
+        "Vital Signs Encounter (Composition)",
+        "IDCR Problem List.v1",
+        "IDCR Procedures List.v0",
+        "IDCR - Laboratory Test Report.v0"
+    };
+
+    @Test
+    public void testCompositionHandlingFlatJson() throws Exception {
+        int t = 0;
+        String testFile = testFlatJsonFile[t];
+        String testTemplate = testTemplateId[t];
+
+        String userId = "guest";
+        String password = "guest";
+
+        timings.clear();
+
+        ContentResponse response;
+
+        //login first!
+        response = client.POST("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+
+        //create ehr
+        String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
+
+        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.method(HttpMethod.POST);
+        response = stopWatchRequestSend(request);
+        UUID ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
+
+        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/"+ehrId);
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.header("Origin", "http://localhost:1234");
+        request.method(HttpMethod.GET);
+        response = stopWatchRequestSend(request);
+
+        assertNotNull(response);
+        ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
+
+        File flatjsonFile = new File("/Development/Dropbox/eCIS_Development/samples/"+testFile+".json");
+        InputStream is = new FileInputStream(flatjsonFile);
+        request = client.newRequest("http://" + hostname + ":8080/rest/v1/composition?format=FLAT&templateId=" + testTemplate.replaceAll(" ", "%20"));
+        request.header("Content-Type", "application/json");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.method(HttpMethod.POST);
+        byte[] jsonContent = new byte[(int)flatjsonFile.length()];
+        int i = is.read(jsonContent);
+        request.content(new BytesContentProvider(jsonContent), "application/json");
+        response = stopWatchRequestSend(request);
+        assertNotNull(response);
+        String compositionId = decodeBodyResponse(response).get("compositionUid");
+
+        //retrieve this composition under two formats...
+        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.header("Accept", "application/json");
+        request.method(HttpMethod.GET);
+        response = stopWatchRequestSend(request);
+        assertNotNull(response);
+        //output the content
+        System.out.println(response.getContentAsString());
+
+        //get an example
+        request = client.newRequest("http://"+hostname+":8080/rest/v1/template/prescription/example?format=FLAT");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.method(HttpMethod.GET);
+        response = stopWatchRequestSend(request);
+        assertNotNull(response);
+
+//        //update composition
+//        BytesContentProvider bytesContentProvider = jsonContentFromTestFile("/Development/Dropbox/eCIS_Development/samples/IDCR Lab Order RAW1_FLATJSON_UPDATE.json");
+//        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
+//        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+//        request.header("Content-Type", "application/json");
+//        request.content(bytesContentProvider, "application/json");
+//        request.method(HttpMethod.PUT);
+//        response = stopWatchRequestSend(request);
+//        assertNotNull(response);
+//        //output the content
+//        System.out.println(response.getContentAsString());
+//
+//
+//        //retrieve this composition under two formats...
+//        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
+//        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+//        request.header("Accept", "application/json");
+//        request.method(HttpMethod.GET);
+//        response = stopWatchRequestSend(request);
+//        assertNotNull(response);
+//        //output the content
+//        System.out.println(response.getContentAsString());
+
+        //delete composition
+        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/" + compositionId+"?format=RAW");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.header("Accept", "application/xml");
+        request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
         assertNotNull(response);
         //output the content

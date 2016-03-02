@@ -191,12 +191,22 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
     public Object retrieveStatus(I_SessionClientProperties props) throws Exception {
         auditSetter.handleProperties(getDataAccess(), props);
         UUID ehrUuid;
-        try {
-            ehrUuid = UUID.fromString(props.getClientProperty(I_EhrService.EHRID_PARAMETER, (String) null));
+//        try {
+        String ehrId = props.getClientProperty(I_EhrService.EHRID_PARAMETER, (String) null);
+        if (ehrId != null) {
+            ehrUuid = UUID.fromString(ehrId);
         }
-        catch (Exception e){
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Invalid ehrId:'"+props.getClientProperty(I_EhrService.EHRID_PARAMETER, (String) null)+"'");
+//        }
+//        catch (Exception e){
+//            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Invalid ehrId:'"+props.getClientProperty(I_EhrService.EHRID_PARAMETER, (String) null)+"'");
+//        }
+
+        else {
+            //assume retrieve ehr with subjectId and subjectNameSpace
+            return retrieve(props);
         }
+
+
         String sessionId = auditSetter.getSessionId();
 
         if (ehrUuid == null)

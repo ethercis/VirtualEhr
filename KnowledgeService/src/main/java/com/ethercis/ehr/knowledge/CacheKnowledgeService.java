@@ -17,6 +17,18 @@
 //Copyright
 package com.ethercis.ehr.knowledge;
 
+import com.ethercis.ehr.json.FlatJsonUtil;
+import com.ethercis.ehr.json.JsonUtil;
+import com.ethercis.ehr.util.FlatJsonCompositionConverter;
+import com.ethercis.ehr.util.I_FlatJsonCompositionConverter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.openehr.rm.common.generic.PartyIdentified;
+import com.ethercis.ehr.building.I_ContentBuilder;
+import com.ethercis.ehr.building.util.CompositionAttributesHelper;
+import com.ethercis.ehr.building.util.ContextHelper;
+import com.ethercis.ehr.encode.CompositionSerializer;
+import com.ethercis.ehr.keyvalues.EcisFlattener;
 import com.ethercis.logonservice.session.I_SessionManager;
 import com.ethercis.servicemanager.annotation.*;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
@@ -31,10 +43,17 @@ import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import org.apache.log4j.Logger;
+import org.openehr.rm.common.archetyped.Locatable;
+import org.openehr.rm.composition.Composition;
+import org.openehr.rm.composition.EventContext;
+import org.openehr.rm.support.identification.ObjectVersionID;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import static com.ethercis.ehr.building.util.CompositionAttributesHelper.createComposer;
 
 /**
  * Cache Knowledge Service class
@@ -131,6 +150,91 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
         } catch (IOException e) {
             throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "Could not generate templates list, reason:" + e);
         }
+    }
+
+    @QuerySetting(dialect = {
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "GET", method = "get", path = "vehr/template/example", responseType = ResponseType.Json),
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "GET", method = "get", path = "rest/v1/template/example", responseType = ResponseType.Json)
+    })
+    public Object example(I_SessionClientProperties props) throws ServiceManagerException {
+
+        String templateId = props.getClientProperty(I_CacheKnowledgeService.TEMPLATE_ID, (String)null);
+        String format = props.getClientProperty(I_CacheKnowledgeService.FORMAT, "XML");
+
+        if (templateId == null)
+            throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "No template Id give (templateId missing)");
+
+
+        Object retObj = null;
+
+        try {
+            I_ContentBuilder contentBuilder = I_ContentBuilder.getInstance(null, I_ContentBuilder.OPT, this.getKnowledgeCache(), templateId);
+
+            Object generated = contentBuilder.generate();
+
+            if (generated == null)
+                throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "Could not generate an example for template Id:"+templateId);
+
+
+            if (generated instanceof Composition) {
+                EventContext context = ContextHelper.createDummyContext();
+                PartyIdentified partyIdentified = CompositionAttributesHelper.createComposer("Composer", "ETHERCIS", "1234-5678");
+
+                ((Composition) generated).setContext(context);
+                ((Composition) generated).setComposer(partyIdentified);
+                ((Composition) generated).setUid(new ObjectVersionID(UUID.randomUUID()+"::example.ethercis.com::1"));
+
+                switch (format) {
+                    case "XML":
+                        global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_XML);
+                        byte[] exportXml = contentBuilder.exportCanonicalXML((Composition) generated, true, true);
+                        if (exportXml == null)
+                            throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "Could not export an example for template Id:" + templateId);
+                        retObj = new String (exportXml);
+                        break;
+                    case "ECISFLAT":
+                        global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_STRING);
+                        Map<String, String> testRetMap = EcisFlattener.renderFlat((Composition) generated, true, CompositionSerializer.WalkerOutputMode.PATH);
+                        GsonBuilder builder = new GsonBuilder();
+                        Gson gson = builder.setPrettyPrinting().disableHtmlEscaping().create();
+                        String jsonString = gson.toJson(testRetMap);
+                        retObj = jsonString;
+                        break;
+                    case "FLAT":
+                        global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_STRING);
+                        I_FlatJsonCompositionConverter flatJsonCompositionConverter = FlatJsonCompositionConverter.getInstance(cache);
+                        Map<String, Object> retMap = flatJsonCompositionConverter.fromComposition(templateId, (Composition)generated);
+                        jsonString = JsonUtil.toJsonString(retMap);
+                        retObj = jsonString;
+                        break;
+                }
+            } else if (generated instanceof Locatable) {
+                switch (format) {
+                    case "XML":
+                        global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_XML);
+                        byte[] exportXml = contentBuilder.exportCanonicalXML((Locatable) generated, true, true);
+                        if (exportXml == null)
+                            throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "Could not export an example for template Id:" + templateId);
+                        retObj = new String(exportXml);
+                        break;
+                    case "ECISFLAT":
+                        global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_JSON);
+                        Map<String, String> testRetMap = EcisFlattener.renderFlat((Locatable) generated, true, CompositionSerializer.WalkerOutputMode.PATH);
+
+                        GsonBuilder builder = new GsonBuilder();
+                        Gson gson = builder.setPrettyPrinting().disableHtmlEscaping().create();
+
+                        String jsonString = gson.toJson(testRetMap);
+
+                        retObj = jsonString;
+                        break;
+
+                }
+            }
+        } catch (Exception e) {
+            throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "Could not generate templates list, reason:" + e);
+        }
+        return retObj;
     }
 
     @QuerySetting(dialect = {

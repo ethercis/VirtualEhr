@@ -20,5 +20,8 @@ package com.ethercis.ehr.knowledge;
 
 public interface I_CacheKnowledgeService {
 
+	java.lang.String TEMPLATE_ID = "templateId";
+	java.lang.String FORMAT = "format";
+
 	public abstract I_KnowledgeCache getKnowledgeCache();
 }
