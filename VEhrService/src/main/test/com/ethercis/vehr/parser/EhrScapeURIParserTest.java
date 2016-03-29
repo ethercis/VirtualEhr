@@ -74,6 +74,7 @@ public class EhrScapeURIParserTest extends TestCase {
         assertEquals("1234", uriParser.identifyParametersAsProperties().getClientProperty("subjectId").toString());
         assertEquals("ABCDEF", uriParser.identifyParametersAsProperties().getClientProperty("subjectNamespace").toString());
 
+        ///ehr/{ehrId} retrieve an ehr Status from its id
         request = mock(HttpServletRequest.class);
         when(request.getRequestURI()).thenReturn("/rest/v1/ehr/8fd2bea0-9e0e-11e5-8994-feff819cdc9f");
         parameters = new HashMap<>();
@@ -85,8 +86,10 @@ public class EhrScapeURIParserTest extends TestCase {
         when(request.getMethod()).thenReturn("GET");
         uriParser.parse(request);
         assertEquals("GET", uriParser.identifyMethod().toUpperCase());
+        assertEquals("rest/v1/ehr/status", uriParser.identifyPath());
         assertEquals("8fd2bea0-9e0e-11e5-8994-feff819cdc9f", uriParser.identifyParametersAsProperties().getClientProperty("ehrId").toString());
 
+        //Returns a JSON representation of the state of the EHR for a subject Id and namespace (STATUS)
         request = mock(HttpServletRequest.class);
         when(request.getRequestURI()).thenReturn("/rest/v1/ehr");
         parameters = new HashMap<>();
@@ -104,6 +107,7 @@ public class EhrScapeURIParserTest extends TestCase {
         assertEquals("1234", uriParser.identifyParametersAsProperties().getClientProperty("subjectId").toString());
         assertEquals("ABCDEF", uriParser.identifyParametersAsProperties().getClientProperty("subjectNamespace").toString());
 
+        //update the status of an EHR
         request = mock(HttpServletRequest.class);
         when(request.getRequestURI()).thenReturn("/rest/v1/ehr/status/8fd2bea0-9e0e-11e5-8994-feff819cdc9f");
         parameters = new HashMap<>();
@@ -138,6 +142,39 @@ public class EhrScapeURIParserTest extends TestCase {
         assertEquals("XML", uriParser.identifyParametersAsProperties().getClientProperty("format").toString());
 
         request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/rest/v1/composition/123456?format=FLAT");
+        parameters = new HashMap<>();
+        parameters.put("format", new String[]{"FLAT"});
+//        parameters.put("templateId", new String[]{"test%20test"});
+        when(request.getParameterMap()).thenReturn(parameters);
+        headers = new HashMap<>();
+        headers.put("Accept", new String[]{"application/json"});
+        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+        when(request.getHeader("Accept")).thenReturn("application/json");
+        when(request.getMethod()).thenReturn("GET");
+        uriParser.parse(request);
+        assertEquals("GET", uriParser.identifyMethod().toUpperCase());
+        assertEquals("FLAT", uriParser.identifyParametersAsProperties().getClientProperty("format").toString());
+//        assertEquals("test%20test", uriParser.identifyParametersAsProperties().getClientProperty("templateId").toString());
+        assertEquals("123456", uriParser.identifyParametersAsProperties().getClientProperty("uid").toString());
+
+        request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/rest/v1/composition/123456?format=FLAT");
+        parameters = new HashMap<>();
+        parameters.put("format", new String[]{"FLAT"});
+        when(request.getParameterMap()).thenReturn(parameters);
+        headers = new HashMap<>();
+        headers.put("Content-Type", new String[]{"application/json"});
+        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+        when(request.getHeader("Content-Type")).thenReturn("application/json");
+        when(request.getMethod()).thenReturn("PUT");
+        uriParser.parse(request);
+        assertEquals("PUT", uriParser.identifyMethod().toUpperCase());
+        assertEquals("FLAT", uriParser.identifyParametersAsProperties().getClientProperty("format").toString());
+        assertEquals("123456", uriParser.identifyParametersAsProperties().getClientProperty("uid").toString());
+
+
+        request = mock(HttpServletRequest.class);
         when(request.getRequestURI()).thenReturn("/rest/v1/composition/8fd2bea0-9e0e-11e5-8994-feff819cdc9f");
         parameters = new HashMap<>();
         parameters.put("format", new String[]{"RAW"});
@@ -165,8 +202,92 @@ public class EhrScapeURIParserTest extends TestCase {
         assertEquals("DELETE", uriParser.identifyMethod().toUpperCase());
         assertEquals("rest/v1/composition", uriParser.identifyPath());
         assertEquals("8fd2bea0-9e0e-11e5-8994-feff819cdc9f", uriParser.identifyParametersAsProperties().getClientProperty("uid").toString());
+    }
 
+    @Test
+    public void testTemplateQueryParser() throws ServiceManagerException {
+
+        // get a template with templateId = 'template_id'
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/rest/v1/template/template_id");
+        Map<String, String[]> parameters = new HashMap<String, String[]>();
+        parameters.put("format", new String[]{"XML"});
+        when(request.getParameterMap()).thenReturn(parameters);
+        Map<String, String[]> headers = new HashMap<String, String[]>();
+        headers.put("Content-Type", new String[]{"application/xml"});
+        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+        when(request.getHeader("Content-Type")).thenReturn("application/xml");
+        when(request.getMethod()).thenReturn("GET");
+        uriParser.parse(request);
+        assertEquals("GET", uriParser.identifyMethod().toUpperCase());
+        assertEquals("rest/v1/template", uriParser.identifyPath());
+        assertEquals("template_id", uriParser.identifyParametersAsProperties().getClientProperty("templateId").toString());
+
+        //get an example for a templateId = 'template_id'
+        request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/rest/v1/template/template_id/example");
+        parameters = new HashMap<String, String[]>();
+        parameters.put("format", new String[]{"XML"});
+        when(request.getParameterMap()).thenReturn(parameters);
+        headers = new HashMap<String, String[]>();
+        headers.put("Content-Type", new String[]{"application/xml"});
+        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+        when(request.getHeader("Content-Type")).thenReturn("application/xml");
+        when(request.getMethod()).thenReturn("GET");
+        uriParser.parse(request);
+        assertEquals("GET", uriParser.identifyMethod().toUpperCase());
+        assertEquals("rest/v1/template/example", uriParser.identifyPath());
+        assertEquals("template_id", uriParser.identifyParametersAsProperties().getClientProperty("templateId").toString());
+
+        //get the list of templates
+        request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/rest/v1/template");
+        parameters = new HashMap<String, String[]>();
+        parameters.put("format", new String[]{"XML"});
+        when(request.getParameterMap()).thenReturn(parameters);
+        headers = new HashMap<String, String[]>();
+        headers.put("Content-Type", new String[]{"application/xml"});
+        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+        when(request.getHeader("Content-Type")).thenReturn("application/xml");
+        when(request.getMethod()).thenReturn("GET");
+        uriParser.parse(request);
+        assertEquals("GET", uriParser.identifyMethod().toUpperCase());
+        assertEquals("rest/v1/template", uriParser.identifyPath());
+
+        //delete a template
+        request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/rest/v1/template/template_id");
+        parameters = new HashMap<String, String[]>();
+        parameters.put("format", new String[]{"XML"});
+        when(request.getParameterMap()).thenReturn(parameters);
+        headers = new HashMap<String, String[]>();
+        headers.put("Content-Type", new String[]{"application/xml"});
+        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+        when(request.getHeader("Content-Type")).thenReturn("application/xml");
+        when(request.getMethod()).thenReturn("DELETE");
+        uriParser.parse(request);
+        assertEquals("DELETE", uriParser.identifyMethod().toUpperCase());
+        assertEquals("rest/v1/template", uriParser.identifyPath());
+        assertEquals("template_id", uriParser.identifyParametersAsProperties().getClientProperty("templateId").toString());
+
+        //post a template
+        request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/rest/v1/template");
+        parameters = new HashMap<String, String[]>();
+        parameters.put("format", new String[]{"XML"});
+        when(request.getParameterMap()).thenReturn(parameters);
+        headers = new HashMap<String, String[]>();
+        headers.put("Content-Type", new String[]{"application/xml"});
+        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+        when(request.getHeader("Content-Type")).thenReturn("application/xml");
+        when(request.getMethod()).thenReturn("POST");
+        uriParser.parse(request);
+        assertEquals("POST", uriParser.identifyMethod().toUpperCase());
+        assertEquals("rest/v1/template", uriParser.identifyPath());
 
     }
+
+
+
 
 }

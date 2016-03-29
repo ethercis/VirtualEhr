@@ -23,44 +23,33 @@ import com.ethercis.servicemanager.common.def.MethodName;
 /**
  * Created by christian on 12/9/2015.
  */
-public class CompositionQueryParser {
+public class TemplateQueryParser {
 
     private I_SessionClientProperties parameters;
     private String resourceToken = null;
 
-    public CompositionQueryParser(MethodName methodName, String resourceToken, String[] tokens, I_SessionClientProperties parameters, I_SessionClientProperties headers){
+    public TemplateQueryParser(MethodName methodName, String resourceToken, String[] tokens, I_SessionClientProperties parameters, I_SessionClientProperties headers){
         this.parameters = parameters;
         this.resourceToken = resourceToken;
         String format;
         switch (methodName.getMethodName().toUpperCase()){
             case "GET":
-                //add the uid in parameters
-                if (tokens != null && tokens.length == 1)
-                    parameters.addClientProperty("uid", tokens[0]);
-
-                //check for the Accept header
-                format = parameters.getClientProperty("format", "ECISFLAT");
-                String accept = headers.getClientProperty("Accept", "application/json");
-                if ("RAW".equals(format) && "application/xml".equals(accept)) {
-                    parameters.addClientProperty("format", "XML");
+                if (tokens != null && tokens.length == 2){
+                    // GET template/{templateId}/example
+                    parameters.addClientProperty("templateId", tokens[0]);
+                    this.resourceToken = this.resourceToken + "/" + tokens[1];
+                } else if (tokens != null && tokens.length == 1){
+                    parameters.addClientProperty("templateId", tokens[0]);
                 }
                 break;
             case "POST":
-                //check for the Accept header
-                format = parameters.getClientProperty("format", "ECISFLAT");
-                String contentType = headers.getClientProperty("Content-Type", "application/json");
-                if ("RAW".equals(format) && "application/xml".equals(contentType)) {
-                    parameters.addClientProperty("format", "XML");
-                }
                 break;
             case "DELETE":
-                //add the uid in parameters
-                if (tokens != null && tokens.length == 1)
-                    parameters.addClientProperty("uid", tokens[0]);
+                if (tokens != null && tokens.length == 1){
+                    parameters.addClientProperty("templateId", tokens[0]);
+                }
                 break;
-            case "PUT": //update composition
-                if (tokens != null && tokens.length == 1)
-                    parameters.addClientProperty("uid", tokens[0]);
+            case "PUT":
                 break;
         }
     }

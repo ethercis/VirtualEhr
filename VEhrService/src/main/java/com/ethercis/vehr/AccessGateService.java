@@ -320,6 +320,15 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
 		if (isConnectAction(path, action, method)) {
 			ResponseHolder ret = null;
 			try {
+				//add header x- fields into the query parameters
+				Map<String, String> headerMap = hdrprops.clientProps2StringMap();
+
+				for (String parm: headerMap.keySet()){
+					if (parm.contains("x-")){
+						qryparms.addClientProperty(parm, headerMap.get(parm));
+					}
+				}
+
 				ret = (ResponseHolder) connect(qryparms, hdrprops.getClientProperty(I_SessionManager.SECRET_SESSION_ID(dialectSpace), (String) null));
 				if (ret != null) {
 
@@ -328,7 +337,10 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
 					I_Authenticate subjectSecurityContext = sessionSecurityContext.getAuthenticate();
 
 					// Log connect
-					AccessLog.log(subjectSecurityContext.getUserId(),method.getMethodName(), path);
+					String userId = null;
+					if (subjectSecurityContext != null) //null if bypass_credential == true
+						userId = subjectSecurityContext.getUserId();
+					AccessLog.log(userId == null ? "BYPASS_CREDENTIAL" : userId,method.getMethodName(), path);
 					return ret;
 				}
 			} catch (ServiceManagerException soae) {

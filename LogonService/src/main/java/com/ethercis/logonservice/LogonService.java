@@ -213,15 +213,16 @@ public class LogonService extends ClusterInfo implements I_SessionManager {
 		}
 
 		ResponseHolder responseHolder = new ResponseHolder("application/json;charset=UTF-8", global);
-		responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.SECRET_SESSION_ID(dialectSpace),
-				sessionProperties.getSecretSessionId());
-		responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.SESSION_NAME,
-                sessionProperties.getSessionName().getAbsoluteName());
+		responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.SECRET_SESSION_ID(dialectSpace),	sessionProperties.getSecretSessionId());
+		responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.SESSION_NAME,sessionProperties.getSessionName().getAbsoluteName());
 		responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.RECONNECT, sessionProperties.isReconnected());
-		responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.SESSIONS_IN_USE,
-                sessionProperties.getClientProperties().getClientProperty(I_SessionManager.SESSIONS_IN_USE, 0));
-		responseHolder.getSessionClientProperties().addClientProperty(Constants.CLIENTPROPERTY_RCVTIMESTAMPSTR,
-				sessionProperties.getClientProperties().getClientProperty(Constants.CLIENTPROPERTY_RCVTIMESTAMPSTR, ""));
+		responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.SESSIONS_IN_USE, sessionProperties.getClientProperties().getClientProperty(I_SessionManager.SESSIONS_IN_USE, 0));
+		responseHolder.getSessionClientProperties().addClientProperty(Constants.CLIENTPROPERTY_RCVTIMESTAMPSTR, sessionProperties.getClientProperties().getClientProperty(Constants.CLIENTPROPERTY_RCVTIMESTAMPSTR, ""));
+		responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.SESSION_TIMEOUT, sessionProperties.getClientProperties().getClientProperty(SESSION_TIMEOUT));
+		responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.MAX_SESSION, sessionProperties.getClientProperties().getClientProperty(MAX_SESSION));
+
+		if (connectproperties.bypassCredentialCheck())
+			responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.BYPASS_CREDENTIAL, true);
 
 		responseHolder.getSessionClientProperties().addClientProperty(HttpHeader.TRANSFER_ENCODING.asString(), "chunked");
 		responseHolder.getSessionClientProperties().addClientProperty(HttpHeader.CONTENT_LANGUAGE.asString(), "en-US");

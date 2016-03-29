@@ -518,11 +518,9 @@ public class RequestDispatcher extends ClusterInfo implements RequestDispatcherM
 	 * @param method
 	 * @return
 	 */
-	public boolean isMappedMethodAsync(MethodName action, String path,
-			MethodName method) {
+	public boolean isMappedMethodAsync(MethodName action, String path,MethodName method) {
 		if (actionmap.containsKey(action.getMethodName())) {
-			Map<String, ServiceAttribute> servicemap = actionmap.get(action
-					.getMethodName());
+			Map<String, ServiceAttribute> servicemap = actionmap.get(action.getMethodName());
 
 			if (servicemap.containsKey(path)) {
 				ServiceAttribute sa = servicemap.get(path);

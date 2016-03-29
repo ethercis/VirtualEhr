@@ -31,6 +31,8 @@ import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Arrays;
 
 /**
@@ -85,7 +87,12 @@ public class EhrScapeURIParser extends URIParser {
 
     @Override
     public void parse(HttpServletRequest servletRequest) throws ServiceManagerException {
-        String requestURI = servletRequest.getRequestURI();
+        String requestURI;
+        try {
+            requestURI = URLDecoder.decode(servletRequest.getRequestURI(), "UTF-8");
+        }catch (UnsupportedEncodingException e){
+            throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "URI could not be parsed:"+servletRequest.getRequestURI());
+        }
 
         //tokenize the URI
         String[] tokens = requestURI.split(queryRoot);
@@ -108,6 +115,10 @@ public class EhrScapeURIParser extends URIParser {
 
         headers = HttpParameters.getInstanceFromHeader(global, servletRequest);
 
+        //strip parameters
+        if (tokens[1].contains("?"))
+            tokens[1] = tokens[1].substring(0, tokens[1].indexOf("?"));
+
         tokens = tokens[1].split("/");
 
         resourceToken = tokens[1];
@@ -128,6 +139,9 @@ public class EhrScapeURIParser extends URIParser {
                 parameters = compositionQueryParser.getParameters();
                 break;
             case "TEMPLATE":
+                TemplateQueryParser templateQueryParser = new TemplateQueryParser(queryMethod, resourceToken, tokens, parameters, headers);
+                resourceToken = templateQueryParser.getResource();
+                parameters = templateQueryParser.getParameters();
                 break;
             case "QUERY":
                 break;

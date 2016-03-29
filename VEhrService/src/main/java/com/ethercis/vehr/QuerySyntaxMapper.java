@@ -38,10 +38,12 @@ public class QuerySyntaxMapper implements I_DispatchMapper {
 	Logger log=Logger.getLogger(QuerySyntaxMapper.class);
 
     I_ServiceRunMode.DialectSpace dialectSpace;
+    Boolean asyncQueryService = false;
 
     public QuerySyntaxMapper(RunTimeSingleton global){
         String compatibilityValue = global.getProperty().get(I_ServiceRunMode.SERVER_DIALECT_PARAMETER, I_ServiceRunMode.DialectSpace.STANDARD.toString());
         dialectSpace = I_ServiceRunMode.DialectSpace.valueOf(compatibilityValue);
+        asyncQueryService = global.getProperty().get(I_ServiceRunMode.SERVER_ASYNC_MODE, false);
     }
 	
 	@Override
@@ -79,7 +81,7 @@ public class QuerySyntaxMapper implements I_DispatchMapper {
                                 log.debug("set method=" + actionname.getMethodName() + ":" + querySyntax.path() + " on " + clazz.getName() + ":" + m.getName());
                                 sa.setMethod(true,
                                         MethodName.toMethodName(querySyntax.method()),
-                                        m.getName(), querySyntax.responseType().toString(), Modifier.isSynchronized(m.getModifiers()),
+                                        m.getName(), querySyntax.responseType().toString(), asyncQueryService /*Modifier.isSynchronized(m.getModifiers())*/,
                                         m.getParameterTypes());
                             }
                         }

@@ -15,13 +15,25 @@
  * limitations under the License.
  */
 //Copyright
-package com.ethercis.ehr.knowledge;
+package com.ethercis.ehrservice;
 
+import java.util.UUID;
 
-public interface I_CacheKnowledgeService {
+/**
+ * ETHERCIS Project VirtualEhr
+ * Created by Christian Chevalley on 7/1/2015.
+ */
+public interface I_EhrService {
 
-	java.lang.String TEMPLATE_ID = "templateId";
-	java.lang.String FORMAT = "format";
+    String EHRID_PARAMETER = "ehrId";
+    String SUBJECTID_PARAMETER = "subjectId";
+    String SUBJECTNAMESPACE_PARAMETER = "subjectNamespace";
 
-	public abstract I_KnowledgeCache getKnowledgeCache();
+    UUID create(UUID partyId, UUID systemId) throws Exception;
+
+    UUID create(UUID partyId, UUID systemId, String otherDetailsXml, String templateId) throws Exception;
+
+    UUID retrieve(String subjectId, String nameSpace);
+
+    Integer delete(UUID ehrId) throws Exception;
 }

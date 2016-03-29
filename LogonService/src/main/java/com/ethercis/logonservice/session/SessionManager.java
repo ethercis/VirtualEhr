@@ -456,11 +456,13 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             returnprops.setSessionName(sessionInfo.getSessionName());
             returnprops.getClientProperties().addClientProperty(Constants.CLIENTPROPERTY_RCVTIMESTAMPSTR, IsoDateParser.getCurrentUTCTimestampNanos());
             returnprops.getClientProperties().addClientProperty(I_SessionManager.SESSIONS_IN_USE, subjectInfo.getNumSessions());
+            returnprops.getClientProperties().addClientProperty(I_SessionManager.MAX_SESSION, subjectInfo.getMaxSessions());
+            returnprops.getClientProperties().addClientProperty(I_SessionManager.SESSION_TIMEOUT, connectProps.getSessionProperties().getSessionTimeout());
 
             // Now some nice logging ...
             StringBuffer sb = new StringBuffer(256);
             if (connectProps.bypassCredentialCheck())
-                sb.append("Created tempory session for client ");
+                sb.append("Created temporary and unsafe session for client ");
             else
                 sb.append("Successful login for client ");
             sb.append(sessionInfo.getSessionName().getAbsoluteName());

@@ -19,6 +19,8 @@ package com.ethercis.vehr.response;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
 import com.ethercis.servicemanager.common.MetaBuilder;
 import com.ethercis.servicemanager.common.def.Constants;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.ByteArrayOutputStream;
@@ -53,7 +55,10 @@ public class JsonHttpResponse extends GenericHttpResponse {
 			}
 		}
 
-		String bodyContent = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(data);
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setDateFormat(new ISO8601DateFormat());
+
+		String bodyContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
         setContentLength(bodyContent.getBytes().length);
 		writer.println(bodyContent);
 		writer.close();

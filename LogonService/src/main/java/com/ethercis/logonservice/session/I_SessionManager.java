@@ -36,23 +36,40 @@ import java.util.Map;
 public interface I_SessionManager extends I_ServiceRunMode {
 	
 	//header fields
-	public static String SECRET_SESSION_ID_STANDARD = "x-session-id"; /** user supplied session id, returned session id [String]*/
+	/** user supplied session id, returned session id [String] Header: x-session-id*/
+	public static String SECRET_SESSION_ID_STANDARD = "x-session-id";
+	/** user supplied session id in EhrScape mode, returned session id [String] Header: Ehr-Session */
     public static String SECRET_SESSION_ID_EHRSCAPE = "Ehr-Session";
+
     public static String SECRET_SESSION_ID_INTERNAL = "SecretSessionId";
 
-    public static String PTP_ALLOWED = "x-ptp-allowed"; /** receive ptp messages, true by default [Boolean]*/
-	public static String CLUSTER_NODE = "x-cluster_node"; /** mark this logonservice cluster node [Boolean]*/
-	public static String REFRESH_SESSION = "x-refresh-session"; /** indicate client is alived and session is extended [Boolean]*/
-	public static String DUPLICATES_UPDATES = "x-duplicate-updates"; /** true if client can receive duplicates messages, false by default [Boolean] */
-	public static String RECONNECT = "x-reconnect"; /** client does reconnect to an existing session, false by default [Boolean] */
-	public static String SESSION_TIMEOUT = "x-session-timeout"; /** timeout for autologout [Long], default is forever (0L) */
-	public static String MAX_SESSION = "x-max-session"; /** max allowed session for user [Integer] */
-	public static String CLEAR_SESSION = "x-clear-session"; /** clear all previous session for this user */
-	public static String RECONNECT_SAME_CLIENT_ONLY = "x-reconnect-same-client-only"; /** true if client can reconnect with a public session id, false by default [Boolean]*/
-	public static String BYPASS_CREDENTIAL = "x-bypass-credential"; /** true if client can connect without credential, false by default [Boolean] */
-	public static String SESSION_NAME = "x-session-name"; /** public optional session name (must be unique) */
-	public static String CLIENT_IP = "x-client-ip"; /** client IP address */
-	public static String LAST_LOGIN = "x-last-login"; /** indicate the last login time */
+	/** receive ptp messages, true by default [Boolean] Header: x-ptp-allowed*/
+    public static String PTP_ALLOWED = "x-ptp-allowed";
+	/** mark this logonservice cluster node [Boolean] Header: x-cluster_node*/
+	public static String CLUSTER_NODE = "x-cluster_node";
+	/** indicate client is alive and session is extended [Boolean] Header: x-refresh-session*/
+	public static String REFRESH_SESSION = "x-refresh-session";
+	/** true if client can receive duplicates messages, false by default [Boolean] Header: x-duplicate-updates*/
+	public static String DUPLICATES_UPDATES = "x-duplicate-updates";
+	/** client does reconnect to an existing session, false by default [Boolean] Header: x-reconnect*/
+	public static String RECONNECT = "x-reconnect";
+	/** timeout for autologout [Long], default is forever (0L) Header: x-session-timeout */
+	public static String SESSION_TIMEOUT = "x-session-timeout";
+	/** max allowed session for user [Integer] Header: x-max-session */
+	public static String MAX_SESSION = "x-max-session";
+	/** clear all previous session for this user Header: x-clear-session */
+	public static String CLEAR_SESSION = "x-clear-session";
+	/** true if client can reconnect with a public session id, false by default [Boolean] Header: x-reconnect-same-client-only*/
+	public static String RECONNECT_SAME_CLIENT_ONLY = "x-reconnect-same-client-only";
+	/** true if client can connect without credential, false by default [Boolean] Header: x-bypass-credential*/
+	public static String BYPASS_CREDENTIAL = "x-bypass-credential";
+	/** public optional session name (must be unique) Header: x-session-name */
+	public static String SESSION_NAME = "x-session-name";
+	/** client IP address Header: x-client-ip*/
+	public static String CLIENT_IP = "x-client-ip";
+	/** indicate the last login time */
+	public static String LAST_LOGIN = "x-last-login";
+	/** indicate the number of sessions in use for this user Header:  x-sessions-in-use*/
 	public static String SESSIONS_IN_USE = "x-sessions-in-use";
 
     static String USER_ID = "user";

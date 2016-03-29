@@ -15,28 +15,11 @@
  * limitations under the License.
  */
 //Copyright
-package com.ethercis.compositionservice;
-
-import java.util.UUID;
+package com.ethercis.ehrservice;
 
 /**
  * ETHERCIS Project VirtualEhr
- * Created by Christian Chevalley on 7/3/2015.
+ * Created by Christian Chevalley on 9/18/2015.
  */
-public interface I_CompositionService {
-    String  TEMPLATE_ID = "templateId";
-    String  EHR_ID = "ehrId";
-    String  UID = "uid";
-    String  FORMAT = "format";
-    String SQL_QUERY = "sql" ;
-    String AQL_QUERY = "aql" ;
-
-    enum CompositionFormat {FLAT, STRUCTURED, RAW, XML, ECISFLAT };
-
-    //returned attribute names
-    String COMPOSITION_UID = "compositionUid";
-
-    static UUID decodeUuid(String encodedUuid){
-        return UUID.fromString(encodedUuid.substring(0, encodedUuid.indexOf("::")));
-    }
+public interface EhrServiceMBean {
 }

@@ -35,14 +35,25 @@ public class EhrQueryParser implements I_QueryParser {
             case "GET":
                 //add the ehrId in parameters
                 if (tokens != null && tokens.length == 1) {
-                    parameters.addClientProperty("ehrId", tokens[0]);
+                    if (!parameters.getClientProperties().containsKey("ehrId")) {
+                        parameters.addClientProperty("ehrId", tokens[0]);
+                    }
                     this.resourceToken = this.resourceToken + "/status";
+
                 }
                 else { //get status for subject
-//                    this.resourceToken = this.resourceToken+"/status";
+                    this.resourceToken = this.resourceToken+"/status";
                 }
                 break;
             case "POST":
+                //add the ehrId in parameters
+                if (tokens != null && tokens.length == 1) {
+                    if (!parameters.getClientProperties().containsKey("ehrId")) {
+                        parameters.addClientProperty("ehrId", tokens[0]);
+                    }
+                    this.resourceToken = this.resourceToken + "/status";
+
+                }
                 break;
             case "DELETE":
                 break;

@@ -45,6 +45,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -661,49 +662,55 @@ public class VEhrGateServlet extends HttpServlet implements
 			String path, MethodName method, I_SessionClientProperties parameters,
 			HttpServletRequest req, HttpServletResponse res)
 			throws ServletException {
-//		if (!req.isAsyncSupported()) {
-//			// set explicitly the async nature
-//			req.setAttribute("org.apache.catalina.ASYNC_SUPPORTED", true);
-//		}
-//		final AsyncContext context = req.startAsync();
-//		// set the timeout
-//		context.setTimeout(callback_timeout);
-//
-//		// attach listener to respond to lifecycle events of this AsyncContext
-//		context.addListener(new AsyncListener() {
-//			/**
-//			 * complete() has already been called on the async context, nothing
-//			 * to do
-//			 */
-//			public void onComplete(AsyncEvent event) throws IOException {
-//			}
-//
-//			/** timeout has occurred in async task... handle it */
-//			public void onTimeout(AsyncEvent event) throws IOException {
-//				log.info("onTimeout called");
-//				log.info(event.toString());
-//				context.getResponse().getWriter().write("TIMEOUT");
-//				context.complete();
-//			}
-//
-//			/**
-//			 * THIS NEVER GETS CALLED - error has occured in async task...
-//			 * handle it
-//			 */
-//			public void onError(AsyncEvent event) throws IOException {
-//				log.warn("onError called");
-//				log.warn(event.toString());
-//				context.getResponse().getWriter().write("ERROR");
-//				context.complete();
-//			}
-//
-//			/** async context has started, nothing to do */
-//			public void onStartAsync(AsyncEvent event) throws IOException {
-//			}
-//		});
-//
-//		// spawn some task to be run in executor
-//		enqueueTask(context, action, header, path, method, parameters);
+
+		try {
+			if (!req.isAsyncSupported()) {
+				// set explicitly the async nature
+				req.setAttribute("org.apache.catalina.ASYNC_SUPPORTED", true);
+			}
+		} catch (Exception e){
+			throw new ServletException("Could not set the servlet in async mode:"+e);
+		}
+
+		final AsyncContext context = req.startAsync();
+		// set the timeout
+		context.setTimeout(callback_timeout);
+
+		// attach listener to respond to lifecycle events of this AsyncContext
+		context.addListener(new AsyncListener() {
+			/**
+			 * complete() has already been called on the async context, nothing
+			 * to do
+			 */
+			public void onComplete(AsyncEvent event) throws IOException {
+			}
+
+			/** timeout has occurred in async task... handle it */
+			public void onTimeout(AsyncEvent event) throws IOException {
+				log.info("onTimeout called");
+				log.info(event.toString());
+				context.getResponse().getWriter().write("TIMEOUT");
+				context.complete();
+			}
+
+			/**
+			 * THIS NEVER GETS CALLED - error has occured in async task...
+			 * handle it
+			 */
+			public void onError(AsyncEvent event) throws IOException {
+				log.warn("onError called");
+				log.warn(event.toString());
+				context.getResponse().getWriter().write("ERROR");
+				context.complete();
+			}
+
+			/** async context has started, nothing to do */
+			public void onStartAsync(AsyncEvent event) throws IOException {
+			}
+		});
+
+		// spawn some task to be run in executor
+//		enqueueTask(null, action, header, path, method, parameters);
 	}
 
 	/**
@@ -726,8 +733,7 @@ public class VEhrGateServlet extends HttpServlet implements
 			public void run() {
 
 				try {
-					output = controller.queryHandler(action, header, path,
-							method, parameters);
+					output = controller.queryHandler(action, header, path,method, parameters);
 				} catch (ServiceManagerException e2) {
 					if (e2.getErrorCode() == SysErrorCode.INTERNAL_ILLEGALARGUMENT)
 						log.warn("No service for path/method call:" + path
@@ -740,13 +746,14 @@ public class VEhrGateServlet extends HttpServlet implements
 				}
 
 				try {
-					// response is null if the context has already timedout
+					// response is null if the context has already timed out
 					// (at this point the app server has called the listener
 					// already)
 					ServletResponse response = ctx.getResponse();
 					if (response != null) {
 						handleOutput(controller.getMappedMethodReturnType(action, path, method), output, response, path);
-						ctx.complete();
+						if (ctx != null) //if AsyncContext is supported, otherwise ignore...
+							ctx.complete();
 					} else {
 						throw new IllegalStateException(
 								"Response object from context is null!");
@@ -759,6 +766,7 @@ public class VEhrGateServlet extends HttpServlet implements
 			}
 		});
 	}
+
 
 	/**
 	 * encode the response according to the method return type.

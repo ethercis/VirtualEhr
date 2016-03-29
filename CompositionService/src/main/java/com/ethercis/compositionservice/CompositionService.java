@@ -134,6 +134,9 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
         I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, "XML"));
 
+        if ((format == CompositionFormat.FLAT || format == CompositionFormat.ECISFLAT) && (templateId == null || templateId.length() == 0))
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Template Id must be specified");
+
         //get body stuff
         String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String)null);
 
@@ -306,7 +309,10 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         auditSetter.handleProperties(getDataAccess(), props);
         String sessionId = auditSetter.getSessionId();
         String templateId = props.getClientProperty(I_CompositionService.TEMPLATE_ID, (String)null);
-        UUID compositionId = getCompositionUid(props.getClientProperty(I_CompositionService.UID, (String) null));
+        String uidStr = props.getClientProperty(I_CompositionService.UID, (String) null);
+        if (uidStr == null || uidStr.length() == 0)
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "A valid composition id must be supplied");
+        UUID compositionId = getCompositionUid(uidStr);
 
         I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, CompositionFormat.ECISFLAT.toString()));
 
@@ -381,7 +387,11 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "DELETE", method = "delete", path = "rest/v1/composition", responseType = ResponseType.Json)
     })
     public Object delete(I_SessionClientProperties props) throws Exception {
-        UUID compositionId = getCompositionUid(props.getClientProperty(I_CompositionService.UID, (String) null));
+        String uidStr = props.getClientProperty(I_CompositionService.UID, (String) null);
+        if (uidStr == null || uidStr.length() == 0)
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "A valid composition id must be supplied");
+
+        UUID compositionId = getCompositionUid(uidStr);
         auditSetter.handleProperties(getDataAccess(), props);
         String sessionId = auditSetter.getSessionId();
 
@@ -402,26 +412,60 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         return retmap;
     }
 
+
+    private enum QueryMode {SQL, AQL, UNDEF}
+
     @QuerySetting(dialect = {
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "POST", method = "post", path = "vehr/query", responseType = ResponseType.Json),
-            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "POST", method = "post", path = "rest/v1/query", responseType = ResponseType.Json)
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "GET", method = "get", path = "rest/v1/query", responseType = ResponseType.Json)
     })
     public Object query(I_SessionClientProperties props) throws Exception {
+        QueryMode queryMode = QueryMode.UNDEF;
+
         String sessionId = props.getClientProperty(I_SessionManager.SECRET_SESSION_ID_INTERNAL, (String)null);
 
+        String queryString = props.getClientProperty(I_CompositionService.SQL_QUERY, (String)null);
+
+        if (queryString == null){
+            queryString = props.getClientProperty(I_CompositionService.AQL_QUERY, (String)null);
+            if (queryString != null){
+                queryMode = QueryMode.AQL;
+            }
+            else
+                throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "No query parameter supplied");
+        }
+        else
+            queryMode = QueryMode.SQL;
+
+
         //get body stuff
-        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String)null);
+//        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String)null);
+//
+//        if (content == null)
+//            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content cannot be empty for querying EHR");
+//
+//        Integer contentLength = (Integer)props.getClientProperty(Constants.REQUEST_CONTENT_LENGTH, (Integer)0);
+//
+//        if (content.length() != contentLength)
+//            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content may be altered found length ="+content.length()+" expected:"+contentLength);
 
-        if (content == null)
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content cannot be empty for updating a composition");
+        //use an explicit query string passed as a parameter
 
-        Integer contentLength = (Integer)props.getClientProperty(Constants.REQUEST_CONTENT_LENGTH, (Integer)0);
-
-        if (content.length() != contentLength)
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content may be altered found length ="+content.length()+" expected:"+contentLength);
 
         //perform the query
-        Map<String, Object> result = I_EntryAccess.queryJSON(getDataAccess(), content);
+        Map<String, Object> result;
+
+        switch (queryMode){
+            case SQL:
+                result = I_EntryAccess.queryJSON(getDataAccess(), queryString);
+                break;
+            case AQL:
+                throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "AQL query is not yet supported, use 'sql=<query expression>' instead");
+
+            default:
+                throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "Unknown query expression, should be 'sql=' or 'aql='");
+        }
+//        Map<String, Object> result = I_EntryAccess.queryJSON(getDataAccess(), content);
 
         if (result.size() == 0){
             global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_NO_CONTENT);
