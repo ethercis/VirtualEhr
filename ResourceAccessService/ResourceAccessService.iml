@@ -33,7 +33,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="jooq-3.5.3" level="application" />
     <orderEntry type="module" module-name="LogonService" />
+    <orderEntry type="library" name="jooq-pg" level="project" />
   </component>
 </module>

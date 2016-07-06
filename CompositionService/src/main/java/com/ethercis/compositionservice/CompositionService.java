@@ -438,20 +438,6 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             queryMode = QueryMode.SQL;
 
 
-        //get body stuff
-//        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String)null);
-//
-//        if (content == null)
-//            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content cannot be empty for querying EHR");
-//
-//        Integer contentLength = (Integer)props.getClientProperty(Constants.REQUEST_CONTENT_LENGTH, (Integer)0);
-//
-//        if (content.length() != contentLength)
-//            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content may be altered found length ="+content.length()+" expected:"+contentLength);
-
-        //use an explicit query string passed as a parameter
-
-
         //perform the query
         Map<String, Object> result;
 
@@ -460,12 +446,12 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 result = I_EntryAccess.queryJSON(getDataAccess(), queryString);
                 break;
             case AQL:
-                throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "AQL query is not yet supported, use 'sql=<query expression>' instead");
+                result = I_EntryAccess.queryAqlJson(getDataAccess(), queryString);
+                break;
 
             default:
                 throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "Unknown query expression, should be 'sql=' or 'aql='");
         }
-//        Map<String, Object> result = I_EntryAccess.queryJSON(getDataAccess(), content);
 
         if (result.size() == 0){
             global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_NO_CONTENT);

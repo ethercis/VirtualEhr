@@ -114,5 +114,7 @@
     <orderEntry type="library" name="org.apache.shiro:shiro-core:1.2.3" level="project" />
     <orderEntry type="library" name="gson-2.4" level="application" />
     <orderEntry type="library" name="ecis-knowledge-cache" level="project" />
+    <orderEntry type="library" name="aql-processor" level="project" />
+    <orderEntry type="library" name="jooq-pg" level="project" />
   </component>
 </module>

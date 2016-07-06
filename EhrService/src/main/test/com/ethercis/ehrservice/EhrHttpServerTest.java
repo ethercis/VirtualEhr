@@ -683,9 +683,11 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertNotNull(response);
         ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 
-        File flatjsonFile = new File("/Development/Dropbox/eCIS_Development/samples/"+testFile+".json");
+        File flatjsonFile = new File("/Development/Dropbox/eCIS_Development/samples/IDCR-LabReportRAW1_FLATJSON_JOSH2.json");
+//        File flatjsonFile = new File("/Development/Dropbox/eCIS_Development/samples/"+testFile+".json");
         InputStream is = new FileInputStream(flatjsonFile);
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/composition?format=FLAT&templateId=" + testTemplate.replaceAll(" ", "%20"));
+        request = client.newRequest("http://" + hostname + ":8080/rest/v1/composition?format=FLAT&templateId=IDCR - Laboratory Order.v0".replaceAll(" ", "%20"));
+//        request = client.newRequest("http://" + hostname + ":8080/rest/v1/composition?format=FLAT&templateId=" + testTemplate.replaceAll(" ", "%20"));
         request.header("Content-Type", "application/json");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
@@ -707,34 +709,34 @@ public class EhrHttpServerTest extends TestServerSimulator {
         System.out.println(response.getContentAsString());
 
         //get an example
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/template/prescription/example?format=FLAT");
+        request = client.newRequest("http://"+hostname+":8080/rest/v1/template/IDCR%20-%20Laboratory%20Order.v0/example?format=FLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
         assertNotNull(response);
 
-//        //update composition
-//        BytesContentProvider bytesContentProvider = jsonContentFromTestFile("/Development/Dropbox/eCIS_Development/samples/IDCR Lab Order RAW1_FLATJSON_UPDATE.json");
-//        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
-//        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
-//        request.header("Content-Type", "application/json");
-//        request.content(bytesContentProvider, "application/json");
-//        request.method(HttpMethod.PUT);
-//        response = stopWatchRequestSend(request);
-//        assertNotNull(response);
-//        //output the content
-//        System.out.println(response.getContentAsString());
-//
-//
-//        //retrieve this composition under two formats...
-//        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
-//        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
-//        request.header("Accept", "application/json");
-//        request.method(HttpMethod.GET);
-//        response = stopWatchRequestSend(request);
-//        assertNotNull(response);
-//        //output the content
-//        System.out.println(response.getContentAsString());
+        //update composition
+        BytesContentProvider bytesContentProvider = jsonContentFromTestFile("/Development/Dropbox/eCIS_Development/samples/IDCR Lab Order RAW1_FLATJSON_UPDATE.json");
+        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.header("Content-Type", "application/json");
+        request.content(bytesContentProvider, "application/json");
+        request.method(HttpMethod.PUT);
+        response = stopWatchRequestSend(request);
+        assertNotNull(response);
+        //output the content
+        System.out.println(response.getContentAsString());
+
+
+        //retrieve this composition under two formats...
+        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.header("Accept", "application/json");
+        request.method(HttpMethod.GET);
+        response = stopWatchRequestSend(request);
+        assertNotNull(response);
+        //output the content
+        System.out.println(response.getContentAsString());
 
         //delete composition
         request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/" + compositionId+"?format=RAW");
@@ -760,6 +762,90 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertEquals(200, response.getStatus());
 
         dumpTimings();
+    }
+
+//    String query = "SELECT c/uid/value,"+
+//            "c/name/value,"+
+//            "eval/data[at0001]/items[at0002]/value/value AS problem, " +
+//            "eval/data[at0001]/items[at0002]/value/defining_code/code_string AS code, " +
+//            "eval/data[at0001]/items[at0002]/value/defining_code/terminology_id/name AS code, " +
+//            "eval/data[at0001]/items[at0009]/value/value AS description, "+
+//            "eval/data[at0001]/items[at0077]/value/value AS onset "+
+//            "FROM EHR e  " +
+//            "CONTAINS COMPOSITION c " +
+//            "CONTAINS EVALUATION eval [openEHR-EHR-EVALUATION.problem-diagnosis.v1] " +
+//            "WHERE c/uid/value = '08fd487b-765a-41b4-9501-334d48dc2b00::test::1'";
+
+    String query =  "select a/uid/value as uid, " +
+            "a/composer/name as author, " +
+            "e/ehr_status/subject/external_ref/id/value,"+
+            "a/context/start_time/value as date_submitted, " +
+            "b_a/description[at0001]/items[at0002]/value/value as procedure_name, " +
+            "b_a/description[at0001]/items[at0049, 'Procedure notes']/value/value as procedure_notes, " +
+            "b_a/other_participations/performer/name as performer, " +
+            "b_a/time/value as procedure_date, " +
+            "b_a/ism_transition/careflow_step/value as status, " +
+            "b_a/ism_transition/careflow_step/defining_code/code_string as status_code, " +
+            "b_a/ism_transition/careflow_step/defining_code/terminology_id/value as terminology " +
+            "from EHR e " +
+            "contains COMPOSITION a[openEHR-EHR-COMPOSITION.care_summary.v0] " +
+            "contains ACTION b_a[openEHR-EHR-ACTION.procedure.v1] " +
+            "where a/name/value='Procedures list' "+
+//                "and a/uid/value='" + procedureId + "' " +
+            "and e/ehr_status/subject/external_ref/id/value = '9999999000'";
+
+    @Test
+    public void testQuery() throws Exception {
+        int t = 0;
+
+        String userId = "guest";
+        String password = "guest";
+
+        timings.clear();
+
+        ContentResponse response;
+
+        //login first!
+        response = client.POST("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+        String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
+
+        String encodedQuery = query.replaceAll(" ", "%20");
+
+        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/query?aql="+encodedQuery);
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.method(HttpMethod.GET);
+//        //set query string in body
+//        request.content(new BytesContentProvider(query.getBytes()), "application/text");
+        response = stopWatchRequestSend(request);
+
+        assertNotNull(response);
+
+        System.out.println(response.getContentAsString());
+
+        request = client.newRequest("http://" + hostname + ":8080/rest/v1/session");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.method(HttpMethod.DELETE);
+        response = stopWatchRequestSend(request);
+        assertEquals(200, response.getStatus());
+
+        dumpTimings();
+    }
+
+    @Test
+    public void testLoginWithHeader() throws Exception {
+        String userId = "guest";
+        String password = "guest";
+
+        //login first!
+        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password);
+        request.header("x-bypass-credential", "true");
+        request.header("x-session-timeout", "0");
+        request.header("x-session-name", "TEST-INTERNAL");
+        request.header("Ehr-Session", "TEST-INTERNAL-SECRET");
+        request.header("x-max-session", "200");
+        request.method(HttpMethod.POST);
+        ContentResponse response = stopWatchRequestSend(request);
+        assertNotNull(response);
     }
 }
 
