@@ -31,7 +31,8 @@ import com.ethercis.servicemanager.common.security.I_Authenticate;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ import java.util.List;
         @RunLevelAction(onShutdownRunlevel = 8, sequence = 5, action = "STOP") })
 
 public class AuthenticateService extends ClusterInfo implements AuthenticateServiceMBean, I_SubjectService {
-	private static Logger log = Logger.getLogger(AuthenticateService.class);
+	private static Logger log = LogManager.getLogger(AuthenticateService.class);
 	private RunTimeSingleton global;
 	final private String ME = "AuthenticateService";
 	final private String Version = "1.0";

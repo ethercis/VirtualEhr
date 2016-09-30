@@ -58,61 +58,76 @@ public class EhrScapeURIParserTest extends TestCase {
     public void testEhrQueryParser() throws ServiceManagerException {
 //        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=1234&subjectNamespace=ABCDEF");
 //        request.method(HttpMethod.POST);
+//        HttpServletRequest request = mock(HttpServletRequest.class);
+//        when(request.getRequestURI()).thenReturn("/rest/v1/ehr");
+//        Map<String, String[]> parameters = new HashMap<String, String[]>();
+//        parameters.put("subjectId", new String[]{"1234"});
+//        parameters.put("subjectNamespace", new String[]{"ABCDEF"});
+//        when(request.getParameterMap()).thenReturn(parameters);
+//        Map<String, String[]> headers = new HashMap<String, String[]>();
+//        headers.put("Content-Type", new String[]{"application/json"});
+//        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+//        when(request.getHeader("Content-Type")).thenReturn("application/json");
+//        when(request.getMethod()).thenReturn("POST");
+//        uriParser.parse(request);
+//        assertEquals("POST", uriParser.identifyMethod().toUpperCase());
+//        assertEquals("1234", uriParser.identifyParametersAsProperties().getClientProperty("subjectId").toString());
+//        assertEquals("ABCDEF", uriParser.identifyParametersAsProperties().getClientProperty("subjectNamespace").toString());
+//
+//        ///ehr/{ehrId} retrieve an ehr Status from its id
+//        request = mock(HttpServletRequest.class);
+//        when(request.getRequestURI()).thenReturn("/rest/v1/ehr/8fd2bea0-9e0e-11e5-8994-feff819cdc9f");
+//        parameters = new HashMap<>();
+//        when(request.getParameterMap()).thenReturn(parameters);
+//        headers = new HashMap<>();
+//        headers.put("Content-Type", new String[]{"application/json"});
+//        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+//        when(request.getHeader("Content-Type")).thenReturn("application/json");
+//        when(request.getMethod()).thenReturn("GET");
+//        uriParser.parse(request);
+//        assertEquals("GET", uriParser.identifyMethod().toUpperCase());
+//        assertEquals("rest/v1/ehr/status", uriParser.identifyPath());
+//        assertEquals("8fd2bea0-9e0e-11e5-8994-feff819cdc9f", uriParser.identifyParametersAsProperties().getClientProperty("ehrId").toString());
+//
+//        //Returns a JSON representation of the state of the EHR for a subject Id and namespace (STATUS)
+//        request = mock(HttpServletRequest.class);
+//        when(request.getRequestURI()).thenReturn("/rest/v1/ehr");
+//        parameters = new HashMap<>();
+//        parameters.put("subjectId", new String[]{"1234"});
+//        parameters.put("subjectNamespace", new String[]{"ABCDEF"});
+//        when(request.getParameterMap()).thenReturn(parameters);
+//        headers = new HashMap<>();
+//        headers.put("Content-Type", new String[]{"application/json"});
+//        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+//        when(request.getHeader("Content-Type")).thenReturn("application/json");
+//        when(request.getMethod()).thenReturn("GET");
+//        uriParser.parse(request);
+//        assertEquals("GET", uriParser.identifyMethod().toUpperCase());
+//        assertEquals("rest/v1/ehr/status", uriParser.identifyPath());
+//        assertEquals("1234", uriParser.identifyParametersAsProperties().getClientProperty("subjectId").toString());
+//        assertEquals("ABCDEF", uriParser.identifyParametersAsProperties().getClientProperty("subjectNamespace").toString());
+//
+//        //update the status of an EHR
+//        request = mock(HttpServletRequest.class);
+//        when(request.getRequestURI()).thenReturn("/rest/v1/ehr/status/8fd2bea0-9e0e-11e5-8994-feff819cdc9f");
+//        parameters = new HashMap<>();
+//        when(request.getParameterMap()).thenReturn(parameters);
+//        headers = new HashMap<>();
+//        headers.put("Content-Type", new String[]{"application/json"});
+//        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+//        when(request.getHeader("Content-Type")).thenReturn("application/json");
+//        when(request.getMethod()).thenReturn("PUT");
+//        uriParser.parse(request);
+//        assertEquals("PUT", uriParser.identifyMethod().toUpperCase());
+//        assertEquals("rest/v1/ehr/status", uriParser.identifyPath());
+//        assertEquals("8fd2bea0-9e0e-11e5-8994-feff819cdc9f", uriParser.identifyParametersAsProperties().getClientProperty("ehrId").toString());
+
+        //update the other_details of the status of an EHR
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn("/rest/v1/ehr");
-        Map<String, String[]> parameters = new HashMap<String, String[]>();
-        parameters.put("subjectId", new String[]{"1234"});
-        parameters.put("subjectNamespace", new String[]{"ABCDEF"});
+        when(request.getRequestURI()).thenReturn("/rest/v1/ehr/status/8fd2bea0-9e0e-11e5-8994-feff819cdc9f/other_details");
+        Map<String, String[]> parameters = new HashMap<>();
         when(request.getParameterMap()).thenReturn(parameters);
-        Map<String, String[]> headers = new HashMap<String, String[]>();
-        headers.put("Content-Type", new String[]{"application/json"});
-        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
-        when(request.getHeader("Content-Type")).thenReturn("application/json");
-        when(request.getMethod()).thenReturn("POST");
-        uriParser.parse(request);
-        assertEquals("POST", uriParser.identifyMethod().toUpperCase());
-        assertEquals("1234", uriParser.identifyParametersAsProperties().getClientProperty("subjectId").toString());
-        assertEquals("ABCDEF", uriParser.identifyParametersAsProperties().getClientProperty("subjectNamespace").toString());
-
-        ///ehr/{ehrId} retrieve an ehr Status from its id
-        request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn("/rest/v1/ehr/8fd2bea0-9e0e-11e5-8994-feff819cdc9f");
-        parameters = new HashMap<>();
-        when(request.getParameterMap()).thenReturn(parameters);
-        headers = new HashMap<>();
-        headers.put("Content-Type", new String[]{"application/json"});
-        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
-        when(request.getHeader("Content-Type")).thenReturn("application/json");
-        when(request.getMethod()).thenReturn("GET");
-        uriParser.parse(request);
-        assertEquals("GET", uriParser.identifyMethod().toUpperCase());
-        assertEquals("rest/v1/ehr/status", uriParser.identifyPath());
-        assertEquals("8fd2bea0-9e0e-11e5-8994-feff819cdc9f", uriParser.identifyParametersAsProperties().getClientProperty("ehrId").toString());
-
-        //Returns a JSON representation of the state of the EHR for a subject Id and namespace (STATUS)
-        request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn("/rest/v1/ehr");
-        parameters = new HashMap<>();
-        parameters.put("subjectId", new String[]{"1234"});
-        parameters.put("subjectNamespace", new String[]{"ABCDEF"});
-        when(request.getParameterMap()).thenReturn(parameters);
-        headers = new HashMap<>();
-        headers.put("Content-Type", new String[]{"application/json"});
-        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
-        when(request.getHeader("Content-Type")).thenReturn("application/json");
-        when(request.getMethod()).thenReturn("GET");
-        uriParser.parse(request);
-        assertEquals("GET", uriParser.identifyMethod().toUpperCase());
-        assertEquals("rest/v1/ehr/status", uriParser.identifyPath());
-        assertEquals("1234", uriParser.identifyParametersAsProperties().getClientProperty("subjectId").toString());
-        assertEquals("ABCDEF", uriParser.identifyParametersAsProperties().getClientProperty("subjectNamespace").toString());
-
-        //update the status of an EHR
-        request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn("/rest/v1/ehr/status/8fd2bea0-9e0e-11e5-8994-feff819cdc9f");
-        parameters = new HashMap<>();
-        when(request.getParameterMap()).thenReturn(parameters);
-        headers = new HashMap<>();
+        Map<String, String[]> headers = new HashMap<>();
         headers.put("Content-Type", new String[]{"application/json"});
         when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
         when(request.getHeader("Content-Type")).thenReturn("application/json");
@@ -128,7 +143,7 @@ public class EhrScapeURIParserTest extends TestCase {
 //        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=1234&subjectNamespace=ABCDEF");
 //        request.method(HttpMethod.POST);
         HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn("/rest/v1/composition");
+        when(request.getRequestURI()).thenReturn("/rest/v1/identity/user");
         Map<String, String[]> parameters = new HashMap<String, String[]>();
         parameters.put("format", new String[]{"RAW"});
         when(request.getParameterMap()).thenReturn(parameters);
@@ -140,6 +155,21 @@ public class EhrScapeURIParserTest extends TestCase {
         uriParser.parse(request);
         assertEquals("POST", uriParser.identifyMethod().toUpperCase());
         assertEquals("XML", uriParser.identifyParametersAsProperties().getClientProperty("format").toString());
+
+
+//        HttpServletRequest request = mock(HttpServletRequest.class);
+//        when(request.getRequestURI()).thenReturn("/rest/v1/composition/test");
+//        Map<String, String[]> parameters = new HashMap<String, String[]>();
+//        parameters.put("format", new String[]{"RAW"});
+//        when(request.getParameterMap()).thenReturn(parameters);
+//        Map<String, String[]> headers = new HashMap<String, String[]>();
+//        headers.put("Content-Type", new String[]{"application/xml"});
+//        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+//        when(request.getHeader("Content-Type")).thenReturn("application/xml");
+//        when(request.getMethod()).thenReturn("POST");
+//        uriParser.parse(request);
+//        assertEquals("POST", uriParser.identifyMethod().toUpperCase());
+//        assertEquals("XML", uriParser.identifyParametersAsProperties().getClientProperty("format").toString());
 
         request = mock(HttpServletRequest.class);
         when(request.getRequestURI()).thenReturn("/rest/v1/composition/123456?format=FLAT");

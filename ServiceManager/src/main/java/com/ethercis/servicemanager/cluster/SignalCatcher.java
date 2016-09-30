@@ -33,7 +33,8 @@ This code is therefore supplied under LGPL 2.1
 
 package com.ethercis.servicemanager.cluster;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 
@@ -44,7 +45,7 @@ import java.lang.reflect.Method;
  * to still be JDK 1.2 compatible.
  */
 public class SignalCatcher implements Runnable {
-	private static Logger log = Logger.getLogger(SignalCatcher.class);
+	private static Logger log = LogManager.getLogger(SignalCatcher.class);
 	private static SignalCatcher theSignalCatcher;
 	private Thread thread;
 	private I_SignalListener listener;

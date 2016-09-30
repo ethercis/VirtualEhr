@@ -32,8 +32,9 @@ import com.ethercis.servicemanager.common.session.I_SessionProperties;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
-import org.eclipse.jetty.http.HttpHeader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class LogonService extends ClusterInfo implements I_SessionManager {
 	final private String ME = "LogonService";
 	final private String Version = "1.0";
 	private RunTimeSingleton global;
-	private static Logger log = Logger.getLogger(LogonService.class);
+	private static Logger log = LogManager.getLogger(LogonService.class);
 
     private String LOGON_PARAMETER;
     private String PASSWORD_PARAMETER;
@@ -224,8 +225,9 @@ public class LogonService extends ClusterInfo implements I_SessionManager {
 		if (connectproperties.bypassCredentialCheck())
 			responseHolder.getSessionClientProperties().addClientProperty(I_SessionManager.BYPASS_CREDENTIAL, true);
 
-		responseHolder.getSessionClientProperties().addClientProperty(HttpHeader.TRANSFER_ENCODING.asString(), "chunked");
-		responseHolder.getSessionClientProperties().addClientProperty(HttpHeader.CONTENT_LANGUAGE.asString(), "en-US");
+		//TODO: is this really useful?
+		responseHolder.getSessionClientProperties().addClientProperty("Transfer-Encoding", "chunked");
+		responseHolder.getSessionClientProperties().addClientProperty("Content-Language", "en-US");
 
         //TODO: maybe for some dialect, do not set the secret session id into the content
         responseHolder.setData(sessionProperties.getSecretSessionId());

@@ -16,13 +16,13 @@
  */
 package com.ethercis.servicemanager.dummy;
 
-import org.apache.log4j.Logger;
-
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
 import com.ethercis.servicemanager.cluster.I_Info;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.service.ServiceInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * simple example to perform an operation on another runtime service by invoking a public method
@@ -33,7 +33,7 @@ import com.ethercis.servicemanager.service.ServiceInfo;
 public class DummyConsumer extends ClusterInfo implements DummyConsumerMXBean {
 	private RunTimeSingleton glob;
 	private String ME = "DummyConsumer";
-	private Logger log = Logger.getLogger(ME);
+	private Logger log = LogManager.getLogger(ME);
 	I_DummyProvider provider;
 	
 	public void shutdown() {

@@ -34,7 +34,8 @@ This code is therefore supplied under LGPL 2.1
 package com.ethercis.servicemanager.service;
 
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -45,7 +46,7 @@ import java.util.Iterator;
  */
 public class ServiceRegistry implements Iterable<I_Service> {
 	private static String ME = "ServiceRegistry";
-	private static Logger log = Logger.getLogger(ServiceRegistry.class);
+	private static Logger log = LogManager.getLogger(ServiceRegistry.class);
 	/** key=ServiceId String, value=I_Service */
 	private Hashtable Services;
 	Iterator<I_Service> it;

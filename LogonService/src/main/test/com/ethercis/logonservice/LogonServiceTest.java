@@ -31,7 +31,9 @@ import com.ethercis.servicemanager.common.session.I_SessionInfo;
 import com.ethercis.servicemanager.common.session.I_SessionProperties;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class LogonServiceTest {
-	static Logger logger = Logger.getLogger("com.ethercis");
+	static Logger logger = LogManager.getLogger("com.ethercis");
     RunTimeSingleton controller;
     LogonService logonService;
     ServiceSecurityManager manager;

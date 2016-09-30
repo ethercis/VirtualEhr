@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.log4j.Logger;
-
 import com.ethercis.logonservice.session.protectors.SessionInfoProtector;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.cluster.ContextNode;
@@ -46,6 +44,8 @@ import com.ethercis.servicemanager.common.session.I_SessionInfo;
 import com.ethercis.servicemanager.common.session.I_SessionName;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.jmx.JmxMBeanHandle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -68,7 +68,7 @@ public final class SessionInfo implements I_Timeout, I_SessionInfo
    private Timeout expiryTimer;
    private TimeStamp timerKey;
    private RunTimeSingleton glob;
-   private static Logger log = Logger.getLogger(SessionInfo.class);
+   private static Logger log = LogManager.getLogger(SessionInfo.class);
  
    private boolean isShutdown = false;
    /** Protects timerKey refresh */

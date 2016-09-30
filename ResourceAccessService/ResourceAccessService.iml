@@ -12,7 +12,6 @@
     <orderEntry type="library" name="ecis-knowledge-cache" level="project" />
     <orderEntry type="module" module-name="CacheKnowledgeService" />
     <orderEntry type="module" module-name="ServiceManager" />
-    <orderEntry type="library" name="log4j:log4j:1.2.17" level="application" />
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
@@ -35,5 +34,7 @@
     </orderEntry>
     <orderEntry type="module" module-name="LogonService" />
     <orderEntry type="library" name="jooq-pg" level="project" />
+    <orderEntry type="library" name="org.apache.logging.log4j:log4j-core:2.6.2" level="application" />
+    <orderEntry type="library" name="org.apache.logging.log4j:log4j-api:2.6.2" level="project" />
   </component>
 </module>

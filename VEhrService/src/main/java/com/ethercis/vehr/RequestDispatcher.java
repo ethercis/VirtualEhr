@@ -34,7 +34,8 @@ import com.ethercis.servicemanager.common.session.I_QueryUnit;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.service.I_Service;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import java.io.File;
@@ -92,7 +93,7 @@ import java.util.Map;
 
 public class RequestDispatcher extends ClusterInfo implements RequestDispatcherMBean {
 
-	private Logger log = Logger.getLogger(RequestDispatcher.class);
+	private Logger log = LogManager.getLogger(RequestDispatcher.class);
 	private String ME = "RequestDispatcher";
 	private RunTimeSingleton global;
 	Map<String, Map<String, ServiceAttribute>> actionmap = new HashMap<String, Map<String, ServiceAttribute>>();

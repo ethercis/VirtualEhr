@@ -27,13 +27,15 @@ import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * ETHERCIS Project VirtualEhr
@@ -49,7 +51,7 @@ public class EhrScapeURIParser extends URIParser {
 
     public static final String ME = "URIParser";
     final private String Version = "1.0";
-    private Logger log = Logger.getLogger(EhrScapeURIParser.class);
+    private Logger log = LogManager.getLogger(EhrScapeURIParser.class);
 
 //    private Map<String, String> parameters;
 
@@ -153,6 +155,16 @@ public class EhrScapeURIParser extends URIParser {
                 break;
             case "IMPORT":
                 break;
+            default:
+                //collate tokens
+                if (tokens != null) {
+                    List<String> remainder = Arrays.asList(tokens);
+                    if (!remainder.isEmpty())
+                        resourceToken = resourceToken + "/" + String.join("/", remainder);
+                }
+                break;
+
+
         }
 
         requestURI = requestURI.substring(1);

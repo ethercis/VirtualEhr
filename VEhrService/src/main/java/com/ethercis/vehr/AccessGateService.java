@@ -45,7 +45,8 @@ import com.ethercis.servicemanager.jmx.SerializeHelper;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.servicemanager.service.ServiceRegistry;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
@@ -113,7 +114,7 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
 
 	final private String ME = "AccessGateService";
 	final private String Version = "1.0";
-	private static Logger log = Logger.getLogger(AccessGateService.class);
+	private static Logger log = LogManager.getLogger(AccessGateService.class);
 
 	private RequestDispatcher requestDispatcher;
 	private LogonService logonService;

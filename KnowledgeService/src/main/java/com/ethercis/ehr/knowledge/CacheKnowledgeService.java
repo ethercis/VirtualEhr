@@ -23,6 +23,8 @@ import com.ethercis.ehr.util.FlatJsonCompositionConverter;
 import com.ethercis.ehr.util.I_FlatJsonCompositionConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openehr.rm.common.generic.PartyIdentified;
 import com.ethercis.ehr.building.I_ContentBuilder;
 import com.ethercis.ehr.building.util.CompositionAttributesHelper;
@@ -42,7 +44,6 @@ import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
 import org.openehr.rm.common.archetyped.Locatable;
 import org.openehr.rm.composition.Composition;
 import org.openehr.rm.composition.EventContext;
@@ -92,7 +93,7 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
 	
 	private String ME="CacheKnowledgeService";
 	private String version="1.0";
-	private Logger log = Logger.getLogger(ME);
+	private Logger log = LogManager.getLogger(ME);
 	private RunTimeSingleton global;
 	private I_KnowledgeCache cache;
     private ServiceInfo serviceInfo = null; //used for JMX reload()

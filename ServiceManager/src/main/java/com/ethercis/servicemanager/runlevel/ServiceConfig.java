@@ -41,7 +41,8 @@ import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.jmx.JmxMBeanHandle;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -54,7 +55,7 @@ import java.util.Vector;
  */
 public class ServiceConfig implements ServiceConfigMBean, I_AttributeUser {
 	private final RunTimeSingleton glob;
-	private static Logger log = Logger.getLogger(ServiceConfig.class);
+	private static Logger log = LogManager.getLogger(ServiceConfig.class);
 
 	/** the id specifying a given service configuration */
 	private String id = "";

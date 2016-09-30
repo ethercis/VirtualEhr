@@ -35,15 +35,18 @@ package com.ethercis.servicemanager.jmx;
 
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.management.*;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Definition of a dynamic MBean which exports the logging properties. 
@@ -71,7 +74,7 @@ import java.util.Iterator;
  * @since 1.0.5
  */
 public class JmxLogLevel implements DynamicMBean {
-   private static Logger log = Logger.getLogger(JmxLogLevel.class);
+   private static Logger log = LogManager.getLogger(JmxLogLevel.class);
    private RunTimeSingleton glob;
    private String dClassName = this.getClass().getName();
    private MBeanAttributeInfo[] dAttributes;
@@ -260,10 +263,12 @@ public class JmxLogLevel implements DynamicMBean {
     * @return never null
     */
    private Logger[] getLoggers() {
-      Enumeration e = LogManager.getCurrentLoggers();
+       LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+       Map<String, LoggerConfig> loggerConfigMap = loggerContext.getConfiguration().getLoggers();
       ArrayList list = new ArrayList();
-      while (e.hasMoreElements()) {
-         String name = ((Logger)e.nextElement()).getName();
+      for (Map.Entry<String, LoggerConfig> entry: loggerConfigMap.entrySet()) {
+         String name = entry.getKey();
+          LoggerConfig loggerConfig = entry.getValue();
          Logger logger = LogManager.getLogger(name);
          if (logger != null)
             list.add(logger);

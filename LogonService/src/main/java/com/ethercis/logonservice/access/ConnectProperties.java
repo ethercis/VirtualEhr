@@ -34,8 +34,6 @@ package com.ethercis.logonservice.access;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.ethercis.logonservice.security.SecurityProperties;
 import com.ethercis.logonservice.session.ConnectionStateEnum;
 import com.ethercis.logonservice.session.SessionName;
@@ -51,6 +49,8 @@ import com.ethercis.servicemanager.common.session.I_ConnectionStateEnum;
 import com.ethercis.servicemanager.common.session.I_SecurityProperties;
 import com.ethercis.servicemanager.common.session.I_SessionProperties;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class encapsulates the properties of a login() or connect().
@@ -60,7 +60,7 @@ import com.ethercis.servicemanager.exceptions.ServiceManagerException;
  */
 public final class ConnectProperties extends SessionProperties implements
 		java.io.Serializable, Cloneable, ConnectPropertiesMBean, I_ConnectProperties {
-	private static Logger log = Logger.getLogger(ConnectProperties.class.getName());
+	private static Logger log = LogManager.getLogger(ConnectProperties.class.getName());
 	private static final long serialVersionUID = 1L;
 	// private final String ME = "ConnectData";
 	private I_ConnectionStateEnum initialConnectionState = ConnectionStateEnum.UNDEF;

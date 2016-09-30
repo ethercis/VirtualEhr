@@ -40,7 +40,8 @@ import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.ServiceConfig;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -53,7 +54,7 @@ public class ServiceManagerBase implements I_ServiceManager {
    private static String ME = "ServiceManagerBase";
    private Hashtable ServiceCache; // currently loaded Services  (REMOVE???)
    protected final RunTimeSingleton glob;
-   private static Logger log = Logger.getLogger(ServiceManagerBase.class);
+   private static Logger log = LogManager.getLogger(ServiceManagerBase.class);
    public final static String NO_Service_TYPE = "undef";
 
    public ServiceManagerBase(RunTimeSingleton glob) {

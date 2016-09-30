@@ -33,7 +33,8 @@ This code is therefore supplied under LGPL 2.1
 
 package com.ethercis.servicemanager.runlevel;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.Attributes;
 
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
@@ -55,7 +56,7 @@ import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 public class RunLevelActionSaxFactory extends SaxHandlerBase {
 	private String ME = "RunLevelActionSaxFactory";
 	private final RunTimeSingleton glob;
-	private static Logger log = Logger.getLogger(RunLevelActionSaxFactory.class
+	private static Logger log = LogManager.getLogger(RunLevelActionSaxFactory.class
 			.getName());
 
 	private RunLevelAction runLevelAction;

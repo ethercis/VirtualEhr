@@ -36,7 +36,8 @@ package com.ethercis.servicemanager.cluster;
 import com.ethercis.servicemanager.common.ClientProperty;
 import com.ethercis.servicemanager.common.I_ReplaceVariable;
 import com.ethercis.servicemanager.common.ReplaceVariable;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -51,7 +52,7 @@ import java.util.TreeMap;
  */
 public class InfoHelper {
 
-   private static Logger log = Logger.getLogger(InfoHelper.class);
+   private static Logger log = LogManager.getLogger(InfoHelper.class);
 
    class Replacer implements I_ReplaceVariable {
       

@@ -23,7 +23,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
@@ -55,7 +57,7 @@ public class Launcher  {
     public static String default_host = "localhost";
 
     static Options options = new Options();
-    static Logger logger = Logger.getLogger(Launcher.class);
+    static Logger logger = LogManager.getLogger(Launcher.class);
 
     static {
         options.addOption(command_server_port, true, "port number to bind service to");
@@ -134,8 +136,8 @@ public class Launcher  {
         try {
             server.start();
         } catch (BindException e){
-            logger.error("Address already in use! ("+socketAddress.toString()+")");
-            throw new IllegalArgumentException("Address already in use! ("+socketAddress.toString()+")");
+            logger.error("Could not bind to network interface ("+socketAddress.toString()+"), exception:"+e);
+            throw new IllegalArgumentException("Could not bind to network interface  ("+socketAddress.toString()+"), exception:"+e);
         }
         logger.info("Server listening at:" + server.getURI().toString());
         if (!debug)

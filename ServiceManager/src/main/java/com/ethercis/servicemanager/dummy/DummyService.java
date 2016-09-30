@@ -22,7 +22,8 @@ import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.service.I_Service;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Properties;
 
@@ -34,7 +35,7 @@ import java.util.Properties;
 
 public class DummyService implements I_Service, DummyServiceMBean{
 	public static final String __REVISION_ID="$Revision$ $Date$";
-	private static Logger log = Logger.getLogger(Constants.LOGGER_SYSTEM);
+	private static Logger log = LogManager.getLogger(Constants.LOGGER_SYSTEM);
 
 	private ContextNode contextNode;
 	private RunTimeSingleton glob;

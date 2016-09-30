@@ -25,7 +25,8 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
@@ -47,7 +48,7 @@ import com.ethercis.servicemanager.common.ClientProperty;
 public class ConfigSetter extends ConfigHandler {
 	private Exception lastException;
 	private static final String NEWID_TAG = "$id";
-	private static Logger log = Logger.getLogger(ConfigSetter.class);
+	private static Logger log = LogManager.getLogger(ConfigSetter.class);
 	
 	public ConfigSetter(XmlObject root){
 		super(root);

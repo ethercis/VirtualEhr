@@ -36,7 +36,8 @@ package com.ethercis.servicemanager.common;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.*;
 import org.xml.sax.ext.LexicalHandler;
 
@@ -54,7 +55,7 @@ public class SaxHandlerBase implements ContentHandler, ErrorHandler,
 	private String ME = "SaxHandlerBase";
 
 	protected final RunTimeSingleton glob;
-	private static Logger log = Logger.getLogger(SaxHandlerBase.class);
+	private static Logger log = LogManager.getLogger(SaxHandlerBase.class);
 
 	// The current location
 	protected Locator locator = null;

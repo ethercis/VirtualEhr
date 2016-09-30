@@ -33,7 +33,8 @@ import com.ethercis.servicemanager.common.security.I_Principal;
 import com.ethercis.servicemanager.common.security.I_Right;
 import com.ethercis.servicemanager.common.security.I_Rights;
 import com.ethercis.servicemanager.common.session.I_ContextHolder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PrincipalSecurity implements I_Principal {
-	protected static final Logger logger = Logger.getLogger(Constants.LOGGER_SECURITY);
+	protected static final Logger logger = LogManager.getLogger(Constants.LOGGER_SECURITY);
 	protected I_Rights rights;
 	protected List<I_Permission> permissions = new ArrayList<I_Permission>();	
 	/**

@@ -33,7 +33,8 @@ This code is therefore supplied under LGPL 2.1
 
 package com.ethercis.servicemanager.service;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 
@@ -61,7 +62,7 @@ import java.net.URL;
 public class ServiceHolderSaxFactory extends SaxHandlerBase implements ServiceHolderFactory{
 	private String ME = "ServiceHolderSaxFactory";
 	private final RunTimeSingleton glob;
-	private static Logger log = Logger.getLogger(ServiceHolderSaxFactory.class
+	private static Logger log = LogManager.getLogger(ServiceHolderSaxFactory.class
 			.getName());
 
 	private ServiceHolder serviceHolder;

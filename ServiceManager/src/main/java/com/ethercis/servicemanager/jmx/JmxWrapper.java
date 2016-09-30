@@ -39,7 +39,8 @@ import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.StringPairTokenizer;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.management.*;
 import javax.security.auth.Subject;
@@ -93,7 +94,7 @@ import java.util.*;
 public class JmxWrapper
 {
    private final RunTimeSingleton glob;
-   private static Logger log = Logger.getLogger(JmxWrapper.class);
+   private static Logger log = LogManager.getLogger(JmxWrapper.class);
    private final String ME;
    private MBeanServer mbeanServer;
    private int useJmx;

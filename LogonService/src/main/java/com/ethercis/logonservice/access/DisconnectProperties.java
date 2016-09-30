@@ -28,7 +28,8 @@ import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
 import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.property.PropBoolean;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Properties;
 
@@ -43,7 +44,7 @@ import java.util.Properties;
  */
 public class DisconnectProperties extends SessionProperties implements
 		java.io.Serializable, Cloneable {
-	private static Logger log = Logger.getLogger(DisconnectProperties.class
+	private static Logger log = LogManager.getLogger(DisconnectProperties.class
 			.getName());
 	private static final long serialVersionUID = 2690405423464959314L;
 

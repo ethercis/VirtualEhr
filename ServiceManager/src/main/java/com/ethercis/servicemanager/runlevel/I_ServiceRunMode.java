@@ -51,5 +51,6 @@ public interface I_ServiceRunMode {
     public final String SERVER_DIALECT_PARAMETER = "server.mode.dialect";
     public final String SERVER_ASYNC_MODE = "server.mode.asynchronous";
     public final String SERVER_DIALECT_ROOT = "server.mode.dialect.root";
+    String SERVER_SERVICE_CLASS_DEF = "server.service.class.def";
 
 }

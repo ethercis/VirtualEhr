@@ -18,7 +18,7 @@
 package com.ethercis.authenticate.service;
 
 import com.ethercis.authenticate.dummy.DummyLookupManager;
-import org.apache.log4j.Logger;
+
 
 import com.ethercis.authenticate.interfaces.I_LookupManager;
 
@@ -26,9 +26,11 @@ import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LookupManagerFactory {
-	private static Logger log = Logger.getLogger(LookupManagerFactory.class);
+	private static Logger log = LogManager.getLogger(LookupManagerFactory.class);
 	final private static String ME = "LookupManagerFactory";
 	
 	

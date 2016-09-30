@@ -24,7 +24,8 @@ import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.ehrserver.servicemap.Action;
 import com.ethercis.ehrserver.servicemap.MapperDocument;
 import com.ethercis.vehr.RequestDispatcher.ServiceAttribute;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import java.io.File;
@@ -36,7 +37,7 @@ import java.util.Map;
 
 
 public class FileDispatchMapper implements I_DispatchMapper {
-	private Logger log = Logger.getLogger(FileDispatchMapper.class);
+	private Logger log = LogManager.getLogger(FileDispatchMapper.class);
 	private String ME = "DispatchMapFactoryFile";
 	private String mapfile;
 	private RunTimeSingleton global;

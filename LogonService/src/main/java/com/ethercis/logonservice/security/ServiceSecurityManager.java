@@ -35,7 +35,8 @@ import com.ethercis.servicemanager.common.security.I_Session;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -61,7 +62,7 @@ import java.util.Map;
 		@RunLevelAction(onShutdownRunlevel = 8, sequence = 5, action = "STOP") })
 
 public class ServiceSecurityManager extends ClusterInfo implements I_Manager, ServiceSecurityManagerMBean {
-	private static Logger log = Logger.getLogger(Constants.LOGGER_SECURITY);
+	private static Logger log = LogManager.getLogger(Constants.LOGGER_SECURITY);
 	private static String ME = ServiceSecurityManager.class.getName();
 //	private Policy policy;
 	private RunTimeSingleton global;

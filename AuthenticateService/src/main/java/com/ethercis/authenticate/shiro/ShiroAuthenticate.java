@@ -28,7 +28,8 @@ import com.ethercis.servicemanager.common.security.I_Authenticate;
 import com.ethercis.servicemanager.common.security.I_Principal;
 import com.ethercis.servicemanager.common.session.I_ContextHolder;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.authc.*;
@@ -45,7 +46,7 @@ import java.util.List;
  */
 public class ShiroAuthenticate implements I_Authenticate {
 
-    private static final Logger log = Logger.getLogger(Constants.LOGGER_SECURITY);
+    private static final Logger log = LogManager.getLogger(Constants.LOGGER_SECURITY);
     private static final String ME = ShiroAuthenticate.class.getName();
 
     private int timeout = -1; //timeout is the number of millisec allowed

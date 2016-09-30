@@ -18,7 +18,8 @@ import com.ethercis.vehr.I_DispatchMapper;
 import com.ethercis.vehr.FileDispatchMapper;
 import com.ethercis.vehr.RequestDispatcher;
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlString;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PolicyManagementTest2 extends TestCase {
-	private Logger log = Logger.getLogger(PolicyManagementTest2.class);
+	private Logger log = LogManager.getLogger(PolicyManagementTest2.class);
 	private AccessGateService accessGateService;
 	private RunTimeSingleton global;
 	private SessionClientProperties hdrprops = new SessionClientProperties(global); //empty fake http header props

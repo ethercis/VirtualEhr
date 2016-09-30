@@ -20,7 +20,8 @@ package com.ethercis.authenticate;
 import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.security.I_Permission;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.*;
@@ -38,7 +39,7 @@ import java.util.regex.Pattern;
 public abstract class Permission implements Serializable, Cloneable, Comparable, I_Permission{
 
 	private static final long serialVersionUID = 8803268741289303139L;
-	private static final Logger logger = Logger.getLogger(Constants.LOGGER_SECURITY);
+	private static final Logger logger = LogManager.getLogger(Constants.LOGGER_SECURITY);
 
 	protected String name;
 	protected MethodName action;

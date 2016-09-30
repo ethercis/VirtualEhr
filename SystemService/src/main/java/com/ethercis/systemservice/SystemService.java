@@ -24,7 +24,8 @@ import com.ethercis.servicemanager.annotation.Service;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ public class SystemService extends ServiceDataCluster implements I_SystemService
 
     final private String ME = "SystemService";
     final private String Version = "1.0";
-    private Logger log = Logger.getLogger(SystemService.class);
+    private Logger log = LogManager.getLogger(SystemService.class);
 
     @Override
     protected void doInit(RunTimeSingleton global, ServiceInfo serviceInfo) throws ServiceManagerException {

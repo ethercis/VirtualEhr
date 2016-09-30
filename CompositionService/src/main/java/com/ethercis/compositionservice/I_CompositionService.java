@@ -30,6 +30,7 @@ public interface I_CompositionService {
     String  FORMAT = "format";
     String SQL_QUERY = "sql" ;
     String AQL_QUERY = "aql" ;
+    String LINK_ID = "link";
 
     enum CompositionFormat {FLAT, STRUCTURED, RAW, XML, ECISFLAT };
 

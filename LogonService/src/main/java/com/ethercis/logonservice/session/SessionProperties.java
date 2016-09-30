@@ -24,9 +24,6 @@ This code is therefore supplied under LGPL 2.1
 //Copyright
 package com.ethercis.logonservice.session;
 
-
-import org.apache.log4j.Logger;
-
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.cluster.NodeId;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
@@ -40,6 +37,8 @@ import com.ethercis.servicemanager.common.session.I_ConnectionStateEnum;
 import com.ethercis.servicemanager.common.session.I_SecurityProperties;
 import com.ethercis.servicemanager.common.session.I_SessionName;
 import com.ethercis.servicemanager.common.session.I_SessionProperties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class provides the properties used for a connect/disconnect or login to the service.
@@ -55,7 +54,7 @@ public class SessionProperties implements java.io.Serializable, Cloneable, I_Ses
 	 */
 	private static final long serialVersionUID = 8527345016332011845L;
 
-	private static Logger log = Logger.getLogger(SessionProperties.class);
+	private static Logger log = LogManager.getLogger(SessionProperties.class);
 
 	private I_ConnectionStateEnum initialConnectionState = ConnectionStateEnum.UNDEF;
 

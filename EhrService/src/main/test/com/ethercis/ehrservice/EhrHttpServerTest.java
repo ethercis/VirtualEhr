@@ -8,13 +8,13 @@ import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.vehr.test.TestServerSimulator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sun.javafx.binding.StringFormatter;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BytesContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,6 +33,8 @@ public class EhrHttpServerTest extends TestServerSimulator {
     long start;
     UUID localPatient;
     String subjectCodeId = "99999-1234";
+    String subjectCodePrefix = "99999-";
+
     String subjectNameSpace = "2.16.840.1.113883.2.1.4.3";
     Gson json = new GsonBuilder().create();
     
@@ -78,8 +80,8 @@ public class EhrHttpServerTest extends TestServerSimulator {
         }
     }
 
-    //other_details
-    String other_details =
+    //other_details_xml
+    String other_details_xml =
             "<items xmlns=\"http://schemas.openehr.org/v1\" " +
             "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
             "archetype_node_id=\"openEHR-EHR-ITEM_TREE.person_anonymised_parents.v0\">\n" +
@@ -154,6 +156,100 @@ public class EhrHttpServerTest extends TestServerSimulator {
             "    </items>\n" +
             "</items>";
 
+    String other_details_json = "{"+
+            " \"otherDetails\": {\n" +
+            "  \"@class\": \"ITEM_TREE\",\n" +
+            "  \"archetype_node_id\": \"at0001\",\n" +
+            "  \"items\": [\n" +
+            "   {\n" +
+            "    \"@class\": \"CLUSTER\",\n" +
+            "    \"archetype_details\": {\n" +
+            "     \"@class\": \"ARCHETYPED\",\n" +
+            "     \"archetype_id\": {\n" +
+            "      \"@class\": \"ARCHETYPE_ID\",\n" +
+            "      \"value\": \"openEHR-EHR-CLUSTER.person_anonymised_parent.v1\"\n" +
+            "     },\n" +
+            "     \"rm_version\": \"1.0.1\"\n" +
+            "    },\n" +
+            "    \"archetype_node_id\": \"openEHR-EHR-CLUSTER.person_anonymised_parent.v1\",\n" +
+            "    \"items\": [\n" +
+            "     {\n" +
+            "      \"@class\": \"ELEMENT\",\n" +
+            "      \"archetype_node_id\": \"at0001\",\n" +
+            "      \"name\": {\n" +
+            "       \"@class\": \"DV_TEXT\",\n" +
+            "       \"value\": \"Administrative Gender\"\n" +
+            "      },\n" +
+            "      \"value\": {\n" +
+            "       \"@class\": \"DV_CODED_TEXT\",\n" +
+            "       \"defining_code\": {\n" +
+            "        \"@class\": \"CODE_PHRASE\",\n" +
+            "        \"code_string\": \"at0009\",\n" +
+            "        \"terminology_id\": {\n" +
+            "         \"@class\": \"TERMINOLOGY_ID\",\n" +
+            "         \"value\": \"local\"\n" +
+            "        }\n" +
+            "       },\n" +
+            "       \"value\": \"Male\"\n" +
+            "      }\n" +
+            "     },\n" +
+            "     {\n" +
+            "      \"@class\": \"ELEMENT\",\n" +
+            "      \"archetype_node_id\": \"at0001\",\n" +
+            "      \"name\": {\n" +
+            "       \"@class\": \"DV_TEXT\",\n" +
+            "       \"value\": \"Birth Sex\"\n" +
+            "      },\n" +
+            "      \"value\": {\n" +
+            "       \"@class\": \"DV_CODED_TEXT\",\n" +
+            "       \"defining_code\": {\n" +
+            "        \"@class\": \"CODE_PHRASE\",\n" +
+            "        \"code_string\": \"at0009\",\n" +
+            "        \"terminology_id\": {\n" +
+            "         \"@class\": \"TERMINOLOGY_ID\",\n" +
+            "         \"value\": \"local\"\n" +
+            "        }\n" +
+            "       },\n" +
+            "       \"value\": \"Male\"\n" +
+            "      }\n" +
+            "     },\n" +
+            "     {\n" +
+            "      \"@class\": \"ELEMENT\",\n" +
+            "      \"archetype_node_id\": \"at0001\",\n" +
+            "      \"name\": {\n" +
+            "       \"@class\": \"DV_TEXT\",\n" +
+            "       \"value\": \"Vital Status\"\n" +
+            "      },\n" +
+            "      \"value\": {\n" +
+            "       \"@class\": \"DV_CODED_TEXT\",\n" +
+            "       \"defining_code\": {\n" +
+            "        \"@class\": \"CODE_PHRASE\",\n" +
+            "        \"code_string\": \"at0004\",\n" +
+            "        \"terminology_id\": {\n" +
+            "         \"@class\": \"TERMINOLOGY_ID\",\n" +
+            "         \"value\": \"local\"\n" +
+            "        }\n" +
+            "       },\n" +
+            "       \"value\": \"Alive\"\n" +
+            "      }\n" +
+            "     },\n" +
+            "     {\n" +
+            "      \"@class\": \"ELEMENT\",\n" +
+            "      \"archetype_node_id\": \"at0014\",\n" +
+            "      \"name\": {\n" +
+            "       \"@class\": \"DV_TEXT\",\n" +
+            "       \"value\": \"Birth Year\"\n" +
+            "      },\n" +
+            "      \"value\": {\n" +
+            "       \"@class\": \"DV_DATE\",\n" +
+            "       \"value\": \"1944\"\n" +
+            "      }\n" +
+            "     }\n" +
+            "    ]\n" +
+            "   }\n" +
+            "  ]\n" +
+            " }";
+
     @Test
     public void testCreateEhr() throws Exception {
         String userId = "guest";
@@ -170,15 +266,19 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         //create a new EHR
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
-        Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        //generate a random subjectCodeId
+        Integer integer = new Random().nextInt();
+        String id = StringFormatter.format("%d", Math.abs(integer % 9999)).getValue();
+        String subjectId = subjectCodePrefix+id;
+        Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectId + "&subjectNamespace=" + subjectNameSpace);
 
-        //pass other_details in body
-        Map<String, String> otherDetailsMap = new HashMap(){{
-            put("otherDetails", other_details);
-            put("otherDetailsTemplateId", "person anonymised parent");
-        }};
-        String otherDetailsMapAsString = json.toJson(otherDetailsMap, Map.class);
-        request.content(new BytesContentProvider(otherDetailsMapAsString.getBytes()));
+        //pass other_details_xml in body
+//        Map<String, String> otherDetailsMap = new HashMap(){{
+//            put("otherDetails", other_details_xml);
+//            put("otherDetailsTemplateId", "person anonymised parent");
+//        }};
+//        String otherDetailsMapAsString = json.toJson(otherDetailsMap, Map.class);
+//        request.content(new BytesContentProvider(otherDetailsMapAsString.getBytes()));
 
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
@@ -197,7 +297,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         //test retrieve ehr
         //NB. use implicit method!
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
@@ -206,25 +306,32 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         map = json.fromJson(body, Map.class);
         UUID retrievedEhrId = UUID.fromString(map.get("ehrId"));
-
-        assertEquals(ehrId, retrievedEhrId);
-
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/status?ehrId=" + retrievedEhrId);
-        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
-        request.method(HttpMethod.GET);
-        response = stopWatchRequestSend(request);
-        assertNotNull(response);
+//
+//        assertEquals(ehrId, retrievedEhrId);
+//
+//        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/status?ehrId=" + retrievedEhrId);
+//        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+//        request.method(HttpMethod.GET);
+//        response = stopWatchRequestSend(request);
+//        assertNotNull(response);
 
         //#===================== update EHR STATUS =================================================
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/status?ehrId=" + retrievedEhrId);
-        Map<String, String> statusMap = new HashMap(){{
-            put("queryable", false);
-            put("modifiable", false);
+        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/status/" + retrievedEhrId+"/other_details_xml?format=XML");
+        //pass other_details_xml in body
+        Map<String, String> otherDetailsMap = new HashMap(){{
+            put("otherDetails", other_details_json);
+//            put("otherDetailsTemplateId", "person anonymised parent");
         }};
-        String statusMapString = json.toJson(statusMap, Map.class);
-        request.content(new BytesContentProvider(statusMapString.getBytes()));
+        String otherDetailsMapAsString = json.toJson(otherDetailsMap, Map.class);
+        request.content(new BytesContentProvider(otherDetailsMapAsString.getBytes()));
+//        Map<String, String> statusMap = new HashMap(){{
+//            put("queryable", false);
+//            put("modifiable", false);
+//        }};
+//        String statusMapString = json.toJson(statusMap, Map.class);
+//        request.content(new BytesContentProvider(statusMapString.getBytes()));
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
-        request.method(HttpMethod.POST);
+        request.method(HttpMethod.PUT);
         response = stopWatchRequestSend(request);
 
         //#===================== retrieve EHR STATUS =================================================
@@ -254,7 +361,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         //disconnect cleanly from server...
         request = client.newRequest("http://"+hostname+":8080/rest/v1/session");
-        request.content(new BytesContentProvider(statusMapString.getBytes()));
+//        request.content(new BytesContentProvider(statusMapString.getBytes()));
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);

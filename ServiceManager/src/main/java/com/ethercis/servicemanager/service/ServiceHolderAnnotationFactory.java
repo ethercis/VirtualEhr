@@ -23,9 +23,11 @@ import com.ethercis.servicemanager.annotation.Service;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.runlevel.RunLevelAction;
 import com.ethercis.servicemanager.runlevel.ServiceConfig;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +37,7 @@ import java.util.List;
 public class ServiceHolderAnnotationFactory implements ServiceHolderFactory {
 	private String ME = "ServiceHolderAnnotationFactory";
 	private final RunTimeSingleton glob;
-	private static Logger log = Logger.getLogger(ServiceHolderAnnotationFactory.class
+	private static Logger log = LogManager.getLogger(ServiceHolderAnnotationFactory.class
 			.getName());
 	private ServiceHolder serviceHolder;
 	private String currentNode;
@@ -79,11 +81,11 @@ public class ServiceHolderAnnotationFactory implements ServiceHolderFactory {
 		return actions;
 	}
 
-	protected List<ServiceConfig> loadServiceConfig() {
+	protected List<ServiceConfig> loadServiceConfig() throws ServiceManagerException {
 		List<ServiceConfig> configs = new ArrayList<ServiceConfig>();
 		ServiceClassScanner scanner = new ServiceClassScanner();
-		List<Class<Service>> classes = scanner
-				.getServiceClasses(serviceClasses);
+		serviceClasses = glob.getProperty().get(I_ServiceRunMode.SERVER_SERVICE_CLASS_DEF, "com.ethercis");
+		List<Class<Service>> classes = scanner.getServiceClasses(glob, serviceClasses);
 		
 		
 		Collections.sort(classes,new Comparator<Class<Service>>(){

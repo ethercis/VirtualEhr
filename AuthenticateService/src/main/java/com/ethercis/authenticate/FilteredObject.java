@@ -21,7 +21,9 @@ import com.ethercis.servicemanager.common.Parameter;
 import com.ethercis.servicemanager.common.security.I_FilteredObject;
 import com.ethercis.servicemanager.common.security.I_Parameter;
 import com.ethercis.servicemanager.common.security.I_Target;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -33,7 +35,7 @@ import java.util.List;
 @XmlRootElement
 @XmlType(propOrder={"action","target","parameters"} )
 public class FilteredObject implements Serializable, I_FilteredObject {
-	private static Logger log = Logger.getLogger(FilteredObject.class);
+	private static Logger log = LogManager.getLogger(FilteredObject.class);
 	private static final long serialVersionUID = -1861462482031156758L;
 	private String action;
 	private I_Target target;

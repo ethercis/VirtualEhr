@@ -42,7 +42,8 @@ import com.ethercis.servicemanager.service.I_ExtendedService;
 import com.ethercis.servicemanager.service.I_Service;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.servicemanager.service.ServiceRegistry;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -91,7 +92,7 @@ public abstract class ClusterInfo implements I_Service, I_Info {
     protected I_ServiceRunMode.DialectSpace dialectSpace = null;
 	protected String queryRoot;
 
-	private static Logger log = Logger.getLogger(ClusterInfo.class);
+	private static Logger log = LogManager.getLogger(ClusterInfo.class);
 	protected RunTimeSingleton global;
 	protected ServiceInfo serviceInfo;
 	private Map objects = new HashMap();

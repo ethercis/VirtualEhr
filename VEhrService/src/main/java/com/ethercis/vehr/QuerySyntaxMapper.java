@@ -25,7 +25,8 @@ import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceClassScanner;
 import com.ethercis.vehr.RequestDispatcher.ServiceAttribute;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -35,7 +36,8 @@ import java.util.Map;
 
 public class QuerySyntaxMapper implements I_DispatchMapper {
     RunTimeSingleton global;
-	Logger log=Logger.getLogger(QuerySyntaxMapper.class);
+	Logger log= LogManager.getLogger(QuerySyntaxMapper.class);
+    String serviceClassDefinition ; //if set, gives the list of prefix to scan for when loading services
 
     I_ServiceRunMode.DialectSpace dialectSpace;
     Boolean asyncQueryService = false;
@@ -44,13 +46,15 @@ public class QuerySyntaxMapper implements I_DispatchMapper {
         String compatibilityValue = global.getProperty().get(I_ServiceRunMode.SERVER_DIALECT_PARAMETER, I_ServiceRunMode.DialectSpace.STANDARD.toString());
         dialectSpace = I_ServiceRunMode.DialectSpace.valueOf(compatibilityValue);
         asyncQueryService = global.getProperty().get(I_ServiceRunMode.SERVER_ASYNC_MODE, false);
+        serviceClassDefinition = global.getProperty().get(I_ServiceRunMode.SERVER_SERVICE_CLASS_DEF, "com.ethercis");
+        this.global = global;
     }
 	
 	@Override
 	public void loadConfiguration(RequestDispatcher requestDispatcher) throws ServiceManagerException {
 		// Load Service
 		ServiceClassScanner scanner = new ServiceClassScanner();
-		List<Class<Service>> classes = scanner.getServiceClasses("com.ethercis");
+		List<Class<Service>> classes = scanner.getServiceClasses(global, serviceClassDefinition);
 		requestDispatcher.configurationAuthor = "ethercis";
 		requestDispatcher.configurationID = "EtherCISConfiguration";
 		requestDispatcher.configurationOrganization = "ethercis";

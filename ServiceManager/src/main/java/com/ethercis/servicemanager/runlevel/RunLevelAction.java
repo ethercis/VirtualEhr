@@ -33,12 +33,11 @@ This code is therefore supplied under LGPL 2.1
 
 package com.ethercis.servicemanager.runlevel;
 
-
-import org.apache.log4j.Logger;
-
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class contains the information on how and when a certain service is invoked by the run level manager
@@ -56,7 +55,7 @@ public class RunLevelAction
    public final static String STOP = "STOP";
 
    private final RunTimeSingleton glob;
-   private static Logger log = Logger.getLogger(RunLevelAction.class);
+   private static Logger log = LogManager.getLogger(RunLevelAction.class);
 
    /* the action to trigger (either LOAD or STOP) */
    private String action;

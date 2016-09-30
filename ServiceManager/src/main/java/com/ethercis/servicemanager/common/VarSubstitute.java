@@ -20,10 +20,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
-
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.service.I_Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -52,7 +52,7 @@ public class VarSubstitute {
 	private static String LEFT_DELIM = "_$[";
 	private static String RIGHT_DELIM = "]";
 	
-	private static Logger log = Logger.getLogger(VarSubstitute.class);
+	private static Logger log = LogManager.getLogger(VarSubstitute.class);
 	
 	/**
 	 * resolve the variables contained in a string<p>

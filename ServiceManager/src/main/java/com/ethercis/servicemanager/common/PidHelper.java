@@ -16,13 +16,15 @@
  */
 package com.ethercis.servicemanager.common;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 
-import org.apache.log4j.Logger;
 
 
 /**
@@ -35,7 +37,7 @@ public class PidHelper {
     private final static String ME = "PidHelper";
 	private final String partitionId;
 	private final String path;
-    private static Logger log = Logger.getLogger("PidHelper");
+    private static Logger log = LogManager.getLogger("PidHelper");
 	
 	/**
 	 * new instance

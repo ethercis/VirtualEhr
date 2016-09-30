@@ -39,10 +39,10 @@ import com.ethercis.servicemanager.common.session.*;
 import com.ethercis.logonservice.access.ConnectProperties;
 import com.ethercis.logonservice.security.SecurityProperties;
 import com.ethercis.logonservice.security.ServiceSecurityManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 
@@ -59,7 +59,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
     private long counter = 1;
 
     private final RunTimeSingleton glob;
-    private static Logger log = Logger.getLogger(SessionManager.class.getName());
+    private static Logger log = LogManager.getLogger(SessionManager.class.getName());
 
     /**
      * With this map you can find a client using a sessionId.
@@ -95,7 +95,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
 
         this.ME = "Authenticate" + glob.getLogPrefixDashed();
 
-        if (log.isLoggable(Level.FINER)) log.finer("Entering constructor");
+        log.debug("Entering constructor");
 
         glob.getRunlevelManager().addRunlevelListener(this);
 
@@ -124,7 +124,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             throws ServiceManagerException
     {
         Thread.dumpStack();
-        log.severe("login() not implemented");
+        log.fatal("login() not implemented");
         throw new ServiceManagerException(glob, SysErrorCode.INTERNAL_NOTIMPLEMENTED, ME, "login() not implemented and deprecated");
     }
 
@@ -138,7 +138,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
     public SessionInfo unsecureCreateSession(SessionProperties props) throws ServiceManagerException
     {
         SessionName sessionName = props.getSessionName();
-        if (log.isLoggable(Level.FINER)) log.finer("Entering unsecureCreateSession(" + sessionName + ")");
+        log.debug("Entering unsecureCreateSession(" + sessionName + ")");
         String secretSessionId = createSessionId(sessionName.getLoginName());
         ServiceSecurityManager manager = new ServiceSecurityManager();
         manager.init(glob, null);
@@ -194,7 +194,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
     {
         if (connectProps.getSessionName().getLoginName().equals(this.glob.getId())) {
             String text = "You are not allowed to login with the cluster node name " + connectProps.getSessionName().toString() + ", access denied.";
-            log.warning(text);
+            log.warn(text);
             throw new ServiceManagerException(glob, SysErrorCode.USER_CONFIGURATION_IDENTICALCLIENT, ME+".connect()", text);
         }
 
@@ -203,7 +203,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             if (si != null && si.isBlockClientLogin()) {
                 // Future todo: Throw out existing session, not only block new
                 // logins
-                log.warning("Access for " + connectProps.getSessionName().toString() + " is blocked and denied (jconsole->blockClientLogin)");
+                log.warn("Access for " + connectProps.getSessionName().toString() + " is blocked and denied (jconsole->blockClientLogin)");
                 throw new ServiceManagerException(glob, SysErrorCode.COMMUNICATION_NOCONNECTION_SERVERDENY, ME + ".connect()",
                         "Access for "
                                 + connectProps.getSessionName().toString()
@@ -214,7 +214,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
                 if (sesi != null && sesi.isBlockClientSessionLogin()) {
                     // Future todo: Throw out existing session, not only block new
                     // logins
-                    log.warning("Access for " + connectProps.getSessionName().toString()
+                    log.warn("Access for " + connectProps.getSessionName().toString()
                             + " is blocked and denied (jconsole->blockClientSessionLogin)");
                     throw new ServiceManagerException(glob, SysErrorCode.COMMUNICATION_NOCONNECTION_SERVERDENY, ME + ".connect()",
                             "Access for " + connectProps.getSessionName().toString()
@@ -226,8 +226,8 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
 
         // [1] Try reconnecting with secret sessionId
         try {
-            if (log.isLoggable(Level.FINE)) log.fine("Entering connect(sessionName=" + connectProps.getSessionName().getAbsoluteName() + ")"); // " secretSessionId=" + secretSessionId + ")");
-            if (log.isLoggable(Level.FINEST)) log.finest("ConnectQos=" + connectProps.toXml());
+            log.debug("Entering connect(sessionName=" + connectProps.getSessionName().getAbsoluteName() + ")"); // " secretSessionId=" + secretSessionId + ")");
+            log.debug("ConnectQos=" + connectProps.toXml());
 
             // Get or create the secretSessionId (we preserve a user supplied secretSessionId) ...
             if (secretSessionId == null || secretSessionId.length() < 2) {
@@ -252,7 +252,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             }
         }
         catch (Throwable e) {
-            log.severe("Internal error when trying to reconnect to session " + connectProps.getSessionName() + " with secret session ID: " + e.toString());
+            log.fatal("Internal error when trying to reconnect to session " + connectProps.getSessionName() + " with secret session ID: " + e.toString());
             e.printStackTrace();
             throw ServiceManagerException.convert(glob, ME, SysErrorCode.INTERNAL_CONNECTIONFAILURE.toString(), e);
         }
@@ -263,7 +263,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             if (info != null && !info.isShutdown() && !info.getConnectProperties().bypassCredentialCheck()) {
                 if (connectProps.reconnectSameClientOnly()) {
                     String text = "Only the creator of session " + connectProps.getSessionName().toString() + " may reconnect, access denied.";
-                    log.warning(text);
+                    log.warn(text);
                     throw new ServiceManagerException(glob, SysErrorCode.USER_CONFIGURATION_IDENTICALCLIENT, ME+".connect()", text);
                 }
                 try {
@@ -296,11 +296,11 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
                     return returnprops;
                 }
                 catch (ServiceManagerException e) {
-                    log.warning("Access is denied when trying to reconnect to session " + info.getSessionName() + ": " + e.getMessage());
+                    log.warn("Access is denied when trying to reconnect to session " + info.getSessionName() + ": " + e.getMessage());
                     throw e; // Thrown if authentication failed
                 }
                 catch (Throwable e) {
-                    log.severe("Internal error when trying to reconnect to session " + info.getSessionName() + " with public session ID: " + e.toString());
+                    log.fatal("Internal error when trying to reconnect to session " + info.getSessionName() + " with public session ID: " + e.toString());
                     e.printStackTrace();
                     throw ServiceManagerException.convert(glob, ME, SysErrorCode.INTERNAL_CONNECTIONFAILURE.toString(), e);
                 }
@@ -311,7 +311,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
         if (secretSessionId == null || secretSessionId.length() < 2) {
             secretSessionId = createSessionId(connectProps.getSecurityProperties().getUserId());
             connectProps.setSecretSessionId(secretSessionId); // assure consistency
-            if (log.isLoggable(Level.FINE)) log.fine("Empty secretSessionId - generated secretSessionId=" + secretSessionId);
+            log.debug("Empty secretSessionId - generated secretSessionId=" + secretSessionId);
         }
 
         I_Session sessionCtx = null;
@@ -325,7 +325,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             securityMgr = (I_Manager)glob.getServiceRegistry().getService(Constants.DEFAULT_SERVICE_SECURITY_MANAGER_ID+","+Constants.DEFAULT_SERVICE_SECURITY_MANAGER_VERSION);
 //         securityMgr = (I_Manager)glob.getServiceManager().getServiceObject(connectProps.getClientPluginType(), connectProps.getClientPluginVersion());
             if (securityMgr == null) {
-                log.warning("Access is denied, there is no security manager configured for this connection: " + connectProps.toXml());
+                log.warn("Access is denied, there is no security manager configured for this connection: " + connectProps.toXml());
                 throw new ServiceManagerException(glob, SysErrorCode.USER_SECURITY_AUTHENTICATION_ACCESSDENIED, ME, "There is no security manager configured with the given connect QoS");
             }
             sessionCtx = securityMgr.reserveSession(secretSessionId);  // always creates a new I_Session instance
@@ -333,29 +333,29 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             if (connectProps.bypassCredentialCheck()) {
                 // This happens when a session is auto created by a PtP message
                 // Only ConnectQosServer (which is under control of the core) can set this flag
-                if (log.isLoggable(Level.FINE)) log.fine("SECURITY SWITCH OFF: Granted access to server without password, bypassCredentialCheck=true");
+                log.debug("SECURITY SWITCH OFF: Granted access to server without password, bypassCredentialCheck=true");
             }
             else {
                 sessionCtx.initializeSession(connectProps.getSecurityProperties()); // throws ServiceManagerExceptions if authentication fails
-//            if (securityInfo != null && securityInfo.length() > 1) log.warning("Ignoring security info: " + securityInfo);
+//            if (securityInfo != null && securityInfo.length() > 1) log.warn("Ignoring security info: " + securityInfo);
             }
             // Now the client is authenticated
         }
         catch (ServiceManagerException e) {
             // If access is denied: cleanup resources
-            log.warning("Access is denied: " + e.getMessage() );
+            log.warn("Access is denied: " + e.getMessage() );
             if (securityMgr != null) securityMgr.releaseSession(secretSessionId, null);  // Always creates a new I_Session instance
             throw e;
         }
         catch (Throwable e) {
-            log.severe("PANIC: Access is denied: " + e.getMessage() + "\n" + RunTimeSingleton.getStackTraceAsString(e));
+            log.fatal("PANIC: Access is denied: " + e.getMessage() + "\n" + RunTimeSingleton.getStackTraceAsString(e));
             e.printStackTrace();
             // On error: cleanup resources
             securityMgr.releaseSession(secretSessionId, null);  // Always creates a new I_Session instance
             throw ServiceManagerException.convert(glob, ME, SysErrorCode.INTERNAL_CONNECTIONFAILURE.toString(), e);
         }
 
-        if (log.isLoggable(Level.FINE)) log.fine("Checking if user is known ...");
+        log.debug("Checking if user is known ...");
         SubjectInfo subjectInfo = null;
         try {
       /*
@@ -402,7 +402,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
                     if (sessions.length > 0) {
                         for (int i=0; i<sessions.length; i++ ) {
                             I_SessionInfo si = sessions[i];
-                            log.warning("Destroying session '" + si.getSecretSessionId() + "' of user '" + subjectInfo.getSubjectName() + "' as requested by client");
+                            log.warn("Destroying session '" + si.getSecretSessionId() + "' of user '" + subjectInfo.getSubjectName() + "' as requested by client");
                             disconnect(si.getSecretSessionId(), (String)null);
                         }
                         // will create a new SubjectInfo instance (which should be OK)
@@ -410,7 +410,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
                     }
                 }
 
-                if (log.isLoggable(Level.FINE)) log.fine("Creating sessionInfo for " + subjectInfo.getId());
+                log.debug("Creating sessionInfo for " + subjectInfo.getId());
 
                 // A PtP with forceQueuing=true and a simultaneous connect of the same
                 // client: This code is thread safe with new SessionInfo() below
@@ -418,7 +418,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
                 sessionInfo = getOrCreateSessionInfo(connectProps.getSessionName(), connectProps.getSessionProperties());
                 if (sessionInfo.isInitialized() &&
                         !sessionInfo.isShutdown() && sessionInfo.getConnectProperties().bypassCredentialCheck()) {
-                    if (log.isLoggable(Level.FINE)) log.fine("connect: Reused session with had bypassCredentialCheck=true");
+                    log.debug("connect: Reused session with had bypassCredentialCheck=true");
                     String oldSecretSessionId = sessionInfo.getSecretSessionId();
                     sessionInfo.setSecuritySession(sessionCtx);
                     if (secretSessionId == null || secretSessionId.length() < 2) {
@@ -434,7 +434,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
                 }
                 else {
                     // Create the new sessionInfo instance
-                    if (log.isLoggable(Level.FINE)) log.fine("connect: sessionId='" + secretSessionId + "' connectQos='"  + connectProps.toXml() + "'");
+                    log.debug("connect: sessionId='" + secretSessionId + "' connectQos='"  + connectProps.toXml() + "'");
                     sessionInfo.init(subjectInfo, sessionCtx, connectProps);
                     synchronized(this.sessionInfoMap) {
                         this.sessionInfoMap.put(secretSessionId, sessionInfo);
@@ -473,15 +473,15 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             sb.append(", ").append(subjectInfo.getNumSessions()).append(" of ");
             sb.append(connectProps.getSessionProperties().getMaxSessions()).append(" sessions are in use.");
             log.info(sb.toString());
-            if (log.isLoggable(Level.FINEST)) log.finest(toXml());
-            if (log.isLoggable(Level.FINEST)) log.finest("Returned QoS:\n" + returnprops.toXml());
-            if (log.isLoggable(Level.FINER)) log.finer("Leaving connect()");
+            log.debug(toXml());
+            log.debug("Returned QoS:\n" + returnprops.toXml());
+            log.debug("Leaving connect()");
 
             return returnprops;
         }
         catch (ServiceManagerException sme) {
             String id = (sessionInfo != null) ? sessionInfo.getId() : ((subjectInfo != null) ? subjectInfo.getId() : "");
-            log.warning("Connection for " + id + " failed: " + sme.getMessage());
+            log.warn("Connection for " + id + " failed: " + sme.getMessage());
             // e.g. by TestPersistentSession.java
             // persistence/session/maxEntriesCache=1
             // persistence/session/maxEntries=2
@@ -506,7 +506,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
         }
         catch (Throwable t) {
             t.printStackTrace();
-            log.severe("Internal error: Connect failed: " + t.getMessage());
+            log.fatal("Internal error: Connect failed: " + t.getMessage());
             //disconnectDelayed(secretSessionId, (String)null, 10000, t); // cleanup
             disconnect(secretSessionId, (String)null);
             // E.g. if NPE: we don't want the client polling: Should we change to USER_SECURITY_AUTHENTICATION_ACCESSDENIED?
@@ -528,7 +528,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             }
             catch (ServiceManagerException e) {
                e.printStackTrace();
-               log.warning("Ignoring problems during cleanup of exception: " + e.getMessage() + ((reason==null) ? "" : (": " + reason.getMessage())));
+               log.warn("Ignoring problems during cleanup of exception: " + e.getMessage() + ((reason==null) ? "" : (": " + reason.getMessage())));
             }
          }
       }, delay, secretSessionId);
@@ -537,16 +537,16 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
 
     public void disconnect(String secretSessionId, String literal) throws ServiceManagerException {
         try {
-            if (log.isLoggable(Level.FINER)) log.finer("Entering disconnect()");
+            log.debug("Entering disconnect()");
             //Thread.currentThread().dumpStack();
-            if (log.isLoggable(Level.FINEST)) log.finest(toXml().toString());
+            log.debug(toXml().toString());
             if (secretSessionId == null) {
                 throw new ServiceManagerException(glob, SysErrorCode.USER_ILLEGALARGUMENT, ME, "disconnect() failed, the given secretSessionId is null");
             }
 
             SessionInfo sessioninfo = check(secretSessionId);
             if (sessioninfo == null){
-                log.severe("Access denied, internal error...");
+                log.fatal("Access denied, internal error...");
                 throw new ServiceManagerException(glob, SysErrorCode.USER_SECURITY_AUTHENTICATION_ACCESSDENIED, ME, "Supplied session id is unknown");
             }
             I_Session sessionSecCtx = sessioninfo.getSecuritySession();
@@ -564,7 +564,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
 //            securityMgr.releaseSession(secretSessionId, sessionSecCtx.);
 //         }
 //         catch(Throwable e) {
-//            log.warning("Ignoring importMessage() problems, we continue to cleanup resources: " + e.getMessage());
+//            log.warn("Ignoring importMessage() problems, we continue to cleanup resources: " + e.getMessage());
 //         }
 
             SessionInfo sessionInfo = getSessionInfo(secretSessionId);
@@ -583,21 +583,21 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
                 I_SessionInfo[] sessions = subjectInfo.getSessions();
                 for (int i=0; i<sessions.length; i++ ) {
                     I_SessionInfo si = sessions[i];
-                    log.warning("Destroying session '" + si.getSecretSessionId() + "' of user '" + subjectInfo.getSubjectName() + "' as requested by client");
+                    log.warn("Destroying session '" + si.getSecretSessionId() + "' of user '" + subjectInfo.getSubjectName() + "' as requested by client");
                     disconnect(si.getSecretSessionId(), null);
                 }
             }
 
-            if (log.isLoggable(Level.FINEST)) log.finest(toXml().toString());
-            if (log.isLoggable(Level.FINER)) log.finer("Leaving disconnect()");
+            log.debug(toXml().toString());
+            log.debug("Leaving disconnect()");
         }
         catch (ServiceManagerException e) {
-            if (log.isLoggable(Level.FINE)) log.fine("disconnect failed: " + e.getMessage());
+            log.debug("disconnect failed: " + e.getMessage());
             throw e;
         }
         catch (Throwable e) {
             e.printStackTrace();
-            log.severe("Internal error: Disconnect failed: " + e.getMessage());
+            log.fatal("Internal error: Disconnect failed: " + e.getMessage());
             throw ServiceManagerException.convert(glob, ME, SysErrorCode.INTERNAL_DISCONNECT.toString(), e);
         }
     }
@@ -618,7 +618,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
     public final SubjectInfo getOrCreateSubjectInfoByName(SessionName subjectName, boolean returnLocked, I_Authenticate subjectCtx) throws ServiceManagerException
     {
         if (subjectName == null || subjectName.getLoginName().length() < 2) {
-            log.warning("Given loginName is null");
+            log.warn("Given loginName is null");
             throw new ServiceManagerException(this.glob, SysErrorCode.USER_ILLEGALARGUMENT, ME + ".InvalidClientName", "Your given loginName is null or shorter 2 chars, loginName rejected");
         }
 
@@ -783,7 +783,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
      */
     public final void logout(String secretSessionId) throws ServiceManagerException
     {
-        log.severe("logout not implemented");
+        log.fatal("logout not implemented");
         throw new ServiceManagerException(this.glob, SysErrorCode.INTERNAL_NOTIMPLEMENTED, ME + ".logout not implemented");
     }
 
@@ -805,7 +805,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
         }
 
         if (obj == null) {
-            log.warning("Sorry, '" + sessionInfo.getId() + "' is not known, no logout.");
+            log.warn("Sorry, '" + sessionInfo.getId() + "' is not known, no logout.");
             throw new ServiceManagerException(glob, SysErrorCode.USER_SECURITY_AUTHENTICATION_ACCESSDENIED, ME,
                     "Client '" + sessionInfo.getId() + "' is not known, disconnect is not possible.");
         }
@@ -858,12 +858,12 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             buf.append(System.currentTimeMillis()).append("-").append(ran.nextInt()).append("-").append((counter++));
 
             String secretSessionId = buf.toString();
-            if (log.isLoggable(Level.FINE)) log.fine("Created secretSessionId='" + secretSessionId + "'");
+            log.debug("Created secretSessionId='" + secretSessionId + "'");
             return secretSessionId;
         }
         catch (Exception e) {
             String text = "Can't generate a unique secretSessionId: " + e.getMessage();
-            log.severe(text);
+            log.fatal(text);
             throw new ServiceManagerException(glob, SysErrorCode.USER_SECURITY_AUTHENTICATION_ACCESSDENIED, ME, text);
         }
     }
@@ -921,7 +921,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
         }
         catch (Throwable e) {
             e.printStackTrace();
-            log.severe("updateConnectQos for " + sessionInfo.getId() + " failed: " + e.toString());
+            log.fatal("updateConnectQos for " + sessionInfo.getId() + " failed: " + e.toString());
         }
     }
 
@@ -955,14 +955,14 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
         }
 
         if (obj == null) {
-            log.warning("SessionId '" + secretSessionId + "' is invalid, no access to ehrserver.");
+            log.warn("SessionId '" + secretSessionId + "' is invalid, no access to ehrserver.");
             throw new ServiceManagerException(glob, SysErrorCode.USER_SECURITY, ME, "Your secretSessionId is invalid, no access to " + glob.getId() + ".");
         }
         SessionInfo sessionInfo = (SessionInfo)obj;
 
         sessionInfo.refreshSession(); // touch the session, expiry timer is spaned
 
-        if (log.isLoggable(Level.FINE)) log.fine("Succesfully granted access for " + sessionInfo.toString());
+        log.debug("Succesfully granted access for " + sessionInfo.toString());
 
         return sessionInfo;
     }
@@ -1065,7 +1065,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
                 sessionInfo.lostClientConnection();
         }
         else {
-            log.warning("Ignoring unexpected connectionState notification + " + state.toString() + ", handling is not implemented");
+            log.warn("Ignoring unexpected connectionState notification + " + state.toString() + ", handling is not implemented");
         }
     }
 
@@ -1086,7 +1086,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
 
         if (to < from) { // shutdown
             if (to == RunlevelManager.RUNLEVEL_HALTED) {
-                if (log.isLoggable(Level.FINE)) log.fine("Killing " + this.sessionInfoMap.size() + " login sessions");
+                log.debug("Killing " + this.sessionInfoMap.size() + " login sessions");
                 SessionInfo[] sessionInfoArr = getSessionInfoArr();
                 for (int ii=0; ii<sessionInfoArr.length; ii++) {
                     try {
@@ -1095,7 +1095,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
                         resetSessionInfo(sessionInfoArr[ii], forceShutdownEvenIfEntriesExist, false);
                     }
                     catch (Throwable e) {
-                        log.severe("Problem on session shutdown, we ignore it: " + e.getMessage());
+                        log.fatal("Problem on session shutdown, we ignore it: " + e.getMessage());
                         if (!(e instanceof ServiceManagerException)) e.printStackTrace();
                     }
                 } // for
@@ -1203,7 +1203,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
         this.acceptWrongSenderAddress = acceptWrongSenderAddress;
         String tmp = "Changed acceptWrongSenderAddress from " + old + " to " + this.acceptWrongSenderAddress + ".";
         if (this.acceptWrongSenderAddress == true)
-            log.warning(tmp + " Caution: All clients can now publish messages using anothers login name as sender");
+            log.warn(tmp + " Caution: All clients can now publish messages using anothers login name as sender");
         else
             log.info(tmp + " Faking anothers publisher address is not possible, but specific clients may allow it");
     }

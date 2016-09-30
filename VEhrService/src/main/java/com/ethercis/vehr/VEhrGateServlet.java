@@ -32,13 +32,14 @@ import com.ethercis.servicemanager.runlevel.I_RunlevelListener;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.runlevel.RunlevelManager;
 import com.ethercis.servicemanager.service.ServiceRegistry;
-import com.ethercis.vehr.parser.DefaultURIParser;
-import com.ethercis.vehr.parser.EhrScapeURIParser;
 import com.ethercis.vehr.parser.I_URIParser;
 import com.ethercis.vehr.response.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
 import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.ServletResponseHttpWrapper;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.servlet.*;
@@ -50,7 +51,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Member;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -68,7 +68,7 @@ import java.util.concurrent.Executors;
 //TODO: separate in a service controller container and the actual vEhrService
 
 public class VEhrGateServlet extends HttpServlet implements
-        ServletContextListener, I_RunlevelListener, I_SignalListener,
+		ServletContextListener, I_RunlevelListener, I_SignalListener,
         I_ServiceManagerExceptionHandler {
 
 	/**
@@ -78,7 +78,8 @@ public class VEhrGateServlet extends HttpServlet implements
     private boolean initialized = false;
 	private static final long serialVersionUID = 4350753857375153407L;
 	private RunTimeSingleton global = null;
-	private static Logger log = Logger.getLogger(VEhrGateServlet.class);
+	private static Logger log = LogManager.getLogger(VEhrGateServlet.class);
+	private boolean isAsynchQuery = false;
 	// private final String header =
 	// "<html><meta http-equiv='no-cache'><meta http-equiv='Cache-Control' content='no-cache'><meta http-equiv='expires' content='Wed, 26 Feb 1997 08:21:57 GMT'>";
 
@@ -163,9 +164,22 @@ public class VEhrGateServlet extends HttpServlet implements
 
 			if (getInitParameter("threadpoolsize") != null)
 				threadPoolSize = Integer.parseInt(getInitParameter("threadpoolsize"));
+			else { //check in services.properties
+				threadPoolSize = global.getProperty().get("server.threadpoolsize", 10);
+			}
+			log.info("Servlet thread pool size:"+threadPoolSize);
 
 			if (getInitParameter("callback_timeout") != null)
 				callback_timeout = Integer.parseInt(getInitParameter("callback_timeout"));
+			else {
+				callback_timeout = global.getProperty().get("server.callback_timeout", 60000);
+			}
+			log.info("Servlet time out:"+callback_timeout+" [ms]");
+
+			isAsynchQuery = global.getProperty().get("server.query.asynchronous", false);
+
+			if (isAsynchQuery)
+				log.info("Server mode is set to ASYNCHRONOUS");
 
 			executor = Executors.newFixedThreadPool(threadPoolSize);
 		}
@@ -605,7 +619,7 @@ public class VEhrGateServlet extends HttpServlet implements
 			}
 		}
 
-		if (controller.isMappedMethodAsync(action, path, method)) {
+		if (controller.isMappedMethodAsync(action, path, method) || isAsynchQuery) {
 			asyncExecute(action, hdrprops, path, method, props, servletRequest, servletResponse);
 		} else {
 			syncExecute(action, hdrprops, path, method, props, servletResponse);
@@ -687,9 +701,12 @@ public class VEhrGateServlet extends HttpServlet implements
 
 			/** timeout has occurred in async task... handle it */
 			public void onTimeout(AsyncEvent event) throws IOException {
-				log.info("onTimeout called");
-				log.info(event.toString());
-				context.getResponse().getWriter().write("TIMEOUT");
+				log.info("onTimeout called:"+event.toString());
+				try {
+					errorOutput(context.getResponse(), new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "Request timeout"));
+				} catch (ServletException e) {
+					e.printStackTrace();
+				}
 				context.complete();
 			}
 
@@ -698,9 +715,13 @@ public class VEhrGateServlet extends HttpServlet implements
 			 * handle it
 			 */
 			public void onError(AsyncEvent event) throws IOException {
-				log.warn("onError called");
-				log.warn(event.toString());
-				context.getResponse().getWriter().write("ERROR");
+				log.info("onError called:"+event.toString());
+				try {
+					errorOutput(context.getResponse(), new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, event.toString()));
+				} catch (ServletException e) {
+					e.printStackTrace();
+				}
+//				context.getResponse().getWriter().write(event.getAsyncContext().toString());
 				context.complete();
 			}
 
@@ -710,7 +731,7 @@ public class VEhrGateServlet extends HttpServlet implements
 		});
 
 		// spawn some task to be run in executor
-//		enqueueTask(null, action, header, path, method, parameters);
+		enqueueTask(context, action, header, path, method, parameters, res);
 	}
 
 	/**
@@ -725,7 +746,7 @@ public class VEhrGateServlet extends HttpServlet implements
 	 */
 	private void enqueueTask(final AsyncContext ctx, final MethodName action,
 			final I_SessionClientProperties header, final String path,
-			final MethodName method, final I_SessionClientProperties parameters) {
+			final MethodName method, final I_SessionClientProperties parameters, HttpServletResponse response) {
 
 		executor.execute(new Runnable() {
 			Object output;
@@ -740,7 +761,13 @@ public class VEhrGateServlet extends HttpServlet implements
 								+ ", error:" + e2.getMessage());
 					else // process the error and return it to the sender
 					{
-						log.info("Error trapped:" + e2.getErrorCodeStr());
+						log.info("Error trapped:" + e2.getMessage());
+						try {
+							errorOutput(response, e2);
+						} catch (ServletException e) {
+							e.printStackTrace();
+						}
+						ctx.complete();
 						return;
 					}
 				}
@@ -875,6 +902,35 @@ public class VEhrGateServlet extends HttpServlet implements
 
 	}
 
+	public void errorOutput(ServletResponse servletResponse, ServiceManagerException exception) throws ServletException {
+		ServletResponseHttpWrapper response = new ServletResponseHttpWrapper(servletResponse);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		int code = exception.getErrorCode().getHttpCode();
+
+		// stuff in more details in the header...
+		response.setHeader(I_SessionManager.ERROR_CODE,	exception.getErrorCodeStr());
+		response.setHeader(I_SessionManager.ERROR_MESSAGE, exception.getRawMessage());
+
+		if (code == HttpServletResponse.SC_UNAUTHORIZED)
+			response.setHeader(HttpHeader.WWW_AUTHENTICATE.asString(), "Basic realm=\"Shiro-Authenticate\"");
+
+
+		try {
+			global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_UNDEFINED);
+		} catch (ServiceManagerException e){
+//			throw new IllegalArgumentException("Could not reset global return type property");
+			//do nothing
+		}
+
+		try {
+			response.sendError(code, exception.getRawMessage());
+		} catch (IOException e) {
+			log.warn("Could not deliver HTML page to browser:" + e.toString());
+			throw new ServletException(e.toString());
+		}
+
+	}
+
 	/**
 	 * A human readable name of the listener for logging.
 	 * <p />
@@ -882,12 +938,6 @@ public class VEhrGateServlet extends HttpServlet implements
 	 */
 	public String getName() {
 		return ME;
-	}
-
-	@Override
-	public void contextInitialized(ServletContextEvent sce) {
-		log.info("Context is about to be initialized...");
-
 	}
 
 	@Override
@@ -899,4 +949,9 @@ public class VEhrGateServlet extends HttpServlet implements
     public RunTimeSingleton getGlobal(){
         return global;
     }
+
+	@Override
+	public void contextInitialized(ServletContextEvent servletContextEvent) {
+
+	}
 }

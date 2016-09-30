@@ -36,7 +36,9 @@ import com.ethercis.servicemanager.common.security.I_Session;
 import com.ethercis.servicemanager.common.security.I_Authenticate;
 import com.ethercis.servicemanager.common.session.*;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Calendar;
 import java.util.Map;
@@ -47,7 +49,7 @@ import java.util.Map;
  */
 public class Session implements I_Session {
 	private final RunTimeSingleton runTimeSingleton;
-	private static Logger log = Logger.getLogger(Constants.LOGGER_SECURITY);
+	private static Logger log = LogManager.getLogger(Constants.LOGGER_SECURITY);
 	private String ME = Session.class.getName();
 	protected ServiceSecurityManager securityManager = null;
 	protected String secretSessionId = null;

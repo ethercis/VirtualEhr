@@ -37,7 +37,8 @@ import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.TimeStamp;
 import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -88,7 +89,7 @@ import java.text.MessageFormat;
  */
 public class ServiceManagerException extends Exception implements java.io.Serializable
 {
-   private static Logger log = Logger.getLogger(com.ethercis.servicemanager.common.def.Constants.LOGGER_SYSTEM);
+   private static Logger log = LogManager.getLogger(com.ethercis.servicemanager.common.def.Constants.LOGGER_SYSTEM);
    private static final long serialVersionUID = -973794183539996697L;
    private static I_ServiceManagerExceptionHandler exceptionHandler;
    transient private final RunTimeSingleton glob;

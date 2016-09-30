@@ -33,7 +33,8 @@ This code is therefore supplied under LGPL 2.1
 
 package com.ethercis.servicemanager.common;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.Attributes;
 
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
@@ -56,7 +57,7 @@ public class AttributeSaxFactory extends SaxHandlerBase
 {
    private String ME = "AttributeSaxFactory";
    private final RunTimeSingleton glob;
-   private static Logger log = Logger.getLogger(AttributeSaxFactory.class);
+   private static Logger log = LogManager.getLogger(AttributeSaxFactory.class);
 
    private ServiceManagerException ex;
 

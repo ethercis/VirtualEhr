@@ -13,7 +13,8 @@ import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
 import com.ethercis.servicemanager.common.SessionClientProperties;
 import com.ethercis.servicemanager.common.def.Constants;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Dummy service for Dispatcher test
@@ -29,7 +30,7 @@ import org.apache.log4j.Logger;
 
 public class DummyService extends ClusterInfo {
 
-	private static Logger log = Logger.getLogger(Constants.LOGGER_SYSTEM);
+	private static Logger log = LogManager.getLogger(Constants.LOGGER_SYSTEM);
 
 	private ContextNode contextNode;
 	private RunTimeSingleton glob;

@@ -16,16 +16,14 @@
  */
 package com.ethercis.vehr;
 
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
 //TODO: make this guy a service
 public class AccessLog {
-	static Logger logger=Logger.getLogger(AccessLog.class.getCanonicalName());
+	static Logger logger= LogManager.getLogger("ETHERCIS_AUDIT_LOG");
 	static {
 		String baseDir = System.getenv("ETHERCIS_HOME");
 		if(baseDir==null){
@@ -35,17 +33,18 @@ public class AccessLog {
 		if (!dir.exists()) {
 			dir.mkdirs();
 		}
+		//TODO: configure externally
 
-		FileAppender fa = new FileAppender();
-		fa.setName(AccessLog.class.getCanonicalName());
-		fa.setFile(dir.getAbsolutePath() + File.separator + "access.log");
-		fa.setLayout(new PatternLayout("%d %m%n"));
-		fa.setThreshold(Level.INFO);
-		fa.setAppend(true);
-		fa.activateOptions();
-
-		// add appender to any Logger (here is root)
-		logger.addAppender(fa);
+//		FileAppender fa = new FileAppender();
+//		fa.setName(AccessLog.class.getCanonicalName());
+//		fa.setFile(dir.getAbsolutePath() + File.separator + "access.log");
+//		fa.setLayout(new PatternLayout("%d %m%n"));
+//		fa.setThreshold(Level.INFO);
+//		fa.setAppend(true);
+//		fa.activateOptions();
+//
+//		// add appender to any Logger (here is root)
+//		logger.addAppender(fa);
 	}
 	
 	/**

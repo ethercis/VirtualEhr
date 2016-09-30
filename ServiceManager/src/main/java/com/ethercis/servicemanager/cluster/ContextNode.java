@@ -36,7 +36,8 @@ package com.ethercis.servicemanager.cluster;
 import com.ethercis.servicemanager.common.ReplaceVariable;
 import com.ethercis.servicemanager.common.StringPairTokenizer;
 import com.ethercis.servicemanager.common.def.Constants;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ import java.util.Map;
  * 
  */
 public final class ContextNode {
-	private static Logger log = Logger.getLogger(ContextNode.class);
+	private static Logger log = LogManager.getLogger(ContextNode.class);
 	/** Name for logging response */
 	public final static String SEP = "/";
 	public final static String ROOT_MARKER_TAG = SEP + "ehrserver";

@@ -28,7 +28,8 @@ import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jooq.exception.DataAccessException;
 
 import java.sql.SQLException;
@@ -53,9 +54,13 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
     final private String ME = "ResourceService";
     final private String Version = "1.0";
     private RunTimeSingleton global;
-    private Logger log = Logger.getLogger(ResourceService.class);
+    private Logger log = LogManager.getLogger(ResourceService.class);
 
     private I_DomainAccess domainAccess;
+
+    private enum ConnectionMode{JDBC_DRIVER, PG_CONNECTION_POOL}
+
+    private ConnectionMode connectionMode;
 
     @Override
     public void doInit(RunTimeSingleton global, ServiceInfo serviceInfo)throws ServiceManagerException {
@@ -91,6 +96,26 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
                 } catch (Exception e) {
                     throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Unable to setup DB layer access" + e);
                 }
+                connectionMode = ConnectionMode.JDBC_DRIVER;
+                log.info("DB access set to JDBC DRIVER");
+                break;
+            case "jooq_pg_pool":
+                properties.put(I_DomainAccess.KEY_CONNECTION_MODE, I_DomainAccess.PG_POOL);
+                properties.put(I_DomainAccess.KEY_DIALECT, get("server.persistence.jooq.dialect", "POSTGRES"));
+                properties.put(I_DomainAccess.KEY_DATABASE, get("server.persistence.jooq.database", "ethercis"));
+//                properties.put(I_DomainAccess.KEY_SCHEMA, get("server.persistence.jooq.dialect", "ehr"));
+                properties.put(I_DomainAccess.KEY_HOST, get("server.persistence.jooq.host", null));
+                properties.put(I_DomainAccess.KEY_PORT, get("server.persistence.jooq.port", null));
+                properties.put(I_DomainAccess.KEY_LOGIN, get("server.persistence.jooq.login", "postgres"));
+                properties.put(I_DomainAccess.KEY_PASSWORD, get("server.persistence.jooq.password", "postgres"));
+
+                try {
+                    domainAccess = I_DomainAccess.getInstance(properties);
+                } catch (Exception e) {
+                    throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Unable to setup DB layer access" + e);
+                }
+                connectionMode = ConnectionMode.PG_CONNECTION_POOL;
+                log.info("DB access set to PG CONNECTION POOLING");
                 break;
             default:
                 throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Unknown SQL resource dialect:"+implementation);
@@ -113,13 +138,22 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
 
         stringBuffer.append("DB connection settings:\n");
         stringBuffer.append("=======================\n");
-        stringBuffer.append("\nSQL dialect:"+domainAccess.getDialect());
-        stringBuffer.append("\nDB server node:"+domainAccess.getConnection().getMetaData().getURL().toString());
-        stringBuffer.append("\nDB engine name:"+domainAccess.getConnection().getMetaData().getDatabaseProductName());
-        stringBuffer.append("\nDB engine version:"+domainAccess.getConnection().getMetaData().getDatabaseProductVersion());
-        stringBuffer.append("\nDB driver name:"+domainAccess.getConnection().getMetaData().getDriverName());
-        stringBuffer.append("\nDB driver version:"+domainAccess.getConnection().getMetaData().getDriverVersion());
+        switch (connectionMode) {
+                case JDBC_DRIVER:
+                    stringBuffer.append("\nJDBC_DRIVER");
+                    stringBuffer.append("\nSQL dialect:" + domainAccess.getDialect());
+                    stringBuffer.append("\nDB server node:" + domainAccess.getConnection().getMetaData().getURL().toString());
+                    stringBuffer.append("\nDB engine name:" + domainAccess.getConnection().getMetaData().getDatabaseProductName());
+                    stringBuffer.append("\nDB engine version:" + domainAccess.getConnection().getMetaData().getDatabaseProductVersion());
+                    stringBuffer.append("\nDB driver name:" + domainAccess.getConnection().getMetaData().getDriverName());
+                    stringBuffer.append("\nDB driver version:" + domainAccess.getConnection().getMetaData().getDriverVersion());
+                break;
+            case PG_CONNECTION_POOL:
+                stringBuffer.append("\nPG_CONNECTION_POOL");
+                stringBuffer.append("\nSQL dialect:" + domainAccess.getDialect());
+            break;
 
+        }
         return stringBuffer.toString();
     }
 

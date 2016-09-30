@@ -60,6 +60,10 @@ public class EhrQueryParser implements I_QueryParser {
             case "PUT": //update status
                 this.resourceToken = this.resourceToken+"/"+tokens[0];
                 parameters.addClientProperty("ehrId", tokens[1]);
+                if (tokens.length > 2) {
+                    if (tokens[2].equals("other_details"))
+                        parameters.addClientProperty("other_details", null);
+                }
                 break;
         }
     }

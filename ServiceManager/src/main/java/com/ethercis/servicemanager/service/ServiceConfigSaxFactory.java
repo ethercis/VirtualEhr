@@ -33,7 +33,8 @@ This code is therefore supplied under LGPL 2.1
 
 package com.ethercis.servicemanager.service;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.Attributes;
 
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
@@ -58,7 +59,7 @@ import com.ethercis.servicemanager.runlevel.ServiceConfig;
 public class ServiceConfigSaxFactory extends SaxHandlerBase {
 	private String ME = "ServiceConfigSaxFactory";
 	private final RunTimeSingleton glob;
-	private static Logger log = Logger.getLogger(ServiceConfigSaxFactory.class);
+	private static Logger log = LogManager.getLogger(ServiceConfigSaxFactory.class);
 
 	private ServiceConfig serviceConfig;
 	private boolean isService = false; // to set when an 'action' tag has been

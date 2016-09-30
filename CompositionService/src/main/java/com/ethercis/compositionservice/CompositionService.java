@@ -21,6 +21,7 @@ import com.ethercis.compositionservice.handler.CanonicalHandler;
 import com.ethercis.compositionservice.handler.FlatJsonHandler;
 import com.ethercis.dao.access.handler.PvCompoHandler;
 import com.ethercis.dao.access.interfaces.*;
+import com.ethercis.dao.access.jooq.CompoXRefAccess;
 import com.ethercis.ehr.building.I_ContentBuilder;
 import com.ethercis.ehr.json.FlatJsonUtil;
 import com.ethercis.ehr.keyvalues.EcisFlattener;
@@ -42,7 +43,8 @@ import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.systemservice.I_SystemService;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -75,10 +77,11 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
     final private String ME = "CompositionService";
     final private String Version = "1.0";
-    private Logger log = Logger.getLogger(CompositionService.class);
+    private Logger log = LogManager.getLogger(CompositionService.class);
     private I_CacheKnowledgeService knowledgeCache;
     private I_SystemService systemService;
     private boolean useNamespaceInCompositionId = false;
+    private boolean supportCompositionXRef = false; //if set to false, will not try to link compositions
 
     @Override
     public void doInit(RunTimeSingleton global, ServiceInfo serviceInfo)throws ServiceManagerException {
@@ -86,8 +89,11 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         //get a resource service instance
         //get the knowledge cache for composition handlers
         useNamespaceInCompositionId = global.getProperty().get("composition.uid.namespace", true);
+        supportCompositionXRef = global.getProperty().get("composition.xref", false);
         knowledgeCache = getRegisteredService(getGlobal(), "CacheKnowledgeService", "1.0");
 
+        if (supportCompositionXRef)
+            log.info("Composition Service XREF support enabled");
 
         if (knowledgeCache == null)
             throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Cache knowledge service [CacheKnowledgeService,1.0] is not running, aborting");
@@ -127,6 +133,8 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         auditSetter.handleProperties(getDataAccess(), props);
         String sessionId = auditSetter.getSessionId();
         String templateId = props.getClientProperty(I_CompositionService.TEMPLATE_ID, (String)null);
+        String linkUidStr = props.getClientProperty(I_CompositionService.LINK_ID, (String)null);
+        UUID linkUid = (linkUidStr != null) ? UUID.fromString(linkUidStr) : null;
         UUID ehrId = retrieveEhrId(sessionId, props);
 
         UUID committerUuid = auditSetter.getCommitterUuid();
@@ -145,8 +153,8 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
         Integer contentLength = (Integer)props.getClientProperty(Constants.REQUEST_CONTENT_LENGTH, (Integer)0);
 
-        if (content.length() != contentLength)
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content may be altered found length ="+content.length()+" expected:"+contentLength);
+//        if (content.length() != contentLength)
+//            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content may be altered found length ="+content.length()+" expected:"+contentLength);
 
 //        String contentType = props.getClientProperty(Constants.REQUEST_CONTENT_TYPE, "");
 
@@ -161,7 +169,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 I_EntryAccess entryAccess = I_EntryAccess.getNewInstance(getDataAccess(), templateId, 0, compositionAccess.getId(), composition);
                 compositionAccess.addContent(entryAccess);
                 compositionId = compositionAccess.commit(committerUuid, systemUuid, auditSetter.getDescription());
-
+                linkComposition(linkUid, compositionId);
                 //create an XML response
                 Document document = DocumentHelper.createDocument();
                 Element root = document.addElement("compositionCreateRestResponseData");
@@ -176,6 +184,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 PvCompoHandler pvCompoHandler = new PvCompoHandler(this.getDataAccess(), templateId, null);
                 Map<String, String> kvPairs = FlatJsonUtil.inputStream2Map(new StringReader(new String(content.getBytes())));
                 compositionId = pvCompoHandler.storeComposition(ehrId, kvPairs, auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
+                linkComposition(linkUid, compositionId);
 
                 //create json response
                 global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
@@ -194,6 +203,8 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 I_EntryAccess entry= I_EntryAccess.getNewInstance(getDataAccess(), templateId, 0, access.getId(), newComposition);
                 access.addContent(entry);
                 compositionId = access.commit(committerUuid, systemUuid, auditSetter.getDescription());
+                linkComposition(linkUid, compositionId);
+
                 //create json response
                 global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
                 retmap = new HashMap<>();
@@ -495,6 +506,15 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             encoded.append("&"+I_CompositionService.FORMAT+"="+format);
 
         return encoded.toString();
+    }
+
+    private void linkComposition(UUID master, UUID child){
+        if (!supportCompositionXRef)
+            return;
+        if (master == null || child == null)
+            return;
+        I_CompoXrefAccess compoXrefAccess = new CompoXRefAccess(getDataAccess());
+        compoXrefAccess.setLink(master, child);
     }
 
 

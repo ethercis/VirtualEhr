@@ -50,7 +50,8 @@ import com.ethercis.servicemanager.jmx.JmxMBeanHandle;
 import com.ethercis.servicemanager.service.I_Service;
 import com.ethercis.servicemanager.service.ServiceHolder;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -61,7 +62,7 @@ import java.util.*;
 public final class RunlevelManager implements RunlevelManagerMBean {
 	private String ME = "RunlevelManager";
 	private final RunTimeSingleton glob;
-	private static Logger log = Logger.getLogger(RunlevelManager.class
+	private static Logger log = LogManager.getLogger(RunlevelManager.class
 			.getName());
 	private int currRunlevel = 0;
 

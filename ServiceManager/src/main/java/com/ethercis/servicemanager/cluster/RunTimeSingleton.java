@@ -42,8 +42,9 @@ import com.ethercis.servicemanager.jmx.JmxMBeanHandle;
 import com.ethercis.servicemanager.jmx.JmxWrapper;
 import com.ethercis.servicemanager.runlevel.RunlevelManager;
 import com.ethercis.servicemanager.service.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -77,7 +78,7 @@ import java.util.*;
  */
 public class RunTimeSingleton implements Cloneable
 {
-	private static Logger log = Logger.getLogger(RunTimeSingleton.class);
+	private static Logger log = LogManager.getLogger(RunTimeSingleton.class);
 	private static boolean logIsInitialized;
 
 	private volatile static RunTimeSingleton firstInstance;
@@ -570,7 +571,7 @@ public class RunTimeSingleton implements Cloneable
 		{
 			Level level = log.getLevel();
 			if (level == null){ //try with parent
-				level = log.getParent().getLevel();
+				level = log.getLevel();
 				if (level == null){
 					return Level.INFO;
 				}
@@ -590,8 +591,8 @@ public class RunTimeSingleton implements Cloneable
 	 * @exception com.ethercis.servicemanager.exceptions.ServiceManagerException if your bool is strange */
 	
 	public Level changeLogLevel(String loggerName, Level level) throws ServiceManagerException {
-		Logger logger = Logger.getLogger(loggerName);
-		logger.setLevel(level);
+		Logger logger = LogManager.getLogger(loggerName);
+//		logger.setLevel(level);
 		return level;
 	}
 

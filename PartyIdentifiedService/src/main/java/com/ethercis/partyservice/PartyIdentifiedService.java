@@ -25,7 +25,8 @@ import com.ethercis.servicemanager.common.I_SessionClientProperties;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openehr.rm.common.generic.PartyIdentified;
 
 import java.util.UUID;
@@ -43,7 +44,7 @@ public class PartyIdentifiedService extends ServiceDataCluster implements I_Part
 
     final private String ME = "PartyIdentifiedService";
     final private String Version = "1.0";
-    private Logger log = Logger.getLogger(PartyIdentifiedService.class);
+    private Logger log = LogManager.getLogger(PartyIdentifiedService.class);
 
     @Override
     protected void doInit(RunTimeSingleton global, ServiceInfo serviceInfo) throws ServiceManagerException {

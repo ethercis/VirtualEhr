@@ -33,7 +33,7 @@ This code is therefore supplied under LGPL 2.1
 
 package com.ethercis.servicemanager.common.def;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.util.regex.Pattern;

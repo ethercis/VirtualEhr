@@ -18,13 +18,13 @@
 package com.ethercis.ehrservice;
 
 import com.ethercis.compositionservice.I_CompositionService;
-import com.ethercis.dao.access.interfaces.I_ConceptAccess;
-import com.ethercis.dao.access.interfaces.I_EhrAccess;
-import com.ethercis.dao.access.interfaces.I_PartyIdentifiedAccess;
-import com.ethercis.dao.access.interfaces.I_SystemAccess;
+import com.ethercis.dao.access.interfaces.*;
 import com.ethercis.dao.access.jooq.EhrAccess;
 import com.ethercis.ehr.building.I_ContentBuilder;
 import com.ethercis.ehr.building.util.CompositionAttributesHelper;
+import com.ethercis.ehr.encode.CompositionSerializer;
+import com.ethercis.ehr.encode.EncodeUtil;
+import com.ethercis.ehr.keyvalues.EcisFlattener;
 import com.ethercis.logonservice.session.I_SessionManager;
 import com.ethercis.persistence.ServiceDataCluster;
 import com.ethercis.servicemanager.annotation.*;
@@ -38,13 +38,18 @@ import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
+import com.ethercis.transform.rawjson.RawJsonParser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.log4j.Logger;
+import com.google.gson.internal.LinkedTreeMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openehr.rm.common.archetyped.Locatable;
 import org.openehr.rm.datatypes.basic.DvIdentifier;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.util.*;
 
 /**
@@ -64,7 +69,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
 
     private EhrAccess.PARTY_MODE subjectMode;
 
-    private Logger log = Logger.getLogger(EhrService.class);
+    private Logger log = LogManager.getLogger(EhrService.class);
 
     @Override
     public void doInit(RunTimeSingleton global, ServiceInfo serviceInfo)throws ServiceManagerException {
@@ -91,18 +96,31 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
     }
 
     @Override
-    public UUID create(UUID partyId, UUID systemId, String otherDetailsXml, String otherDetailsTemplateId) throws Exception {
+    public UUID create(UUID partyId, UUID systemId, Object otherDetails, String otherDetailsTemplateId) throws Exception {
         //check if an Ehr already exists for this party
         if (I_EhrAccess.checkExist(getDataAccess(), partyId))
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Specified party has already an EHR set (partyId="+partyId+")");
 
         I_EhrAccess ehrAccess = I_EhrAccess.getInstance(getDataAccess(), partyId, systemId, null, null);
-        if (otherDetailsXml != null && otherDetailsTemplateId != null){
-            //the xml string is given within a CDATA
-            otherDetailsXml = otherDetailsXml.replace("<![CDATA[", "");
-            otherDetailsXml = otherDetailsXml.replace("]]>", "");
-            Locatable otherDetails = I_ContentBuilder.parseOtherDetailsXml(new ByteArrayInputStream(otherDetailsXml.getBytes()));
-            ehrAccess.setOtherDetails(otherDetails, otherDetailsTemplateId);
+        if (otherDetails instanceof String && otherDetails != null && otherDetailsTemplateId != null){
+            String otherDetailsStr = (String)otherDetails;
+            if (otherDetailsStr.startsWith("<")) { //assume XML
+                //the xml string is given within a CDATA
+                otherDetailsStr = otherDetailsStr.replace("<![CDATA[", "");
+                otherDetailsStr = otherDetailsStr.replace("]]>", "");
+                Locatable locatable = I_ContentBuilder.parseOtherDetailsXml(new ByteArrayInputStream(otherDetailsStr.getBytes()));
+                ehrAccess.setOtherDetails(locatable, otherDetailsTemplateId);
+            }
+            if (otherDetailsStr.startsWith("{")) { //assume JSON
+                ehrAccess.setOtherDetails(otherDetailsStr, otherDetailsTemplateId);
+            }
+            else
+                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Could not identify other_details format:"+otherDetailsStr);
+        }
+        else if (otherDetails instanceof Map){
+            Map<String, Object> other_details = new HashMap<>();
+            other_details.put(CompositionSerializer.TAG_OTHER_DETAILS.substring(1), otherDetails);
+            ehrAccess.setOtherDetails(other_details, null);
         }
         return ehrAccess.commit(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
     }
@@ -116,7 +134,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
                 subjectUuid = I_PartyIdentifiedAccess.retrievePartyByIdentifier(getDataAccess(), subjectId, nameSpace);
                 return I_EhrAccess.retrieveInstanceBySubject(getDataAccess(), subjectUuid);
             case EXTERNAL_REF:
-                subjectUuid = I_PartyIdentifiedAccess.findReferencedParty(getDataAccess(), subjectId, nameSpace, CompositionAttributesHelper.DEMOGRAPHIC, CompositionAttributesHelper.PARTY);
+                subjectUuid = I_PartyIdentifiedAccess.findReferencedParty(getDataAccess(), subjectId, CompositionAttributesHelper.DEMOGRAPHIC, nameSpace, CompositionAttributesHelper.PARTY);
                 return I_EhrAccess.retrieveInstanceBySubject(getDataAccess(), subjectUuid);
         }
         return  null;
@@ -137,6 +155,8 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
         String subjectId = props.getClientProperty(I_EhrService.SUBJECTID_PARAMETER, (String) null);
         String nameSpace = props.getClientProperty(I_EhrService.SUBJECTNAMESPACE_PARAMETER, (String)null);
         String sessionId = auditSetter.getSessionId();
+        I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, "XML"));
+
 
         if (subjectId == null || nameSpace == null)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Invalid user id or namespace in query");
@@ -149,10 +169,13 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
 
         setSessionEhr(sessionId, ehrId);
 
-        return buildEhrStatusMap(ehrId);
+        return buildEhrStatusMap(ehrId, format);
     }
 
-    private Map<String, Object> buildEhrStatusMap(UUID ehrUuid) throws Exception {
+    private Map<String, Object> buildEhrStatusMap(UUID ehrUuid, I_CompositionService.CompositionFormat format) throws Exception {
+        GsonBuilder gsonBuilder = EncodeUtil.getGsonBuilderInstance();
+        Gson gson = gsonBuilder.setPrettyPrinting().create();
+
         I_EhrAccess ehrAccess = I_EhrAccess.retrieveInstance(getDataAccess(), ehrUuid);
         if (ehrAccess == null) {
             throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Invalid or null ehrId");
@@ -161,16 +184,27 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
         Map<String, String> subjectIds = I_EhrAccess.fetchSubjectIdentifiers(getDataAccess(), ehrUuid);
         I_SystemAccess systemAccess = I_SystemAccess.retrieveInstance(getDataAccess(), ehrAccess.getSystemId());
 
-        Map<String, String> statusMap = new HashMap(){{
-            put("subjectIds", subjectIds);
-            put("queryable", ehrAccess.isQueryable());
-            put("modifiable", ehrAccess.isModifiable());
+        HashMap statusMap = new HashMap(){{
+            put(SUBJECT_IDS, subjectIds);
+            put(QUERYABLE, ehrAccess.isQueryable());
+            put(MODIFIABLE, ehrAccess.isModifiable());
             if (ehrAccess.isSetOtherDetails()){
-                put("otherDetails", "<![CDATA["+ehrAccess.exportOtherDetailsXml()+"]]>");
-                put("otherDetailsTemplateId", ehrAccess.getOtherDetailsTemplateId());
+                put(OTHER_DETAILS, "<![CDATA["+ehrAccess.exportOtherDetailsXml()+"]]>");
+                put(OTHER_DETAILS_TEMPLATE_ID, ehrAccess.getOtherDetailsTemplateId());
             }
-            put("systemSettings", systemAccess.getSettings());
-            put("systemDescription", systemAccess.getDescription());
+            else if (ehrAccess.isSetOtherDetailsSerialized()){
+                if (format.equals(I_CompositionService.CompositionFormat.ECISFLAT)){
+                    Map<String, Object> retmap = gson.fromJson(ehrAccess.getOtherDetailsSerialized(), TreeMap.class);
+                    Map<String, String> flatten = EcisFlattener.generateEcisFlat(retmap);
+                    put(OTHER_DETAILS, flatten);
+                }
+                else {
+                    Map<String, Object> retmap = gson.fromJson(ehrAccess.getOtherDetailsSerialized(), TreeMap.class);
+                    put(OTHER_DETAILS, retmap);
+                }
+            }
+            put(SYSTEM_SETTINGS, systemAccess.getSettings());
+            put(SYSTEM_DESCRIPTION, systemAccess.getDescription());
         }};
 
         Map<String, Object> retmap = new HashMap<>();
@@ -196,15 +230,12 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
         if (ehrId != null) {
             ehrUuid = UUID.fromString(ehrId);
         }
-//        }
-//        catch (Exception e){
-//            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Invalid ehrId:'"+props.getClientProperty(I_EhrService.EHRID_PARAMETER, (String) null)+"'");
-//        }
-
         else {
             //assume retrieve ehr with subjectId and subjectNameSpace
             return retrieve(props);
         }
+
+        I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, "XML"));
 
 
         String sessionId = auditSetter.getSessionId();
@@ -214,7 +245,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
 
         setSessionEhr(sessionId, ehrUuid);
 
-        return buildEhrStatusMap(ehrUuid);
+        return buildEhrStatusMap(ehrUuid, format);
 
     }
 
@@ -226,20 +257,20 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
         auditSetter.handleProperties(getDataAccess(), props);
         String subjectIdCode = props.getClientProperty(I_EhrService.SUBJECTID_PARAMETER, (String) null);
         String subjectNameSpace = props.getClientProperty(I_EhrService.SUBJECTNAMESPACE_PARAMETER, (String) null);
-        String systemSettings = props.getClientProperty("systemSettings", (String) null);
+        String systemSettings = props.getClientProperty(SYSTEM_SETTINGS, (String) null);
 
         //get body stuff
         String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String)null);
 
-        String otherDetailsXml = null;
+        Object otherDetails = null;
         String otherDetailsTemplateId = null;
 
         if (content != null) {
             Gson json = new GsonBuilder().create();
             Map<String, Object> atributes = json.fromJson(content, Map.class);
 
-            otherDetailsXml = (String)atributes.getOrDefault("otherDetails", null);
-            otherDetailsTemplateId = (String)atributes.getOrDefault("otherDetailsTemplateId", null);
+            otherDetails = atributes.getOrDefault(OTHER_DETAILS, null);
+            otherDetailsTemplateId = (String)atributes.getOrDefault(OTHER_DETAILS_TEMPLATE_ID, null);
         }
 
         String sessionId = auditSetter.getSessionId();
@@ -254,7 +285,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
                     subjectUuid = I_PartyIdentifiedAccess.retrievePartyByIdentifier(getDataAccess(), subjectIdCode, subjectNameSpace);
                     break;
                 case EXTERNAL_REF:
-                    subjectUuid = I_PartyIdentifiedAccess.getOrCreatePartyByExternalRef(getDataAccess(), null, subjectIdCode, subjectNameSpace, CompositionAttributesHelper.DEMOGRAPHIC, CompositionAttributesHelper.PARTY);
+                    subjectUuid = I_PartyIdentifiedAccess.getOrCreatePartyByExternalRef(getDataAccess(), null, subjectIdCode, CompositionAttributesHelper.DEMOGRAPHIC, subjectNameSpace, CompositionAttributesHelper.PARTY);
                     break;
             }
         } catch (Exception e){
@@ -273,7 +304,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             }
         }
 
-        UUID ehrId = create(subjectUuid, systemId, otherDetailsXml, otherDetailsTemplateId);
+        UUID ehrId = create(subjectUuid, systemId, otherDetails, otherDetailsTemplateId);
 
         Map<String, Object> retmap = new HashMap<>();
         retmap.put(I_EhrService.EHRID_PARAMETER, ehrId.toString());
@@ -288,7 +319,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
 
     @QuerySetting(dialect = {
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "POST", method = "update", path = "vehr/ehr/status", responseType = ResponseType.Json),
-            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "POST", method = "post", path = "rest/v1/ehr/status", responseType = ResponseType.Json)
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "PUT", method = "put", path = "rest/v1/ehr/status", responseType = ResponseType.Json)
     })
     public Object updateStatus(I_SessionClientProperties props) throws Exception {
         auditSetter.handleProperties(getDataAccess(), props);
@@ -304,49 +335,82 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
         if (content == null)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content cannot be empty for updating ehr status");
 
-        //get the map structure from the passed content string
-        Gson json = new GsonBuilder().create();
-        Map<String, Object> atributes = json.fromJson(content, Map.class);
-
         //retrieve the ehr to update
         I_EhrAccess ehrAccess = I_EhrAccess.retrieveInstance(getDataAccess(), ehrId);
 
         if (ehrAccess == null)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Passed ehr Id does not match an existing EHR");
 
-        if (atributes.containsKey("modifiable")) {
-            ehrAccess.setModifiable((Boolean)atributes.get("modifiable"));
-        }
-
-        if (atributes.containsKey("queryable"))
-            ehrAccess.setQueryable((Boolean)atributes.get("queryable"));
-
-        if (atributes.containsKey(I_EhrService.SUBJECTID_PARAMETER) && atributes.containsKey(I_EhrService.SUBJECTNAMESPACE_PARAMETER)){
-            String subjectId = (String)atributes.get(I_EhrService.SUBJECTID_PARAMETER);
-            String subjectNameSpace = (String)atributes.get(I_EhrService.SUBJECTNAMESPACE_PARAMETER);
-            UUID partyId;
-            switch (subjectMode) {
-                case IDENTIFIER:
-                    List<DvIdentifier> identifiers = new ArrayList<>();
-                    identifiers.add(new DvIdentifier(subjectNameSpace, "", subjectId, ""));
-                    partyId = I_PartyIdentifiedAccess.findIdentifiedParty(getDataAccess(), identifiers);
-
-                    if (partyId != null) {
-                        ehrAccess.setParty(partyId);
-                    }
-                    break;
-                case EXTERNAL_REF:
-                    partyId = I_PartyIdentifiedAccess.getOrCreateParty(getDataAccess(), null, subjectId, subjectNameSpace, CompositionAttributesHelper.DEMOGRAPHIC, CompositionAttributesHelper.PARTY);
-
-                    if (partyId != null) {
-                        ehrAccess.setParty(partyId);
-                    }
-                    break;
+        //check for other_details
+        if (props.getClientProperties().containsKey("other_details")){
+            I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, I_CompositionService.CompositionFormat.ECISFLAT.toString()));
+            if (format.equals(I_CompositionService.CompositionFormat.XML)) {
+                Gson json = new GsonBuilder().create();
+                Map<String, Object> atributes = json.fromJson(content, Map.class);
+                String otherDetailsXml = (String) atributes.getOrDefault(OTHER_DETAILS, null);
+                otherDetailsXml = otherDetailsXml.replace("<![CDATA[", "");
+                otherDetailsXml = otherDetailsXml.replace("]]>", "");
+                String otherDetailsTemplateId = (String) atributes.getOrDefault(OTHER_DETAILS_TEMPLATE_ID, null);
+                //do other_details stuff
+                Locatable itemStructure = I_ContentBuilder.parseOtherDetailsXml(new ByteArrayInputStream(otherDetailsXml.getBytes()));
+                ehrAccess.setOtherDetails(itemStructure, otherDetailsTemplateId);
+                ehrAccess.update(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), null, I_ConceptAccess.ContributionChangeType.modification, auditSetter.getDescription(), true);
+            }
+            else if (format.equals(I_CompositionService.CompositionFormat.RAW)){
+                Gson json = new GsonBuilder().create();
+                Map<String, Object> attributes = json.fromJson(content, Map.class);
+                String otherDetailsRaw = (String) attributes.getOrDefault(OTHER_DETAILS, null);
+                RawJsonParser rawJsonParser = new RawJsonParser();
+                String serialized = rawJsonParser.dbEncode(new StringReader(otherDetailsRaw));
+                String otherDetailsTemplateId = (String) attributes.getOrDefault(OTHER_DETAILS_TEMPLATE_ID, null);
+                //do other_details stuff
+                ehrAccess.setOtherDetails(serialized, otherDetailsTemplateId);
+                ehrAccess.update(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), null, I_ConceptAccess.ContributionChangeType.modification, auditSetter.getDescription(), true);
 
             }
+            else {
+                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "format for other_details is not supported:"+format);
+            }
         }
+        else {
 
-        ehrAccess.update(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), null, I_ConceptAccess.ContributionChangeType.modification, auditSetter.getDescription());
+            //get the map structure from the passed content string
+            Gson json = new GsonBuilder().create();
+            Map<String, Object> atributes = json.fromJson(content, Map.class);
+
+            if (atributes.containsKey(MODIFIABLE)) {
+                ehrAccess.setModifiable((Boolean) atributes.get(MODIFIABLE));
+            }
+
+            if (atributes.containsKey(QUERYABLE))
+                ehrAccess.setQueryable((Boolean) atributes.get(QUERYABLE));
+
+            if (atributes.containsKey(I_EhrService.SUBJECTID_PARAMETER) && atributes.containsKey(I_EhrService.SUBJECTNAMESPACE_PARAMETER)) {
+                String subjectId = (String) atributes.get(I_EhrService.SUBJECTID_PARAMETER);
+                String subjectNameSpace = (String) atributes.get(I_EhrService.SUBJECTNAMESPACE_PARAMETER);
+                UUID partyId;
+                switch (subjectMode) {
+                    case IDENTIFIER:
+                        List<DvIdentifier> identifiers = new ArrayList<>();
+                        identifiers.add(new DvIdentifier(subjectNameSpace, "", subjectId, ""));
+                        partyId = I_PartyIdentifiedAccess.findIdentifiedParty(getDataAccess(), identifiers);
+
+                        if (partyId != null) {
+                            ehrAccess.setParty(partyId);
+                        }
+                        break;
+                    case EXTERNAL_REF:
+                        partyId = I_PartyIdentifiedAccess.getOrCreateParty(getDataAccess(), null, subjectId, subjectNameSpace, CompositionAttributesHelper.DEMOGRAPHIC, CompositionAttributesHelper.PARTY);
+
+                        if (partyId != null) {
+                            ehrAccess.setParty(partyId);
+                        }
+                        break;
+
+                }
+            }
+            ehrAccess.update(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), null, I_ConceptAccess.ContributionChangeType.modification, auditSetter.getDescription());
+        }
 
         Map<String, Object> retmap = new HashMap<>();
         retmap.put(I_EhrService.EHRID_PARAMETER, ehrId.toString());

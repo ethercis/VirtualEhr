@@ -30,7 +30,6 @@ import javax.management.AttributeChangeNotification;
 import javax.management.MBeanNotificationInfo;
 import javax.management.NotificationBroadcasterSupport;
 
-import org.apache.log4j.Logger;
 
 import com.ethercis.logonservice.session.protectors.SubjectInfoProtector;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
@@ -46,6 +45,8 @@ import com.ethercis.servicemanager.common.session.I_SessionName;
 import com.ethercis.servicemanager.common.session.I_SessionProperties;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.jmx.JmxMBeanHandle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The SubjectInfo stores all known data about a client.
@@ -74,7 +75,7 @@ public final class SubjectInfo extends NotificationBroadcasterSupport /*
 {
 	private String ME = "SubjectInfo";
 	private final RunTimeSingleton glob;
-	private static Logger log = Logger.getLogger(SubjectInfo.class);
+	private static Logger log = LogManager.getLogger(SubjectInfo.class);
 	private final ContextNode contextNode;
 
 	private final SessionManager sessionmgr;

@@ -35,9 +35,6 @@ package com.ethercis.servicemanager.cluster;
 /**
  * This is the main class to load the services logonservice defined by the configuration file.
  */
-
-import org.apache.log4j.Logger;
-
 import com.ethercis.servicemanager.common.ThreadLister;
 import com.ethercis.servicemanager.common.TimeStamp;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
@@ -45,6 +42,8 @@ import com.ethercis.servicemanager.exceptions.I_ServiceManagerExceptionHandler;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_RunlevelListener;
 import com.ethercis.servicemanager.runlevel.RunlevelManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class ClusterLoader implements I_SignalListener, I_RunlevelListener, I_ServiceManagerExceptionHandler {
@@ -52,7 +51,7 @@ public class ClusterLoader implements I_SignalListener, I_RunlevelListener, I_Se
 
 	private RunTimeSingleton glob = null;
 
-	private static Logger log = Logger.getLogger(ClusterLoader.class);
+	private static Logger log = LogManager.getLogger(ClusterLoader.class);
 
 	/** Starts/stops ehrserver */
 	private RunlevelManager runlevelManager = null;

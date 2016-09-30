@@ -24,11 +24,12 @@ import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.common.interfaces.data.I_User;
 import com.ethercis.servicemanager.common.jcrypt;
-import com.ethercis.servicemanager.common.security.I_Principal;
 import com.ethercis.servicemanager.common.security.I_Authenticate;
+import com.ethercis.servicemanager.common.security.I_Principal;
 import com.ethercis.servicemanager.common.session.I_ContextHolder;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +42,7 @@ import java.util.List;
  * 
  */
 public abstract class Authenticate implements I_Authenticate {
-	protected static final Logger log = Logger
-			.getLogger(Constants.LOGGER_SECURITY);
+	protected static final Logger log = LogManager.getLogger(Authenticate.class.getName());
 	protected static final String ME = Authenticate.class.getName();
 	protected int timeout = -1; // timeout is the number of millisec allowed
 	protected RunTimeSingleton global;

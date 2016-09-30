@@ -16,7 +16,8 @@
  */
 package com.ethercis.vehr.response;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Response;
 
 import javax.servlet.ServletResponse;
@@ -33,7 +34,7 @@ import java.io.PrintWriter;
  */
 public abstract class GenericHttpResponse {
 	private String contentType;
-	protected static Logger log = Logger.getLogger("ResponseOutput");
+	protected static Logger log = LogManager.getLogger("ResponseOutput");
 	private final String header = "<html><meta http-equiv='no-cache'><meta http-equiv='Cache-Control' content='no-cache'><meta http-equiv='expires' content='Wed, 26 Feb 1997 08:21:57 GMT'>";
 	protected PrintWriter writer = null;
 	protected Object response;

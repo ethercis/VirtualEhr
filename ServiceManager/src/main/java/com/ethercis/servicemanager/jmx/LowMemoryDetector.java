@@ -34,7 +34,8 @@ This code is therefore supplied under LGPL 2.1
 package com.ethercis.servicemanager.jmx;
 
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.management.*;
 import java.lang.management.*;
@@ -52,7 +53,7 @@ import java.util.List;
  * </pre>
  */
 public class LowMemoryDetector {
-    private final static Logger log = Logger.getLogger(LowMemoryDetector.class);
+    private final static Logger log = LogManager.getLogger(LowMemoryDetector.class);
     private MBeanServer mbeanServer;
     private MemoryPoolMXBean pool;
     private double thresholdFactor;
@@ -127,7 +128,7 @@ public class LowMemoryDetector {
      * The default handler just logs the situation or exits if configured.
      */
     public class DefaultLowMemoryListener implements NotificationListener {
-        private final Logger log = Logger.getLogger(DefaultLowMemoryListener.class);
+        private final Logger log = LogManager.getLogger(DefaultLowMemoryListener.class);
         boolean exitOnThreshold;
         MBeanServer mbeanServer;
 

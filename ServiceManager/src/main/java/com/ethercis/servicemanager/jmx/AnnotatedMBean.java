@@ -17,7 +17,8 @@
 package com.ethercis.servicemanager.jmx;
 
 import com.ethercis.servicemanager.common.def.Constants;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.management.*;
 import java.lang.annotation.Annotation;
@@ -34,7 +35,7 @@ import java.util.Map;
  *
  */
 public class AnnotatedMBean extends StandardMBean{
-	private static Logger log = Logger.getLogger(Constants.LOGGER_SYSTEM);
+	private static Logger log = LogManager.getLogger(Constants.LOGGER_SYSTEM);
 	   
     /** Instance where the MBean interface is implemented by another object. */
     public <T> AnnotatedMBean(T impl, Class<T> mbeanInterface) throws NotCompliantMBeanException {

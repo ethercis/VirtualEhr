@@ -23,7 +23,8 @@ import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_RunlevelListener;
 import com.ethercis.servicemanager.runlevel.RunlevelManager;
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Properties;
 
@@ -37,7 +38,7 @@ public abstract class TestServiceBase extends TestCase implements I_RunlevelList
     protected long startupTime;
     protected RunlevelManager runlevelManager = null;
     protected RunTimeSingleton global;
-    protected static Logger log = Logger.getLogger("TestService");
+    protected static Logger log = LogManager.getLogger("TestService");
 
     @Override
     public void runlevelChange(int from, int to, boolean force) throws ServiceManagerException {

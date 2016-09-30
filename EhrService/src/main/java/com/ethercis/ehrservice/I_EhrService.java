@@ -28,10 +28,17 @@ public interface I_EhrService {
     String EHRID_PARAMETER = "ehrId";
     String SUBJECTID_PARAMETER = "subjectId";
     String SUBJECTNAMESPACE_PARAMETER = "subjectNamespace";
+    String OTHER_DETAILS = "otherDetails";
+    String SYSTEM_SETTINGS = "systemSettings";
+    String OTHER_DETAILS_TEMPLATE_ID = "otherDetailsTemplateId";
+    String SUBJECT_IDS = "subjectIds";
+    String QUERYABLE = "queryable";
+    String MODIFIABLE = "modifiable";
+    String SYSTEM_DESCRIPTION = "systemDescription";
 
     UUID create(UUID partyId, UUID systemId) throws Exception;
 
-    UUID create(UUID partyId, UUID systemId, String otherDetailsXml, String templateId) throws Exception;
+    UUID create(UUID partyId, UUID systemId, Object otherDetails, String templateId) throws Exception;
 
     UUID retrieve(String subjectId, String nameSpace);
 

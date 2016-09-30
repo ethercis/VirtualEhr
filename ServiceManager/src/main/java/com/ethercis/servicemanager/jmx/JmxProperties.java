@@ -35,7 +35,8 @@ package com.ethercis.servicemanager.jmx;
 
 
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.management.*;
 import java.lang.reflect.Constructor;
@@ -71,7 +72,7 @@ import java.util.Iterator;
  */
 public class JmxProperties implements DynamicMBean {
    private RunTimeSingleton glob;
-   private static Logger log = Logger.getLogger(JmxProperties.class);
+   private static Logger log = LogManager.getLogger(JmxProperties.class);
    private final String ME = "JmxProperties";
    private String dClassName = this.getClass().getName();
    private MBeanAttributeInfo[] dAttributes;

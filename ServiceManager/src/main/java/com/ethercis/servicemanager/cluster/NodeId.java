@@ -33,14 +33,16 @@ This code is therefore supplied under LGPL 2.1
 
 package com.ethercis.servicemanager.cluster;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Holds the unique name of a server instance (= cluster node)
  */
 public final class NodeId implements Comparable, java.io.Serializable {
 	private static final long serialVersionUID = 1L;
-	private static Logger log = Logger.getLogger(NodeId.class);
+	private static Logger log = LogManager.getLogger(NodeId.class);
 	private static final String ME = "NodeId";
 
 	/**
