@@ -36,5 +36,5 @@ public interface I_Authenticate {
 	public boolean checkPrivateCredentials(String logonId, String passwd) throws ServiceManagerException;
 	public int getTimeOut();
     public List<I_Principal> getPrincipals();
-	
+	void release();
 }

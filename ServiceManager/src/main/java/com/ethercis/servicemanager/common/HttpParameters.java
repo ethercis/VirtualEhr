@@ -106,12 +106,14 @@ public class HttpParameters {
 	public static I_SessionClientProperties getInstanceFromHeader(RunTimeSingleton global, HttpServletRequest req) {
 		SessionClientProperties sc = new SessionClientProperties(global);
 		Enumeration<String> names = req.getHeaderNames();
-		
-		while (names.hasMoreElements()){
-			String key = names.nextElement();
-			String value = req.getHeader(key);
-			sc.addClientProperty(key, value);
-			
+
+		if (names != null) {
+			while (names.hasMoreElements()) {
+				String key = names.nextElement();
+				String value = req.getHeader(key);
+				sc.addClientProperty(key, value);
+
+			}
 		}
 		return sc;
 		

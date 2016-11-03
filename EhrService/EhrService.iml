@@ -29,87 +29,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../jetty-distribution-9.2.10.v20150310/lib/jetty-client-9.2.10.v20150310.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../jetty-distribution-9.2.10.v20150310/lib/jetty-http-9.2.10.v20150310.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../jetty-distribution-9.2.10.v20150310/lib/jetty-io-9.2.10.v20150310.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../jetty-distribution-9.2.10.v20150310/lib/jetty-server-9.2.10.v20150310.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../jetty-distribution-9.2.10.v20150310/lib/jetty-servlet-9.2.10.v20150310.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../jetty-distribution-9.2.10.v20150310/lib/jetty-servlets-9.2.10.v20150310.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../jetty-distribution-9.2.10.v20150310/lib/jetty-util-9.2.10.v20150310.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../jetty-distribution-9.2.10.v20150310/lib/servlet-api-3.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../jetty-distribution-9.2.10.v20150310/lib/jetty-security-9.2.10.v20150310.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="library" name="org.apache.shiro:shiro-core:1.2.3" level="project" />
     <orderEntry type="library" name="gson-2.4" level="application" />
     <orderEntry type="library" name="ecis-knowledge-cache" level="project" />
@@ -131,5 +50,6 @@
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-client:9.3.11.M0" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-http:9.3.11.M0" level="project" />
     <orderEntry type="library" name="org.eclipse.jetty:jetty-util" level="project" />
+    <orderEntry type="module" module-name="QueryService" />
   </component>
 </module>

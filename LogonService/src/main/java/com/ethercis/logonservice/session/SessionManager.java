@@ -226,6 +226,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
 
         // [1] Try reconnecting with secret sessionId
         try {
+            //TODO: check if the same credential is used too!
             log.debug("Entering connect(sessionName=" + connectProps.getSessionName().getAbsoluteName() + ")"); // " secretSessionId=" + secretSessionId + ")");
             log.debug("ConnectQos=" + connectProps.toXml());
 

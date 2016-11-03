@@ -237,13 +237,26 @@ public class EhrScapeURIParserTest extends TestCase {
     @Test
     public void testTemplateQueryParser() throws ServiceManagerException {
 
+        HttpServletRequest request;
+        Map<String, String[]> parameters = new HashMap<>();
+        Map<String, String[]> headers = new HashMap<>();
+
+        // reload cache
+        request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/rest/v1/template/reload");
+        headers.put("Content-Type", new String[]{"application/xml"});
+        when(request.getMethod()).thenReturn("POST");
+        uriParser.parse(request);
+        assertEquals("POST", uriParser.identifyMethod().toUpperCase());
+        assertEquals("rest/v1/template/reload", uriParser.identifyPath());
+
         // get a template with templateId = 'template_id'
-        HttpServletRequest request = mock(HttpServletRequest.class);
+        request = mock(HttpServletRequest.class);
         when(request.getRequestURI()).thenReturn("/rest/v1/template/template_id");
-        Map<String, String[]> parameters = new HashMap<String, String[]>();
+        parameters = new HashMap<String, String[]>();
         parameters.put("format", new String[]{"XML"});
         when(request.getParameterMap()).thenReturn(parameters);
-        Map<String, String[]> headers = new HashMap<String, String[]>();
+        headers = new HashMap<String, String[]>();
         headers.put("Content-Type", new String[]{"application/xml"});
         when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
         when(request.getHeader("Content-Type")).thenReturn("application/xml");

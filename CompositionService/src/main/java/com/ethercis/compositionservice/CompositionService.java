@@ -23,6 +23,9 @@ import com.ethercis.dao.access.handler.PvCompoHandler;
 import com.ethercis.dao.access.interfaces.*;
 import com.ethercis.dao.access.jooq.CompoXRefAccess;
 import com.ethercis.ehr.building.I_ContentBuilder;
+import com.ethercis.ehr.encode.CompositionSerializer;
+import com.ethercis.ehr.encode.EncodeUtil;
+import com.ethercis.ehr.encode.I_CompositionSerializer;
 import com.ethercis.ehr.json.FlatJsonUtil;
 import com.ethercis.ehr.keyvalues.EcisFlattener;
 import com.ethercis.ehr.knowledge.I_CacheKnowledgeService;
@@ -43,6 +46,8 @@ import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.systemservice.I_SystemService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
@@ -129,7 +134,6 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "POST", method = "post", path = "rest/v1/composition", responseType = ResponseType.Json)
     })
     public Object create(I_SessionClientProperties props) throws Exception {
-
         auditSetter.handleProperties(getDataAccess(), props);
         String sessionId = auditSetter.getSessionId();
         String templateId = props.getClientProperty(I_CompositionService.TEMPLATE_ID, (String)null);
@@ -271,16 +275,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             switch (format) {
                 case XML:
                     global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_XML);
-//                    Document document = DocumentHelper.createDocument();
-//                    Element root = document.addElement("compositionCreateRestResponseData");
-//                    root.addElement("action").addText("RETRIEVE");
-//                    root.addElement("compositionUid").addText(encodeUuid(entryAccess.getCompositionId(),1));
-//                    root.addElement("meta").addElement("href").addText(Constants.URI_TAG+"?"+encodeURI(null, entryAccess.getCompositionId(), 1, null));
                     retObj = new String(I_ContentBuilder.exportCanonicalXML(entryAccess.getComposition()));
-//                    String responseData = document.asXML();
-//                    String[] fragments = responseData.split("</meta>");
-//                    String encoded = fragments[0]+"</meta>"+retObj+fragments[1];
-//                    return encoded;
                     break;
                 case ECISFLAT:
                     global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
@@ -300,6 +295,21 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                     retmap.put("format", CompositionFormat.FLAT.toString());
                     retmap.put("templateId", entryAccess.getTemplateId());
                     retmap.put("composition", flatJsonCompositionConverter.fromComposition(entryAccess.getTemplateId(), entryAccess.getComposition()));
+                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, uid, 1, null));
+                    retmap.putAll(metaref);
+                    retObj =  retmap;
+                    break;
+
+                case RAW:
+                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
+                    Composition composition = entryAccess.getComposition();
+                    I_CompositionSerializer compositionSerializer = I_CompositionSerializer.getInstance(CompositionSerializer.WalkerOutputMode.RAW);
+                    retmap = new HashMap<>();
+                    retmap.put("format", CompositionFormat.RAW.toString());
+                    retmap.put("templateId", entryAccess.getTemplateId());
+                    Gson gson = EncodeUtil.getGsonBuilderInstance().setPrettyPrinting().create();
+                    Map rawEncoded = gson.fromJson(compositionSerializer.dbEncode(composition), Map.class);
+                    retmap.put("composition", rawEncoded);
                     metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, uid, 1, null));
                     retmap.putAll(metaref);
                     retObj =  retmap;

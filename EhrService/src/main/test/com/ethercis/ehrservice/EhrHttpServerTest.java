@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +40,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
     Gson json = new GsonBuilder().create();
     
 //    private static final String hostname = "188.166.246.78";
-    private static final String hostname = "localhost";
+    private static String hostname = "localhost";
 
     @Before
     public void setUp() throws Exception {
@@ -901,6 +902,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 //                "and a/uid/value='" + procedureId + "' " +
             "and e/ehr_status/subject/external_ref/id/value = '9999999000'";
 
+
     @Test
     public void testQuery() throws Exception {
         int t = 0;
@@ -937,6 +939,79 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         dumpTimings();
     }
+
+    String sqlQuery1 = "select\n" +
+            "  \"ehr\".\"comp_expand\".\"entry\"->(select json_object_keys(\"ehr\".\"comp_expand\".\"entry\"::json)) #>> '{/content[openEHR-EHR-SECTION.allergies_adverse_reactions_rcp.v1],0,/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1],0,/data[at0001],/items[at0002],0,/value,value}' as \"cause\",\n" +
+            "  \"ehr\".\"comp_expand\".\"entry\"->(select json_object_keys(\"ehr\".\"comp_expand\".\"entry\"::json)) #>> '{/content[openEHR-EHR-SECTION.allergies_adverse_reactions_rcp.v1],0,/items[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1],0,/data[at0001],/items[at0009],0,/items[at0011],0,/value,value}' as \"reaction\",\n" +
+            "  \"ehr\".\"comp_expand\".\"composition_id\"||'::'||'test-server'||'::'||(\n" +
+            "    select (count(*) + 1)\n" +
+            "    from \"ehr\".\"composition_history\"\n" +
+            "    where \"ehr\".\"composition_history\".\"id\" = '052541fd-8c32-4ef6-a2f1-69252b47b789'\n" +
+            "  ) as \"uid\"\n" +
+            "from \"ehr\".\"comp_expand\"\n" +
+            "where (\n" +
+            "  (\"ehr\".\"comp_expand\".\"composition_name\"='Adverse reaction list')\n" +
+            "  and (\"ehr\".\"comp_expand\".\"subject_externalref_id_value\"='9999999000')\n" +
+            ");";
+
+
+    String aqlQuery = "select a/uid/value as uid, \n" +
+            "a/composer/name as author, \n" +
+            "a/context/start_time/value as date_created, \n" +
+            "b_a/data[at0001]/items[at0002]/value/value as cause, \n" +
+            "b_a/data[at0001]/items[at0002]/value/defining_code/code_string as cause_code, \n" +
+            "b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as cause_terminology, \n" +
+            "b_a/data[at0001]/items[at0009]/items[at0011]/value/value as reaction, \n" +
+            "b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/codeString as reaction_code, \n" +
+            "b_a/data[at0001]/items[at0009]/items[at0011]/value/terminology_id/value as reaction_terminology \n" +
+            "from EHR e [ehr_id/value = 'bb872277-40c4-44fb-8691-530be31e1ee9'] \n" +
+            "contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]\n" +
+            " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]\n" +
+            " where a/name/value='Adverse reaction list'";
+
+    @Test
+    public void testQueryPost() throws Exception {
+        int t = 0;
+//
+//        hostname = "192.168.2.104";
+
+        String userId = "guest";
+        String password = "guest";
+
+        timings.clear();
+
+        ContentResponse response;
+
+        //login first!
+        response = client.POST("http://"+hostname+":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+        String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
+
+        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/query");
+        request.header("Content-Type", "application/json");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.method(HttpMethod.POST);
+//        byte[] jsonContent = new byte[queryPost.length()];
+
+//        String encoded = URLEncoder.encode(sqlQuery1, "UTF-8");
+        String json = "{ \"aql\":\""+aqlQuery+"\"}";
+        request.content(new BytesContentProvider(json.getBytes()), "application/json");
+//        //set query string in body
+//        request.content(new BytesContentProvider(query.getBytes()), "application/text");
+        response = stopWatchRequestSend(request);
+
+        assertNotNull(response);
+
+        System.out.println(response.getContentAsString());
+
+        request = client.newRequest("http://" + hostname + ":8080/rest/v1/session");
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        request.method(HttpMethod.DELETE);
+        response = stopWatchRequestSend(request);
+        assertEquals(200, response.getStatus());
+
+        dumpTimings();
+    }
+
 
     @Test
     public void testLoginWithHeader() throws Exception {

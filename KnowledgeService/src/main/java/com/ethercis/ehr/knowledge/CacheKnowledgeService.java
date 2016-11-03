@@ -201,6 +201,14 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
                         String jsonString = gson.toJson(testRetMap);
                         retObj = jsonString;
                         break;
+                    case "EXPANDED":
+                        global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_STRING);
+                        testRetMap = EcisFlattener.renderFlat((Composition) generated, true, CompositionSerializer.WalkerOutputMode.EXPANDED);
+                        builder = new GsonBuilder();
+                        gson = builder.setPrettyPrinting().disableHtmlEscaping().create();
+                        jsonString = gson.toJson(testRetMap);
+                        retObj = jsonString;
+                        break;
                     case "FLAT":
                         global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_STRING);
                         I_FlatJsonCompositionConverter flatJsonCompositionConverter = FlatJsonCompositionConverter.getInstance(cache);
@@ -262,6 +270,21 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
         return retmap;
     }
 
+    @QuerySetting(dialect = {
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "GET", method = "create", path = "vehr/template", responseType = ResponseType.Json),
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "POST", method = "post", path = "rest/v1/template/reload", responseType = ResponseType.Json)
+    })
+    public Object reload(I_SessionClientProperties properties) throws Exception {
+        String status = reload();
+
+        Map<String, Object> retmap = new HashMap<>();
+        retmap.put("action", "RELOAD");
+        retmap.put("status", status);
+        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG);
+        retmap.putAll(metaref);
+        return retmap;
+
+    }
 
     @Override
     public String usage() {

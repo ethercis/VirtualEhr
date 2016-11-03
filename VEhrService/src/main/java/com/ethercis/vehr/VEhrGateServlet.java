@@ -702,6 +702,7 @@ public class VEhrGateServlet extends HttpServlet implements
 			/** timeout has occurred in async task... handle it */
 			public void onTimeout(AsyncEvent event) throws IOException {
 				log.info("onTimeout called:"+event.toString());
+				Thread.dumpStack();
 				try {
 					errorOutput(context.getResponse(), new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "Request timeout"));
 				} catch (ServletException e) {
@@ -732,6 +733,8 @@ public class VEhrGateServlet extends HttpServlet implements
 
 		// spawn some task to be run in executor
 		enqueueTask(context, action, header, path, method, parameters, res);
+
+//		context.complete();
 	}
 
 	/**
@@ -767,7 +770,8 @@ public class VEhrGateServlet extends HttpServlet implements
 						} catch (ServletException e) {
 							e.printStackTrace();
 						}
-						ctx.complete();
+						if (ctx != null)
+							ctx.complete();
 						return;
 					}
 				}
@@ -777,6 +781,7 @@ public class VEhrGateServlet extends HttpServlet implements
 					// (at this point the app server has called the listener
 					// already)
 					ServletResponse response = ctx.getResponse();
+
 					if (response != null) {
 						handleOutput(controller.getMappedMethodReturnType(action, path, method), output, response, path);
 						if (ctx != null) //if AsyncContext is supported, otherwise ignore...

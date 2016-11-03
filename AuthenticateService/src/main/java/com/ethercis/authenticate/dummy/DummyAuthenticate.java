@@ -162,4 +162,9 @@ public class DummyAuthenticate implements I_Authenticate {
         return principals;
 	}
 
+	@Override
+	public void release() {
+
+	}
+
 }

@@ -58,7 +58,7 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
 
     private I_DomainAccess domainAccess;
 
-    private enum ConnectionMode{JDBC_DRIVER, PG_CONNECTION_POOL}
+    private enum ConnectionMode{JDBC_DRIVER, DBCP2_POOL, PG_CONNECTION_POOL}
 
     private ConnectionMode connectionMode;
 
@@ -108,6 +108,7 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
                 properties.put(I_DomainAccess.KEY_PORT, get("server.persistence.jooq.port", null));
                 properties.put(I_DomainAccess.KEY_LOGIN, get("server.persistence.jooq.login", "postgres"));
                 properties.put(I_DomainAccess.KEY_PASSWORD, get("server.persistence.jooq.password", "postgres"));
+                properties.put(I_DomainAccess.KEY_MAX_CONNECTION, get("server.persistence.jooq.max_connections", "10"));
 
                 try {
                     domainAccess = I_DomainAccess.getInstance(properties);
@@ -116,6 +117,29 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
                 }
                 connectionMode = ConnectionMode.PG_CONNECTION_POOL;
                 log.info("DB access set to PG CONNECTION POOLING");
+                break;
+            case "jooq_dbcp2":
+                properties.put(I_DomainAccess.KEY_CONNECTION_MODE, I_DomainAccess.DBCP2_POOL);
+                properties.put(I_DomainAccess.KEY_DIALECT, get("server.persistence.jooq.dialect", "POSTGRES"));
+                properties.put(I_DomainAccess.KEY_URL, get("server.persistence.jooq.url", null));
+                properties.put(I_DomainAccess.KEY_LOGIN, get("server.persistence.jooq.login", "postgres"));
+                properties.put(I_DomainAccess.KEY_PASSWORD, get("server.persistence.jooq.password", "postgres"));
+
+                properties.put(I_DomainAccess.KEY_MAX_IDLE, get("server.persistence.dbcp2.max_idle", null));
+                properties.put(I_DomainAccess.KEY_MAX_ACTIVE, get("server.persistence.dbcp2.max_active", null));
+                properties.put(I_DomainAccess.KEY_TEST_ON_BORROW, get("server.persistence.dbcp2.test_on_borrow", "false"));
+                properties.put(I_DomainAccess.KEY_AUTO_RECONNECT, get("server.persistence.dbcp2.auto_reconnect", null));
+                properties.put(I_DomainAccess.KEY_WAIT_MS, get("server.persistence.dbcp2.max_wait", null));
+                properties.put(I_DomainAccess.KEY_SET_POOL_PREPARED_STATEMENTS, get("server.persistence.dbcp2.set_pool_prepared_statements", null));
+                properties.put(I_DomainAccess.KEY_SET_MAX_PREPARED_STATEMENTS, get("server.persistence.dbcp2.set_max_prepared_statements", null));
+
+                try {
+                    domainAccess = I_DomainAccess.getInstance(properties);
+                } catch (Exception e) {
+                    throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Unable to setup DB layer access" + e);
+                }
+                connectionMode = ConnectionMode.DBCP2_POOL;
+                log.info("DB access set to DBCP2 POOLING");
                 break;
             default:
                 throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Unknown SQL resource dialect:"+implementation);
@@ -150,6 +174,9 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
                 break;
             case PG_CONNECTION_POOL:
                 stringBuffer.append("\nPG_CONNECTION_POOL");
+                stringBuffer.append("\nSQL dialect:" + domainAccess.getDialect());
+            case DBCP2_POOL:
+                stringBuffer.append("\nPG_DBCP2");
                 stringBuffer.append("\nSQL dialect:" + domainAccess.getDialect());
             break;
 

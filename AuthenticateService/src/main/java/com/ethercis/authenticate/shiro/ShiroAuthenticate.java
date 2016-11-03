@@ -33,7 +33,11 @@ import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.mgt.*;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.support.SubjectThreadState;
+import org.apache.shiro.util.LifecycleUtils;
+import org.apache.shiro.util.ThreadState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +57,7 @@ public class ShiroAuthenticate implements I_Authenticate {
     private String userid;
     private RunTimeSingleton global;
     private Subject currentUser;
+	private ThreadState subjectThreadState;
 
 
 	/**
@@ -67,6 +72,7 @@ public class ShiroAuthenticate implements I_Authenticate {
 
         try {
             currentUser = SecurityUtils.getSubject();
+			subjectThreadState = new SubjectThreadState(currentUser);
         } catch (UnavailableSecurityManagerException usme){
            throw new ServiceManagerException(glob, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Shiro Security Manager is not configured properly:"+usme);
         }
@@ -193,6 +199,26 @@ public class ShiroAuthenticate implements I_Authenticate {
 		List<I_Principal> principals = new ArrayList<I_Principal>();
         principals.add(new DummyPrincipal());
         return principals;
+	}
+
+	private void clearSubject() {
+		if (subjectThreadState != null) {
+			subjectThreadState.clear();
+			subjectThreadState = null;
+		}
+	}
+
+	@Override
+	public void release(){
+		clearSubject();
+		try {
+			org.apache.shiro.mgt.SecurityManager securityManager = SecurityUtils.getSecurityManager();
+			LifecycleUtils.destroy(securityManager);
+		}
+		catch (Exception e){
+			throw new IllegalArgumentException("Could not release security context for user:"+userid+", Exception:"+e);
+		}
+		SecurityUtils.setSecurityManager(null);
 	}
 
 }

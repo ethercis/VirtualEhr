@@ -43,6 +43,9 @@ public class TemplateQueryParser {
                 }
                 break;
             case "POST":
+                if (tokens != null && tokens.length == 1 && tokens[0].matches("reload|stats|errors")){
+                    this.resourceToken = this.resourceToken + "/" + tokens[0];
+                }
                 break;
             case "DELETE":
                 if (tokens != null && tokens.length == 1){

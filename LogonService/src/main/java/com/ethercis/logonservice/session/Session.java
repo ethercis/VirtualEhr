@@ -107,7 +107,7 @@ public class Session implements I_Session {
 	       this.authenticate = Authenticate.newWrapper(runTimeSingleton, securityManager.getPolicyMode(), loginName);
 	       this.authenticated = authenticate.checkCredential(passwd);
 	       log.debug( "The user for " + loginName + " is " + ((this.authenticated)?"":" NOT ") + " authenticated");
-
+		   authenticate.release();
 	       
 	       if (!this.authenticated)
 	          throw new ServiceManagerException(runTimeSingleton, SysErrorCode.USER_SECURITY_AUTHENTICATION_ACCESSDENIED, ME, AuthErrorCode.USER_AUTHENTICATION_FAILED.getFullMessage()+" id:"+loginName);
