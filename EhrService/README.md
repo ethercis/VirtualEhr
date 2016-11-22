@@ -41,3 +41,4 @@ Known issues
 
 - Update of a composition with format RAW XML (e.g. canonical XML) is not (well) supported. It does a complete replacement
 of the original care entry.
+

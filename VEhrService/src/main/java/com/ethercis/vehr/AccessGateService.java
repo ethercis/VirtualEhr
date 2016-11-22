@@ -45,6 +45,8 @@ import com.ethercis.servicemanager.jmx.SerializeHelper;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.servicemanager.service.ServiceRegistry;
+import com.ethercis.sessionlogger.I_SessionLoggerService;
+import com.ethercis.sessionlogger.SessionLoggerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -119,6 +121,7 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
 	private RequestDispatcher requestDispatcher;
 	private LogonService logonService;
 	private I_PolicyManager policyManager;
+	private I_SessionLoggerService sessionLoggerService = null;
 
     private String CONNECT_PATH;
     private String CONNECT_METHOD;
@@ -152,23 +155,33 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
 		this.requestDispatcher = (RequestDispatcher) registry.getService(dispatcherId);
 
 		if (requestDispatcher == null) {
-			log.error("RequestDispatcher service is not loaded, please make sure it is defined in your services.xml file");
+			log.error("RequestDispatcher service is not loaded, please make sure it exists in your classpath");
 			throw new ServiceManagerException(
 					global,
 					SysErrorCode.USER_CONFIGURATION,
 					ME,
-					"RequestDispatcher service is not loaded, please make sure it is defined in your services.xml file");
+					"RequestDispatcher service is not loaded, please make sure it exists in your classpath");
 		}
 
 		this.logonService = (LogonService) registry.getService(logonServiceId);
 
 		if (logonService == null) {
-			log.error("LogonService is not loaded, please make sure it is defined in your services.xml file");
+			log.error("LogonService is not loaded, please make sure it exists in your classpath");
 			throw new ServiceManagerException(
 					global,
 					SysErrorCode.USER_CONFIGURATION,
 					ME,
-					"Dispatcher service is not loaded, please make sure it is defined in your services.xml file");
+					"logonService service is not loaded, please make sure it exists in your classpath");
+		}
+
+		try {
+			this.sessionLoggerService = getRegisteredService(getGlobal(), "SessionLoggerService", "1.0");
+
+			if (sessionLoggerService == null) {
+				log.warn("sessionLoggerService is not loaded, no session logging will be done");
+			}
+		} catch (Exception e){
+			log.warn("sessionLoggerService is not loaded, no session logging will be done");
 		}
 
 //		String policyType = global.getProperty().get(Constants.POLICY_TYPE_TAG,
@@ -178,6 +191,14 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
 //				policyType);
 
 		log.info("Gate service started...");
+	}
+
+	@Override
+	public void shutdown() throws ServiceManagerException {
+		super.shutdown();
+
+		if (sessionLoggerService != null)
+			sessionLoggerService.purge(global.getProperty().get("server.node.id", "local"));
 	}
 
     /**
@@ -237,6 +258,16 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
 
 		if (isConnectAction(path, action, method)) {
 			ResponseHolder responseHolder = (ResponseHolder)serviceConnect(hdrprops, path, action, method, parameters);
+			if (sessionLoggerService != null) {
+				sessionLoggerService.log(
+						((SessionClientProperties) parameters[0]).getClientProperty("username").getStringValue(),
+						global.getProperty().get("server.node.id", "local"),
+						responseHolder.getSessionClientProperties().getClientProperty("Ehr-Session").getStringValue(),
+						responseHolder.getSessionClientProperties().getClientProperty("x-session-name").getStringValue(),
+						responseHolder.getSessionClientProperties().getClientProperty("__rcvTimestampStr").getStringValue(),
+						((SessionClientProperties) parameters[0]).getClientProperty("x-client-ip").getStringValue()
+				);
+			}
 			if (responseHolder != null) {
 				Map<String, Object> retMap = new HashMap<>();
 				retMap.put("action", "CREATE");
@@ -286,6 +317,10 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
             if (!qryunit.getParameters().getClientProperties().containsKey(I_SessionManager.SECRET_SESSION_ID(dialectSpace))){
                 qryunit.getParameters().addClientProperty(I_SessionManager.SECRET_SESSION_ID(dialectSpace), sessionid);
             }
+			//Done at LogonService::SessionManager level instead (to handle session timeout and clear session recursion)
+//			if (sessionLoggerService != null) {
+//				sessionLoggerService.delete(sessionid);
+//			}
 
         }
 

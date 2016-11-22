@@ -34,3 +34,4 @@ Known issues
 2015/12/23
 
 - Authorization (permission) is not yet bound to shiro
+

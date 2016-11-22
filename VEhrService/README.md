@@ -96,3 +96,4 @@ Known issues
 - CORS is implemented but needs more testing
 - All queries are now processed synchronously. Asynchronous handling is implemented however, but needs to be bound to
 actual REST queries if required.
+

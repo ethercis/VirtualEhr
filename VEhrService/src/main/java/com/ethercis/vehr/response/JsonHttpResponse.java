@@ -58,6 +58,7 @@ public class JsonHttpResponse extends GenericHttpResponse {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.setDateFormat(new ISO8601DateFormat());
 
+
 		String bodyContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
         setContentLength(bodyContent.getBytes().length);
 		writer.println(bodyContent);

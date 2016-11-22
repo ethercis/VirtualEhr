@@ -32,6 +32,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.exception.DataAccessException;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -132,6 +133,10 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
                 properties.put(I_DomainAccess.KEY_WAIT_MS, get("server.persistence.dbcp2.max_wait", null));
                 properties.put(I_DomainAccess.KEY_SET_POOL_PREPARED_STATEMENTS, get("server.persistence.dbcp2.set_pool_prepared_statements", null));
                 properties.put(I_DomainAccess.KEY_SET_MAX_PREPARED_STATEMENTS, get("server.persistence.dbcp2.set_max_prepared_statements", null));
+                properties.put(I_DomainAccess.KEY_REMOVE_ABANDONNED, get("server.persistence.dbcp2.remove_abandonned", null));
+                properties.put(I_DomainAccess.KEY_REMOVE_ABANDONNED_TIMEOUT, get("server.persistence.dbcp2.remove_abandonned_timeout", null));
+                properties.put(I_DomainAccess.KEY_LOG_ABANDONNED, get("server.persistence.dbcp2.log_abandonned", null));
+                properties.put(I_DomainAccess.KEY_INITIAL_CONNECTIONS, get("server.persistence.dbcp2.initial_size", null));
 
                 try {
                     domainAccess = I_DomainAccess.getInstance(properties);
@@ -164,13 +169,15 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
         stringBuffer.append("=======================\n");
         switch (connectionMode) {
                 case JDBC_DRIVER:
+                    Connection connection = domainAccess.getConnection();
                     stringBuffer.append("\nJDBC_DRIVER");
                     stringBuffer.append("\nSQL dialect:" + domainAccess.getDialect());
-                    stringBuffer.append("\nDB server node:" + domainAccess.getConnection().getMetaData().getURL().toString());
-                    stringBuffer.append("\nDB engine name:" + domainAccess.getConnection().getMetaData().getDatabaseProductName());
-                    stringBuffer.append("\nDB engine version:" + domainAccess.getConnection().getMetaData().getDatabaseProductVersion());
-                    stringBuffer.append("\nDB driver name:" + domainAccess.getConnection().getMetaData().getDriverName());
-                    stringBuffer.append("\nDB driver version:" + domainAccess.getConnection().getMetaData().getDriverVersion());
+                    stringBuffer.append("\nDB server node:" + connection.getMetaData().getURL().toString());
+                    stringBuffer.append("\nDB engine name:" + connection.getMetaData().getDatabaseProductName());
+                    stringBuffer.append("\nDB engine version:" + connection.getMetaData().getDatabaseProductVersion());
+                    stringBuffer.append("\nDB driver name:" + connection.getMetaData().getDriverName());
+                    stringBuffer.append("\nDB driver version:" + connection.getMetaData().getDriverVersion());
+                    connection.close();
                 break;
             case PG_CONNECTION_POOL:
                 stringBuffer.append("\nPG_CONNECTION_POOL");

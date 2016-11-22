@@ -17,10 +17,10 @@
 //Copyright
 package com.ethercis.compositionservice;
 
-import com.ethercis.compositionservice.handler.CanonicalHandler;
-import com.ethercis.compositionservice.handler.FlatJsonHandler;
-import com.ethercis.dao.access.handler.PvCompoHandler;
-import com.ethercis.dao.access.interfaces.*;
+import com.ethercis.dao.access.handler.*;
+import com.ethercis.dao.access.interfaces.I_CompoXrefAccess;
+import com.ethercis.dao.access.interfaces.I_CompositionAccess;
+import com.ethercis.dao.access.interfaces.I_EntryAccess;
 import com.ethercis.dao.access.jooq.CompoXRefAccess;
 import com.ethercis.ehr.building.I_ContentBuilder;
 import com.ethercis.ehr.encode.CompositionSerializer;
@@ -41,19 +41,16 @@ import com.ethercis.servicemanager.common.MetaBuilder;
 import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
-import com.ethercis.servicemanager.common.identification.IdentificationDef;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.systemservice.I_SystemService;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.joda.time.DateTime;
 import org.openehr.rm.composition.Composition;
 
@@ -166,13 +163,9 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
         switch (format){
             case XML:
-                CanonicalHandler canonicalHandler = new CanonicalHandler(knowledgeCache.getKnowledgeCache(), templateId, null);
-                Composition composition = canonicalHandler.build(getGlobal(), content);
-                templateId = composition.getArchetypeDetails().getTemplateId().getValue();
-                I_CompositionAccess compositionAccess = I_CompositionAccess.getNewInstance(getDataAccess(), composition, DateTime.now(), ehrId);
-                I_EntryAccess entryAccess = I_EntryAccess.getNewInstance(getDataAccess(), templateId, 0, compositionAccess.getId(), composition);
-                compositionAccess.addContent(entryAccess);
-                compositionId = compositionAccess.commit(committerUuid, systemUuid, auditSetter.getDescription());
+                I_CanonicalHandler canonicalHandler = new CanonicalHandler(getDataAccess(), templateId);
+                compositionId = canonicalHandler.storeComposition(ehrId, content, committerUuid, systemUuid, auditSetter.getDescription());
+
                 linkComposition(linkUid, compositionId);
                 //create an XML response
                 Document document = DocumentHelper.createDocument();
@@ -186,8 +179,8 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
             case ECISFLAT:
                 PvCompoHandler pvCompoHandler = new PvCompoHandler(this.getDataAccess(), templateId, null);
-                Map<String, String> kvPairs = FlatJsonUtil.inputStream2Map(new StringReader(new String(content.getBytes())));
-                compositionId = pvCompoHandler.storeComposition(ehrId, kvPairs, auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
+                Map<String, Object> kvPairs = FlatJsonUtil.inputStream2Map(new StringReader(new String(content.getBytes())));
+                compositionId = pvCompoHandler.storeComposition(ehrId, kvPairs, committerUuid, systemUuid, auditSetter.getDescription());
                 linkComposition(linkUid, compositionId);
 
                 //create json response
@@ -200,13 +193,8 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 return retmap;
 
             case FLAT:
-                I_FlatJsonCompositionConverter flatJsonCompositionConverter = FlatJsonCompositionConverter.getInstance(getDataAccess().getKnowledgeManager());
-                Map flatMap = FlatJsonUtil.inputStream2Map(new StringReader(new String(content.getBytes())));
-                Composition newComposition = flatJsonCompositionConverter.toComposition(templateId, flatMap);
-                I_CompositionAccess access = I_CompositionAccess.getNewInstance(getDataAccess(), newComposition, DateTime.now(), ehrId);
-                I_EntryAccess entry= I_EntryAccess.getNewInstance(getDataAccess(), templateId, 0, access.getId(), newComposition);
-                access.addContent(entry);
-                compositionId = access.commit(committerUuid, systemUuid, auditSetter.getDescription());
+                I_FlatJsonHandler flatJsonHandler = new FlatJsonHandler(getDataAccess(), templateId);
+                compositionId = flatJsonHandler.store(ehrId, content, committerUuid, systemUuid, auditSetter.getDescription());
                 linkComposition(linkUid, compositionId);
 
                 //create json response
@@ -257,7 +245,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         if (version > 0)
             compositionAccess = I_CompositionAccess.retrieveCompositionVersion(getDataAccess(), uid, version);
         else {
-            compositionAccess = I_CompositionAccess.retrieveInstance(getDataAccess(), uid);
+            compositionAccess = I_CompositionAccess.retrieveInstance2(getDataAccess(), uid);
             if (compositionAccess == null && I_CompositionAccess.hasPreviousVersion(getDataAccess(), uid)){ //try to identify a previous version
                 //TODO: add life_cycle state to versions and return the first non deleted version id... right now it's always 1
                 global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_NO_CONTENT);
@@ -354,8 +342,8 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
         switch (format){
             case XML:
-                CanonicalHandler canonicalHandler = new CanonicalHandler(knowledgeCache.getKnowledgeCache(), templateId, null);
-                result = canonicalHandler.update(getGlobal(), getDataAccess(), compositionId, content, auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
+                CanonicalHandler canonicalHandler = new CanonicalHandler(getDataAccess(), templateId);
+                result = canonicalHandler.update(getDataAccess(), compositionId, content, auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
                 break;
 
             case ECISFLAT:
@@ -365,7 +353,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
                 //TODO: template id is not required
                 PvCompoHandler pvCompoHandler = new PvCompoHandler(this.getDataAccess(), compositionAccess, "*", null); //template id is not required
-                Map<String, String> kvPairs;
+                Map<String, Object> kvPairs;
                 try {
                     kvPairs = FlatJsonUtil.inputStream2Map(new StringReader(new String(content.getBytes())));
                 }
@@ -381,8 +369,8 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                     throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Could not find composition:"+compositionId);
 
                 //get the template id
-                FlatJsonHandler flatJsonHandler = new FlatJsonHandler(getDataAccess(), compositionAccess, null, null);
-                result = flatJsonHandler.update(global, getDataAccess(), compositionId, new String(content.getBytes()), auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
+                I_FlatJsonHandler flatJsonHandler = new FlatJsonHandler(getDataAccess(), compositionAccess, null, null);
+                result = flatJsonHandler.update(getDataAccess(), compositionId, new String(content.getBytes()), auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
                 break;
 
             default:

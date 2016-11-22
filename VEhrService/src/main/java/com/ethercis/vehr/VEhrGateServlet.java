@@ -292,6 +292,7 @@ public class VEhrGateServlet extends HttpServlet implements
 			log.error("Shutdown could not be done properly with exception:" + e);
 		}
 		executor.shutdown();
+
 		log.info("Shutdown completed...");
 	}
 

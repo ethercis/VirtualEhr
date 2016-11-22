@@ -81,3 +81,4 @@ Known issues
 
 - it is expected to link the authorization mechanism with Shiro. At the moment, authorization is not checked.
 - There is no inter-service communications. It has been removed from the XmlBlaster original implementation since it is not required for this type of deployment.
+

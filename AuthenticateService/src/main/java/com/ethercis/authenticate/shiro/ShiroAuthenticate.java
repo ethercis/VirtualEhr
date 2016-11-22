@@ -211,14 +211,14 @@ public class ShiroAuthenticate implements I_Authenticate {
 	@Override
 	public void release(){
 		clearSubject();
-		try {
-			org.apache.shiro.mgt.SecurityManager securityManager = SecurityUtils.getSecurityManager();
-			LifecycleUtils.destroy(securityManager);
-		}
-		catch (Exception e){
-			throw new IllegalArgumentException("Could not release security context for user:"+userid+", Exception:"+e);
-		}
-		SecurityUtils.setSecurityManager(null);
+//		try {
+//			org.apache.shiro.mgt.SecurityManager securityManager = SecurityUtils.getSecurityManager();
+//			LifecycleUtils.destroy(securityManager);
+//		}
+//		catch (Exception e){
+//			throw new IllegalArgumentException("Could not release security context for user:"+userid+", Exception:"+e);
+//		}
+//		SecurityUtils.setSecurityManager(null);
 	}
 
 }

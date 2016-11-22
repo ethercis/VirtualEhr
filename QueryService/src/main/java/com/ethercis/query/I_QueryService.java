@@ -14,14 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//Copyright
-package com.ethercis.ehr.knowledge;
 
+package com.ethercis.query;
 
-public interface I_CacheKnowledgeService {
-
-	java.lang.String TEMPLATE_ID = "templateId";
-	java.lang.String FORMAT = "format";
-
-	public abstract I_KnowledgeCache getKnowledgeCache();
+/**
+ * Created by christian on 11/17/2016.
+ */
+public interface I_QueryService {
+    String EXPLAIN = "explain";
 }

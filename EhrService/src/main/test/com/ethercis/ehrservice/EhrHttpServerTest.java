@@ -915,12 +915,16 @@ public class EhrHttpServerTest extends TestServerSimulator {
         ContentResponse response;
 
         //login first!
-        response = client.POST("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password);
+        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), "TEST-SESSION");
+        request.method(HttpMethod.POST);
+        response = stopWatchRequestSend(request);
+//        response = client.POST("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
 
         String encodedQuery = query.replaceAll(" ", "%20");
 
-        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/query?aql="+encodedQuery);
+        request = client.newRequest("http://" + hostname + ":8080/rest/v1/query?aql="+encodedQuery);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
 //        //set query string in body
@@ -973,7 +977,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
     public void testQueryPost() throws Exception {
         int t = 0;
 //
-//        hostname = "192.168.2.104";
+        hostname = "192.168.2.104";
 
         String userId = "guest";
         String password = "guest";

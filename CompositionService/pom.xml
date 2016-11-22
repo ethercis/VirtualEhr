@@ -100,6 +100,10 @@
                             <exclude>ethercis:ecis-resource-access-service</exclude>
                             <exclude>ethercis:ecis-vehr-service</exclude>
                             <exclude>ethercis:ecis-authenticate-service</exclude>
+                            <exclude>ethercis:session-logger-service</exclude>
+                            <exclude>ethercis:ecis-validation</exclude>
+                            <exclude>ethercis:ecis-transform</exclude>
+                            <exclude>ethercis:ecis-query-service</exclude>
 
                             <exclude>org.openehr:*</exclude>
                             <exclude>jooq:*</exclude>
@@ -261,4 +265,4 @@
             <version>4.11</version>
         </dependency>
     </dependencies>
-</project>
+</project>

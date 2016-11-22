@@ -18,27 +18,14 @@
 package com.ethercis.query;
 
 import com.ethercis.compositionservice.I_CompositionService;
-import com.ethercis.compositionservice.handler.CanonicalHandler;
-import com.ethercis.compositionservice.handler.FlatJsonHandler;
-import com.ethercis.dao.access.handler.PvCompoHandler;
-import com.ethercis.dao.access.interfaces.I_CompositionAccess;
 import com.ethercis.dao.access.interfaces.I_EntryAccess;
-import com.ethercis.ehr.building.I_ContentBuilder;
-import com.ethercis.ehr.encode.CompositionSerializer;
-import com.ethercis.ehr.encode.EncodeUtil;
-import com.ethercis.ehr.encode.I_CompositionSerializer;
-import com.ethercis.ehr.json.FlatJsonUtil;
-import com.ethercis.ehr.keyvalues.EcisFlattener;
 import com.ethercis.ehr.knowledge.I_CacheKnowledgeService;
-import com.ethercis.ehr.util.FlatJsonCompositionConverter;
-import com.ethercis.ehr.util.I_FlatJsonCompositionConverter;
 import com.ethercis.logonservice.session.I_SessionManager;
 import com.ethercis.persistence.ServiceDataCluster;
 import com.ethercis.servicemanager.annotation.*;
 import com.ethercis.servicemanager.cluster.I_Info;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
-import com.ethercis.servicemanager.common.MetaBuilder;
 import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
@@ -46,19 +33,9 @@ import com.ethercis.servicemanager.exceptions.ServiceManagerException;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.systemservice.I_SystemService;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.joda.time.DateTime;
-import org.openehr.rm.composition.Composition;
 
-import java.io.StringReader;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -142,6 +119,7 @@ public class QueryService extends ServiceDataCluster implements QueryServiceMBea
     })
     public Object query(I_SessionClientProperties props) throws Exception {
         auditSetter.handleProperties(getDataAccess(), props);
+        Boolean explain = props.getClientProperty(I_QueryService.EXPLAIN, false);
         String sessionId = auditSetter.getSessionId();
         QueryMode queryMode = QueryMode.UNDEF;
         UUID committerUuid = auditSetter.getCommitterUuid();
@@ -181,7 +159,10 @@ public class QueryService extends ServiceDataCluster implements QueryServiceMBea
                 result = I_EntryAccess.queryJSON(getDataAccess(), queryString);
                 break;
             case AQL:
-                result = I_EntryAccess.queryAqlJson(getDataAccess(), queryString);
+                if (explain)
+                    result = I_EntryAccess.explainAqlJson(getDataAccess(), queryString);
+                else
+                    result = I_EntryAccess.queryAqlJson(getDataAccess(), queryString);
                 break;
 
             default:

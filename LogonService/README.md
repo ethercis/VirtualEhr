@@ -79,3 +79,4 @@ Known issues
 2015/12/23
 
 - Currently, the authentication policy is basic. It should be extended to production scenario (linked to an LDAP directory in particular)
+
