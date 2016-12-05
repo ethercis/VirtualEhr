@@ -977,7 +977,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
     public void testQueryPost() throws Exception {
         int t = 0;
 //
-        hostname = "192.168.2.104";
+        hostname = "localhost";
 
         String userId = "guest";
         String password = "guest";

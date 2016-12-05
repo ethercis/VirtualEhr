@@ -41,7 +41,7 @@ import com.ethercis.logonservice.security.SecurityProperties;
 import com.ethercis.logonservice.security.ServiceSecurityManager;
 import com.ethercis.servicemanager.service.I_Service;
 import com.ethercis.servicemanager.service.ServiceRegistry;
-import com.ethercis.sessionlogger.I_SessionLoggerService;
+//import com.ethercis.sessionlogger.I_SessionLoggerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -63,7 +63,7 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
 
     private final RunTimeSingleton glob;
     private static Logger log = LogManager.getLogger(SessionManager.class.getName());
-    private I_SessionLoggerService sessionLoggerService;
+//    private I_SessionLoggerService sessionLoggerService;
 
     /**
      * With this map you can find a client using a sessionId.
@@ -594,13 +594,13 @@ final public class SessionManager implements I_RunlevelListener, com.ethercis.se
             }
 
             ServiceRegistry services = glob.getServiceRegistry();
-            I_SessionLoggerService sessionLoggerService = (I_SessionLoggerService) services.getService("SessionLoggerService" + "," + "1.0");
-
-            if (sessionLoggerService == null){
-                log.warn("SessionLoggerService could not be resolved, no session logging will be done...");
-            }
-            else
-                sessionLoggerService.delete(secretSessionId);
+//            I_SessionLoggerService sessionLoggerService = (I_SessionLoggerService) services.getService("SessionLoggerService" + "," + "1.0");
+//
+//            if (sessionLoggerService == null){
+//                log.warn("SessionLoggerService could not be resolved, no session logging will be done...");
+//            }
+//            else
+//                sessionLoggerService.delete(secretSessionId);
 
             log.debug(toXml().toString());
             log.debug("Leaving disconnect()");
