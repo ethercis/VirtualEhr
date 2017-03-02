@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<template xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="openEHR/v1/Template">
+  <id>017798b6-ee9b-4774-b0b4-4e8b2502f100</id>
+  <name>Tobacco use</name>
+  <definition xsi:type="CLUSTER" archetype_id="openEHR-EHR-CLUSTER.substance_use-tobacco.v1" concept_name="Tobacco use" />
+</template>

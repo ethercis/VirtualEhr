@@ -776,10 +776,17 @@ public class EhrHttpServerTest extends TestServerSimulator {
         //create ehr
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
 
-        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+//        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+//        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+//        request.method(HttpMethod.POST);
+//        response = stopWatchRequestSend(request);
+
+
+        Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
-        request.method(HttpMethod.POST);
+        request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
+
         UUID ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 
         request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/"+ehrId);
@@ -791,10 +798,10 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertNotNull(response);
         ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 
-        File flatjsonFile = new File("/Development/Dropbox/eCIS_Development/samples/IDCR-LabReportRAW1_FLATJSON_JOSH2.json");
+        File flatjsonFile = new File("/Development/Dropbox/eCIS_Development/test/IDCR - Immunisation summary.v0.flat.json");
 //        File flatjsonFile = new File("/Development/Dropbox/eCIS_Development/samples/"+testFile+".json");
         InputStream is = new FileInputStream(flatjsonFile);
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/composition?format=FLAT&templateId=IDCR - Laboratory Order.v0".replaceAll(" ", "%20"));
+        request = client.newRequest("http://" + hostname + ":8080/rest/v1/composition?format=FLAT&templateId=IDCR - Immunisation summary.v0".replaceAll(" ", "%20"));
 //        request = client.newRequest("http://" + hostname + ":8080/rest/v1/composition?format=FLAT&templateId=" + testTemplate.replaceAll(" ", "%20"));
         request.header("Content-Type", "application/json");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
