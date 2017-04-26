@@ -270,7 +270,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                     Map<String, Object> retmap = new HashMap<>();
                     retmap.put("format", CompositionFormat.ECISFLAT.toString());
                     retmap.put("templateId", entryAccess.getTemplateId());
-                    retmap.put("composition", EcisFlattener.renderFlat(entryAccess.getComposition()));
+                    retmap.put("composition", new EcisFlattener().render(entryAccess.getComposition()));
                     Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, uid, 1, null));
                     retmap.putAll(metaref);
                     retObj =  retmap;

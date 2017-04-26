@@ -47,6 +47,7 @@ import com.ethercis.servicemanager.service.ServiceInfo;
 import org.openehr.rm.common.archetyped.Locatable;
 import org.openehr.rm.composition.Composition;
 import org.openehr.rm.composition.EventContext;
+import org.openehr.rm.datastructure.itemstructure.ItemStructure;
 import org.openehr.rm.support.identification.ObjectVersionID;
 
 import java.io.IOException;
@@ -178,7 +179,11 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
 
 
             if (generated instanceof Composition) {
+                ItemStructure other_context = ((Composition) generated).getContext().getOtherContext();
                 EventContext context = ContextHelper.createDummyContext();
+                if (other_context != null)
+                    context.setOtherContext(other_context);
+
                 PartyIdentified partyIdentified = CompositionAttributesHelper.createComposer("Composer", "ETHERCIS", "1234-5678");
 
                 ((Composition) generated).setContext(context);
@@ -195,7 +200,7 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
                         break;
                     case "ECISFLAT":
                         global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_STRING);
-                        Map<String, String> testRetMap = EcisFlattener.renderFlat((Composition) generated, true, CompositionSerializer.WalkerOutputMode.PATH);
+                        Map<String, String> testRetMap = new EcisFlattener(true).render((Composition) generated);
                         GsonBuilder builder = new GsonBuilder();
                         Gson gson = builder.setPrettyPrinting().disableHtmlEscaping().create();
                         String jsonString = gson.toJson(testRetMap);
@@ -203,7 +208,7 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
                         break;
                     case "EXPANDED":
                         global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_STRING);
-                        testRetMap = EcisFlattener.renderFlat((Composition) generated, true, CompositionSerializer.WalkerOutputMode.EXPANDED);
+                        testRetMap = new EcisFlattener(true).render((Composition) generated);
                         builder = new GsonBuilder();
                         gson = builder.setPrettyPrinting().disableHtmlEscaping().create();
                         jsonString = gson.toJson(testRetMap);
@@ -228,7 +233,7 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
                         break;
                     case "ECISFLAT":
                         global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_JSON);
-                        Map<String, String> testRetMap = EcisFlattener.renderFlat((Locatable) generated, true, CompositionSerializer.WalkerOutputMode.PATH);
+                        Map<String, String> testRetMap = new EcisFlattener(true).render((Locatable) generated);
 
                         GsonBuilder builder = new GsonBuilder();
                         Gson gson = builder.setPrettyPrinting().disableHtmlEscaping().create();

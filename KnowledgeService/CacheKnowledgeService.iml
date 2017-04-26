@@ -59,6 +59,21 @@
           <root url="jar://$MODULE_DIR$/../../../Dropbox/eCIS_Development/eCIS-LIB/deploy/colnec-demographics-1.0-SNAPSHOT.jar!/" />
           <root url="file://$MODULE_DIR$/../../../COLNEC/demographics/src/main/java" />
           <root url="file://$MODULE_DIR$/../../../COLNEC/demographics/src/test/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/aql-processor/src/main/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/aql-processor/src/test/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/aql-processor/target/generated-sources/antlr4" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/core/src/main/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/core/src/test/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/ehrdao/src/main/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/ehrdao/src/test/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/graphql/src/test/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/jooq-pg/src/main/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/knowledge-cache/src/main/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/service/src" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/transform/src/main/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/transform/src/test/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/validation/src/main/java" />
+          <root url="file://$MODULE_DIR$/../../ehrservice/validation/src/test/java" />
         </SOURCES>
       </library>
     </orderEntry>

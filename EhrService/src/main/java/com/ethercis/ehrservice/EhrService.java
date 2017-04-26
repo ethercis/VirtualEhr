@@ -195,7 +195,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             else if (ehrAccess.isSetOtherDetailsSerialized()){
                 if (format.equals(I_CompositionService.CompositionFormat.ECISFLAT)){
                     Map<String, Object> retmap = gson.fromJson(ehrAccess.getOtherDetailsSerialized(), TreeMap.class);
-                    Map<String, String> flatten = EcisFlattener.generateEcisFlat(retmap);
+                    Map<String, String> flatten = new EcisFlattener().generateEcisFlat(retmap);
                     put(OTHER_DETAILS, flatten);
                 }
                 else {
