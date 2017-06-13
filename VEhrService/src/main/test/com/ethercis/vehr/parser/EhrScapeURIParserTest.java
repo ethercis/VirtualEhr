@@ -330,7 +330,37 @@ public class EhrScapeURIParserTest extends TestCase {
 
     }
 
+    @Test
+    public void testGraphQLQueryParser() throws ServiceManagerException {
 
+        String uriPrefix = "/rest/v1/graphql";
+        String resource = "rest/v1/graphql";
+
+        HttpServletRequest request;
+        Map<String, String[]> parameters = new HashMap<>();
+        Map<String, String[]> headers = new HashMap<>();
+
+        // get an example
+        request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn(uriPrefix);
+        headers.put("Content-Type", new String[]{"application/json"});
+        when(request.getMethod()).thenReturn("POST");
+        uriParser.parse(request);
+        assertEquals("POST", uriParser.identifyMethod().toUpperCase());
+        assertEquals(resource, uriParser.identifyPath());
+
+        //get an example for a templateId = 'template_id'
+        request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn(uriPrefix+"/MY TEMPLATE ID/example");
+        headers.put("Content-Type", new String[]{"application/text"});
+        when(request.getHeaderNames()).thenReturn(new IteratorEnumeration<String>(headers.keySet().iterator()));
+        when(request.getHeader("Content-Type")).thenReturn("application/text");
+        when(request.getMethod()).thenReturn("GET");
+        uriParser.parse(request);
+        assertEquals("GET", uriParser.identifyMethod().toUpperCase());
+        assertEquals(resource+"/example", uriParser.identifyPath());
+        assertEquals("MY TEMPLATE ID", uriParser.identifyParametersAsProperties().getClientProperty("templateId").toString());
+    }
 
 
 }

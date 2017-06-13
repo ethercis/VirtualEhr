@@ -87,6 +87,7 @@
               <exclude>ethercis:ecis-validation</exclude>
               <exclude>ethercis:ecis-transform</exclude>
               <exclude>ethercis:ecis-query-service</exclude>
+              <exclude>ethercis:ecis-graphql-service</exclude>
               <exclude>org.openehr:*</exclude>
               <exclude>jooq:*</exclude>
               <exclude>postgresql:*</exclude>
@@ -153,6 +154,18 @@
       <artifactId>junit</artifactId>
       <version>4.11</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+      <version>1.3.1</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>xpp3_min</artifactId>
+          <groupId>xpp3</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
   <properties>

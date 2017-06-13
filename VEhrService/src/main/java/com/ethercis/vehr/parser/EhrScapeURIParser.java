@@ -145,6 +145,11 @@ public class EhrScapeURIParser extends URIParser {
                 resourceToken = templateQueryParser.getResource();
                 parameters = templateQueryParser.getParameters();
                 break;
+            case "GRAPHQL":
+                GraphQLQueryParser graphQLQueryParser = new GraphQLQueryParser(queryMethod, resourceToken, tokens, parameters, headers);
+                resourceToken = graphQLQueryParser.getResource();
+                parameters = graphQLQueryParser.getParameters();
+                break;
             case "QUERY":
                 break;
             case "DEMOGRAPHICS":

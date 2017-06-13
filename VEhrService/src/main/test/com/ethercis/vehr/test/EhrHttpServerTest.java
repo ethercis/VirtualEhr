@@ -1,11 +1,10 @@
 //Copyright
-package com.ethercis.ehrservice;
+package com.ethercis.vehr.test;
 
 import com.ethercis.logonservice.session.I_SessionManager;
 import com.ethercis.partyservice.I_PartyIdentifiedService;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
-import com.ethercis.vehr.test.TestServerSimulator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.javafx.binding.StringFormatter;
@@ -18,8 +17,10 @@ import org.eclipse.jetty.http.HttpMethod;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
-import java.net.URLEncoder;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
