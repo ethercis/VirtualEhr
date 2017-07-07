@@ -331,10 +331,10 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         if (content == null)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content cannot be empty for updating a composition");
 
-        Integer contentLength = (Integer)props.getClientProperty(Constants.REQUEST_CONTENT_LENGTH, (Integer)0);
+//        Integer contentLength = (Integer)props.getClientProperty(Constants.REQUEST_CONTENT_LENGTH, (Integer)0);
 
-        if (content.length() != contentLength)
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content may be altered found length ="+content.length()+" expected:"+contentLength);
+//        if (content.length() != contentLength)
+//            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content may be altered found length ="+content.length()+" expected:"+contentLength);
 
 //        String contentType = props.getClientProperty(Constants.REQUEST_CONTENT_TYPE, "");
 
