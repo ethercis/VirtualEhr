@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Christian Chevalley
+ * Copyright (c) Ripple Foundation CIC Ltd, UK, 2017
+ * Author: Christian Chevalley
  * This file is part of Project Ethercis
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//Copyright
+
+
 package com.ethercis.ehr.knowledge;
 
 import com.ethercis.ehr.json.FlatJsonUtil;
@@ -179,7 +181,13 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
 
 
             if (generated instanceof Composition) {
-                ItemStructure other_context = ((Composition) generated).getContext().getOtherContext();
+                ItemStructure other_context;
+                if (((Composition) generated).getContext() != null){
+                    other_context = ((Composition) generated).getContext().getOtherContext();
+                }
+                else
+                    other_context = null;
+
                 EventContext context = ContextHelper.createDummyContext();
                 if (other_context != null)
                     context.setOtherContext(other_context);
