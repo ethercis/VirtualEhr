@@ -87,6 +87,7 @@
               <exclude>ethercis:ecis-validation</exclude>
               <exclude>ethercis:ecis-transform</exclude>
               <exclude>ethercis:ecis-query-service</exclude>
+              <exclude>ethercis:ecis-graphql-service</exclude>
               <exclude>org.openehr:*</exclude>
               <exclude>jooq:*</exclude>
               <exclude>postgresql:*</exclude>
@@ -135,12 +136,24 @@
       <artifactId>ecis-knowledge-cache</artifactId>
       <version>1.1.0-SNAPSHOT</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>xbean</artifactId>
+          <groupId>org.apache.xbean</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-ehrdao</artifactId>
       <version>1.1.0-SNAPSHOT</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>xbean</artifactId>
+          <groupId>org.apache.xbean</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
@@ -173,4 +186,3 @@
   </properties>
 </project>
 
-
