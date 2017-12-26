@@ -124,12 +124,6 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <id>local-maven-repo</id>
-      <url>${user.localMavenRepo}</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>ethercis</groupId>
@@ -150,6 +144,19 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>ethercis</groupId>
+      <artifactId>ecis-ehr-service</artifactId>
+      <version>1.1.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean</artifactId>
+      <version>2.5</version>
+      <type>pom</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
@@ -167,6 +174,12 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>ethercis</groupId>
+      <artifactId>ecis-party-identified-service</artifactId>
+      <version>1.1.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -174,4 +187,3 @@
   </properties>
 </project>
 
-

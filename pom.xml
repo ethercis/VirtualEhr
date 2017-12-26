@@ -10,6 +10,13 @@
     <version>1.1</version>
     <name>VirtualEhr</name>
 
+    <!--<repositories>-->
+        <!--<repository>-->
+            <!--<id>local-maven-repo</id>-->
+            <!--<url>${user.localMavenRepo}</url>-->
+        <!--</repository>-->
+    <!--</repositories>-->
+
     <modules>
         <module>ServiceManager</module>
         <module>KnowledgeService</module>
