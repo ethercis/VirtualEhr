@@ -20,14 +20,23 @@ public class LauncherTest extends TestCase {
     @Before
     public void setUp() throws Exception {
         launcher.start(new String[]{
-                "-propertyFile", "test/resources/config/services.properties",
-                "-java_util_logging_config_file", "test/resources/config/logging.properties",
-                "-servicesFile", "test/resources/config/services.xml",
+                "-propertyFile", "config/services.properties",
+                "-java_util_logging_config_file", "config/logging.properties",
+                "-servicesFile", "config/services.xml",
                 "-dialect", "EHRSCAPE",
                 "-server_port", "8080",
                 "-server_host", "localhost",
                 "-debug", "true"
         });
+//launcher.start(new String[]{
+//                "-propertyFile", "test/resources/config/services.properties",
+//                "-java_util_logging_config_file", "test/resources/config/logging.properties",
+//                "-servicesFile", "test/resources/config/services.xml",
+//                "-dialect", "EHRSCAPE",
+//                "-server_port", "8080",
+//                "-server_host", "localhost",
+//                "-debug", "true"
+//        });
 
         client = new HttpClient();
         client.setMaxConnectionsPerDestination(200); // max 200 concurrent connections to every address
@@ -50,7 +59,8 @@ public class LauncherTest extends TestCase {
         assertNotNull(response);
 
         //simulate a DELETE session on the server side
-        String sessionId = response.getContentAsString().replaceAll("\\r\\n", "");
+        String responseContent = response.getContentAsString();
+        String sessionId = responseContent.replaceAll("\\r\\n", "");
         Request request = client.newRequest("http://localhost:8080/rest/v1/session?sessionId="+sessionId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
 

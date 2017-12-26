@@ -19,14 +19,24 @@ public abstract class TestServerSimulator extends TestCase {
 
     @Before
     public void setUp() throws Exception {
+//        launcher.start(new String[]{
+//                "-propertyFile", "resources/services.properties",
+//                "-java_util_logging_config_file", "resources/logging.properties",
+//                "-servicesFile", "resources/services.xml",
+//                "-dialect", "EHRSCAPE",
+//                "-server_port", "8080",
+//                "-server_host", "localhost",
+//                "-debug", "true"
+//        });
+
         launcher.start(new String[]{
-                "-propertyFile", "resources/services.properties",
-                "-java_util_logging_config_file", "resources/logging.properties",
-                "-servicesFile", "resources/services.xml",
-                "-dialect", "EHRSCAPE",
-                "-server_port", "8080",
-                "-server_host", "localhost",
-                "-debug", "true"
+            "-propertyFile", "config/services.properties",
+            "-java_util_logging_config_file", "config/logging.properties",
+            "-servicesFile", "config/services.xml",
+            "-dialect", "EHRSCAPE",
+            "-server_port", "8080",
+            "-server_host", "localhost",
+            "-debug", "true"
         });
 
         global = launcher.getGlobal();
