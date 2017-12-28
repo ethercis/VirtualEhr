@@ -23,6 +23,8 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <user.deploy>../../ethercis-deploy</user.deploy>
+        <user.localDirectoryPath>${user.home}/.m2/repository</user.localDirectoryPath>
     </properties>
     <build>
         <plugins>
@@ -161,7 +163,7 @@
     <repositories>
         <repository>
             <id>local-maven-repo</id>
-            <url>${user.localMavenRepo}/</url>
+            <url>${user.localDirectoryPath}/</url>
         </repository>
     </repositories>
     <dependencies>
@@ -211,4 +213,4 @@
             <version>4.11</version>
         </dependency>
     </dependencies>
-</project>
+</project>
