@@ -16,6 +16,7 @@ public abstract class TestServerSimulator extends TestCase {
     protected Launcher launcher = new Launcher();
     protected HttpClient client;
     protected RunTimeSingleton global;
+    protected String resourcesRootPath;
 
     @Before
     public void setUp() throws Exception {
@@ -39,11 +40,20 @@ public abstract class TestServerSimulator extends TestCase {
             "-debug", "true"
         });
 
+        setResourcesRootPath();
+
         global = launcher.getGlobal();
 
         client = new HttpClient();
         client.setMaxConnectionsPerDestination(200); // max 200 concurrent connections to every address
         client.setConnectTimeout(30000); // 30 seconds timeout; if no server reply, the request expires
         client.start();
+    }
+
+    protected void setResourcesRootPath() {
+        resourcesRootPath = getClass()
+            .getClassLoader()
+            .getResource(".")
+            .getFile();
     }
 }

@@ -999,7 +999,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertNotNull(response);
 
         //create composition
-        File xmlFile = new File("src/main/test/resources/Prescription.xml");
+        File xmlFile = new File(resourcesRootPath + "/Prescription.xml");
         InputStream is = new FileInputStream(xmlFile);
         request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?format=RAW");
         request.header("Content-Type", "application/xml");
