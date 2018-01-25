@@ -1,5 +1,9 @@
 language: java
 
+branches:
+  only:
+    - vehr-IT-module
+
 before_install:
     #replace references to file repo so that tests won't kill build process in travis build environment
   - sed -i 's^${user.dir}/../file_repo^'$TRAVIS_BUILD_DIR'/file_repo^g' $(find ./ -iname 'services.properties')
