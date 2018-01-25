@@ -8,6 +8,9 @@ import com.ethercis.servicemanager.service.test.TestServiceBase;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 /**
  * ETHERCIS Project VirtualEhr
  * Created by Christian Chevalley on 6/30/2015.
@@ -19,6 +22,7 @@ public class ResourceAccessServiceTest extends TestServiceBase implements I_Runl
 
     @Before
     public void setUp() throws Exception {
+        System.out.println(new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource(".").getFile() + "/services.properties"))));
         if (initialized) return;
         super.init(new String[]{
                 "-propertyFile", "services.properties"

@@ -1,0 +1,30 @@
+language: java
+
+before_install:
+    #replace references to file repo so that tests won't kill build process in travis build environment
+  - sed -i 's^${user.dir}/../file_repo^'$TRAVIS_BUILD_DIR'/file_repo^g' $(find ./ -iname 'services.properties')
+    # required permissions and steps for core libraries
+  - chmod +x clone_core_repo.sh
+  - chmod +x install_core.sh
+  - chmod +x custom_build_core_no_site.sh
+  - chmod +x custom_build.sh
+  - chmod +x install_3rd_party_jars.sh
+  - chmod +x push_reports.sh
+  - sudo /etc/init.d/postgresql stop
+  - sudo docker run -d -it --rm  --name="pgtest" -e POSTGRES_PASSWORD=postgres -p 5432:5432 serefarikan/ethercis-pg:v0
+  - sleep 20
+  - ./clone_core_repo.sh
+  - ./install_core.sh
+  - ./custom_build_core_no_site.sh
+
+install:
+  - echo OVERRIDING INSTALL
+
+script: ./custom_build.sh
+
+after_script:
+  - sudo docker stop pgtest
+  - echo stopped docker
+
+after_success:
+  - ./push_reports.sh

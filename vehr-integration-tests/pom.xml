@@ -45,6 +45,12 @@
             <artifactId>rest-assured</artifactId>
             <version>2.9.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.1.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <!--DON'T ALLOW UNIT TESTS RUN BUT ALLOW INTEGRATION TESTS RUN-->
@@ -83,7 +89,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <projectName>bmm-integration-tests</projectName>
+                            <projectName>EtherCIS-VEHR-features</projectName>
                             <outputDirectory>${project.build.directory}/site/cucumber-reports</outputDirectory>
                             <cucumberOutput>${project.build.directory}/cucumber.json</cucumberOutput>
                             <buildNumber>0</buildNumber>
