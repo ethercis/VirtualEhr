@@ -17,7 +17,7 @@ export COMMIT_ID=$(git rev-parse HEAD)
 export COMMIT_SHORT=${COMMIT_ID:0:8}
 export BUILD_DATE_TIME=$(git rev-parse HEAD | git show -s --format=%ci)
 
-sed -i 's^<!--template-->^<!--template-->\n<a href="https://github.com/serefarikan/VirtualEhr/commit/'"$COMMIT_ID"'">'"$COMMIT_SHORT"'(VEHR)</a><span> :  ('"$BUILD_DATE_TIME"')</span> <a href="site_'"$COMMIT_SHORT"'/surefire-report.html">Surefire test reports</a> <a href="cucumber_'"$COMMIT_SHORT"'/overview-features.html">Cucumber test reports</a> <a href="https://travis-ci.org/serefarikan/VirtualEhr/builds/'"$TRAVIS_BUILD_ID"'">Travis CI build</a> <a href="https://api.travis-ci.org/v3/job/'"$TRAVIS_JOB_ID"'/log.txt">Travis CI build log(raw)</a><br>^g' travis-reports/index.html
+sed -i 's^<!--template-->^<!--template-->\n<a href="https://github.com/serefarikan/VirtualEhr/commit/'"$COMMIT_ID"'">'"$COMMIT_SHORT"' (VEHR)</a><span> :  ('"$BUILD_DATE_TIME"')</span> <a href="site_'"$COMMIT_SHORT"'/surefire-report.html">Surefire test reports</a> <a href="cucumber_'"$COMMIT_SHORT"'/overview-features.html">Cucumber test reports</a> <a href="https://travis-ci.org/serefarikan/VirtualEhr/builds/'"$TRAVIS_BUILD_ID"'">Travis CI build</a> <a href="https://api.travis-ci.org/v3/job/'"$TRAVIS_JOB_ID"'/log.txt">Travis CI build log(raw)</a><br>^g' travis-reports/index.html
 
 cd travis-reports/ # descend into temp git repo dir so that you can push to reports github page
 cp ../target/site -r ./site_$COMMIT_SHORT
