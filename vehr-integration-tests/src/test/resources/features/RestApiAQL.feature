@@ -8,7 +8,7 @@ Feature: Provide VEHR API access via REST calls
 
     Given The server is running
     And The client system is logged into a server session
-    And The openEHR template for the composition is available to the server
+    And The openEHR template prescription.opt for the composition is available to the server
     And An EHR is created
 
   Scenario: Query openEHR data using AQL over REST

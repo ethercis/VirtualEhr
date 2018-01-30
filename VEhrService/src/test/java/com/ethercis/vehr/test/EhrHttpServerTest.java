@@ -811,16 +811,16 @@ public class EhrHttpServerTest extends TestServerSimulator {
         //create ehr
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
 
-//        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
-//        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
-//        request.method(HttpMethod.POST);
-//        response = stopWatchRequestSend(request);
-
-
-        Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
-        request.method(HttpMethod.GET);
+        request.method(HttpMethod.POST);
         response = stopWatchRequestSend(request);
+
+//
+//        Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+//        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+//        request.method(HttpMethod.GET);
+//        response = stopWatchRequestSend(request);
 
         UUID ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 

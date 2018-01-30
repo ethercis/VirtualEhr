@@ -28,106 +28,19 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class QueryWithAqlSteps {
-    private final String USER_ID_GUEST = "guest";
-    private final String PASSWORD_GUEST = "guest";
-    private final String SESSION_ID_TEST_SESSION = "TEST-SESSION";
-    private final String SUBJECT_CODE_ID = UUID.randomUUID().toString();
-    private final String SUBJECT_NAMESPACE = "2.16.840.1.113883.2.1.4.3";
-    private final String CONTENT_TYPE = "Content-Type";
-    private final String CONTENT_TYPE_XML = "application/xml";
-    private final String COMPOSITION_UID_PATH_IN_XML = "compositionCreateRestResponseData.compositionUid";
 
-    private Launcher launcher;
-    private String etherCISSessionId;
-    private String resourcesRootPath;
-    private String secretSessionId;
-    private UUID ehrId;
+    private RestAPIBackgroundSteps bacgroundSteps;
+
+    public QueryWithAqlSteps(RestAPIBackgroundSteps pBackgroundSteps){
+        bacgroundSteps = pBackgroundSteps;
+    }
 
     public QueryWithAqlSteps() {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
-
-        //session id for ethercis sessions
-        secretSessionId =
-            I_SessionManager
-                .SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE);
-    }
-
-    @Given("^The server is running$")
-    public void theServerIsRunning() throws Throwable {
-        startLauncher();
-        //TODO: no way to assert server is running?
-    }
-
-    private void startLauncher() throws Exception {
-        resourcesRootPath =
-            getClass()
-                .getClassLoader()
-                .getResource(".")
-                .getFile();
-
-        launcher = new Launcher();
-        launcher.start(new String[]{
-            "-propertyFile", resourcesRootPath + "/config/services.properties",
-            "-java_util_logging_config_file", resourcesRootPath + "/config/logging.properties",
-            "-servicesFile", resourcesRootPath + "/config/services.xml",
-            "-dialect", "EHRSCAPE",
-            "-server_port", "8080",
-            "-server_host", "localhost",
-            "-debug", "true"
-        });
     }
 
     @After
     public void cleanUp() throws Exception {
-        launcher.stop();
-    }
-
-    @And("^The client system is logged into a server session$")
-    public void theClientSystemIsLoggedIntoAServerSession() throws Throwable {
-
-        Response response =
-            given()
-                .header(secretSessionId, SESSION_ID_TEST_SESSION)
-            .when()
-            .post("/rest/v1/session?username={username}&password={password}"
-            ,USER_ID_GUEST, PASSWORD_GUEST);
-
-        etherCISSessionId = response.getHeader(secretSessionId);
-
-        Assert.assertNotNull(etherCISSessionId);
-    }
-
-    @And("^The openEHR template for the composition is available to the server$")
-    public void theOpenEHRTemplateForTheCompositionIsAvailableToTheServer() throws Throwable {
-
-        String optPath = resourcesRootPath + "/knowledge/operational_templates/prescription.opt";
-        byte[] content = Files.readAllBytes(Paths.get(optPath));
-
-        Response response =
-            given()
-                .header(secretSessionId, SESSION_ID_TEST_SESSION)
-                .content(content)
-            .when()
-            .post("/rest/v1/template");
-
-        assertEquals(response.statusCode(), 200);
-    }
-
-    @And("^An EHR is created$")
-    public void anEHRIsCreated() throws Throwable {
-        Response response =
-            given()
-                .header(secretSessionId, SESSION_ID_TEST_SESSION)
-            .when()
-            .post(
-                "/rest/v1/ehr?subjectId={subjectId}&subjectNamespace={subjectNs}"
-                , SUBJECT_CODE_ID, SUBJECT_NAMESPACE);
-        assertNotNull(response);
-
-        Map<String,String> responseContents = response.getBody().jsonPath().get("$");
-        ehrId = UUID.fromString(responseContents.get("ehrId"));
-        assertNotNull(ehrId);
+        bacgroundSteps.launcher.stop();
     }
 
     @And("^A composition is persisted under the EHR$")
@@ -139,17 +52,17 @@ public class QueryWithAqlSteps {
         byte[] xmlContent =
             Files
             .readAllBytes(
-                Paths.get(resourcesRootPath + "/test_data/Prescription.xml"));
+                Paths.get(bacgroundSteps.resourcesRootPath + "/test_data/Prescription.xml"));
 
         Response response =
             given()
-                .header(secretSessionId, SESSION_ID_TEST_SESSION)
-                .header(CONTENT_TYPE, CONTENT_TYPE_XML)
+                .header(bacgroundSteps.secretSessionId, bacgroundSteps.SESSION_ID_TEST_SESSION)
+                .header(bacgroundSteps.CONTENT_TYPE, bacgroundSteps.CONTENT_TYPE_XML)
                 .content(xmlContent)
             .when()
             .post("/rest/v1/composition?format=XML"
                 + (pPassEhrId
-                    ? "&ehrId=" + ehrId
+                    ? "&ehrId=" + bacgroundSteps.ehrId
                     : ""));
         assertNotNull(response);
 
@@ -157,7 +70,7 @@ public class QueryWithAqlSteps {
         String uid =
             XmlPath
                 .from(xml)
-                .getString(COMPOSITION_UID_PATH_IN_XML);
+                .getString(bacgroundSteps.COMPOSITION_UID_PATH_IN_XML);
         assertNotNull(uid);
         Pattern pattern = Pattern.compile("[a-z0-9-]*::[a-z0-9.]*::[0-9]*");
         Matcher matcher = pattern.matcher(uid);
@@ -167,7 +80,7 @@ public class QueryWithAqlSteps {
     @Then("^An AQL query should return data from the composition in the EHR$")
     public void anAQLQueryShouldReturnDataPersistedIntoTheComposition() throws Throwable {
         Response response = given()
-            .header(secretSessionId, SESSION_ID_TEST_SESSION)
+            .header(bacgroundSteps.secretSessionId, bacgroundSteps.SESSION_ID_TEST_SESSION)
             .param("aql", buildAqlQuery())
             .get("/rest/v1/query");
 
@@ -181,7 +94,7 @@ public class QueryWithAqlSteps {
 
     private String buildAqlQuery(){
         return "select a/uid/value " +
-            "from EHR e [ehr_id/value='" + ehrId.toString() + "']" +
+            "from EHR e [ehr_id/value='" + bacgroundSteps.ehrId.toString() + "']" +
             "contains COMPOSITION a[openEHR-EHR-COMPOSITION.prescription.v1] ";
     }
 
