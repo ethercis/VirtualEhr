@@ -24,6 +24,7 @@ public class RestAPIBackgroundSteps {
     protected final String SUBJECT_CODE_ID = UUID.randomUUID().toString();
     protected final String SUBJECT_NAMESPACE = "2.16.840.1.113883.2.1.4.3";
     protected final String CONTENT_TYPE = "Content-Type";
+    protected final String ACCEPT = "Accept";
     protected final String CONTENT_TYPE_XML = "application/xml";
     protected final String CONTENT_TYPE_JSON = "application/json";
     protected final String COMPOSITION_UID_PATH_IN_XML = "compositionCreateRestResponseData.compositionUid";

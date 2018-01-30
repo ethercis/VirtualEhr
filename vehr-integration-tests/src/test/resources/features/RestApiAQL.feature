@@ -3,8 +3,8 @@ Feature: Provide VEHR API access via REST calls
   As a client system
   I want to make REST API calls over http
 
-  Background: The server is ready, an EHR and a
-    template is in place and the user is logged in.
+  Background:
+  The server is ready, an EHR and a template is in place and the user is logged in.
 
     Given The server is running
     And The client system is logged into a server session
