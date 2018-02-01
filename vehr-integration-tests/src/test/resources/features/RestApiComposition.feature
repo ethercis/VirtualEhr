@@ -19,3 +19,8 @@ Feature: Provide Composition API access over REST
     When Flat json file IDCR - Immunisation summary.v0.flat.json with template id IDCR - Immunisation summary.v0 is committed to service
     Then A composition id should be returned by the API
     And Composition id should allow retrieval of composition in raw format
+
+  Scenario: Commit composition in flat json and retrieve xml format
+    When Flat json file IDCR - Immunisation summary.v0.flat.json with template id IDCR - Immunisation summary.v0 is committed to service
+    Then A composition id should be returned by the API
+    And Composition id should allow retrieval of composition in xml format

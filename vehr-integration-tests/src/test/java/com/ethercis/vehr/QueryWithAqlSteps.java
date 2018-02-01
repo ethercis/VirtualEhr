@@ -52,7 +52,7 @@ public class QueryWithAqlSteps {
         byte[] xmlContent =
             Files
             .readAllBytes(
-                Paths.get(bacgroundSteps.resourcesRootPath + "/test_data/Prescription.xml"));
+                Paths.get(bacgroundSteps.resourcesRootPath + "test_data/Prescription.xml"));
 
         Response response =
             given()

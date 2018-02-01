@@ -60,9 +60,9 @@ public class RestAPIBackgroundSteps {
 
         launcher = new Launcher();
         launcher.start(new String[]{
-            "-propertyFile", resourcesRootPath + "/config/services.properties",
-            "-java_util_logging_config_file", resourcesRootPath + "/config/logging.properties",
-            "-servicesFile", resourcesRootPath + "/config/services.xml",
+            "-propertyFile", resourcesRootPath + "config/services.properties",
+            "-java_util_logging_config_file", resourcesRootPath + "config/logging.properties",
+            "-servicesFile", resourcesRootPath + "config/services.xml",
             "-dialect", "EHRSCAPE",
             "-server_port", "8080",
             "-server_host", "localhost",
@@ -88,7 +88,7 @@ public class RestAPIBackgroundSteps {
     @And("^The openEHR template ([a-zA-Z \\-\\.0-9]+\\.opt) for the composition is available to the server$")
     public void theOpenEHRTemplateForTheCompositionIsAvailableToTheServer(String optFileName) throws Throwable {
 
-        String optPath = resourcesRootPath + "/knowledge/operational_templates/" + optFileName;
+        String optPath = resourcesRootPath + "knowledge/operational_templates/" + optFileName;
         byte[] content = Files.readAllBytes(Paths.get(optPath));
 
         Response response =
