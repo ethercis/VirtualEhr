@@ -2,7 +2,7 @@ language: java
 
 branches:
   only:
-    - vehr-IT-module
+    - develop
 
 before_install:
     #replace references to file repo so that tests won't kill build process in travis build environment
