@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2015 Christian Chevalley
+  ~ Copyright (c) Ripple Foundation CIC Ltd, UK, 2017
+  ~ Author: Christian Chevalley
   ~ This file is part of Project Ethercis
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,7 +106,7 @@
                             <exclude>ethercis:ecis-transform</exclude>
                             <exclude>ethercis:ecis-query-service</exclude>
                             <exclude>ethercis:ecis-graphql-service</exclude>
-
+                            <exclude>ethercis:ecis-webtemplate</exclude>
 
                             <exclude>org.openehr:*</exclude>
                             <exclude>jooq:*</exclude>
@@ -192,6 +193,11 @@
             <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-webtemplate</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.openehr</groupId>
             <artifactId>openEHR.v1.OperationalTemplate</artifactId>
             <version>1.0.1</version>
@@ -237,4 +243,4 @@
             <version>4.11</version>
         </dependency>
     </dependencies>
-</project>
+</project>

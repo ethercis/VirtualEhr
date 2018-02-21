@@ -23,6 +23,7 @@ import com.ethercis.ehr.json.FlatJsonUtil;
 import com.ethercis.ehr.json.JsonUtil;
 import com.ethercis.ehr.util.FlatJsonCompositionConverter;
 import com.ethercis.ehr.util.I_FlatJsonCompositionConverter;
+import com.ethercis.opt.OptVisitor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -51,6 +52,7 @@ import org.openehr.rm.composition.Composition;
 import org.openehr.rm.composition.EventContext;
 import org.openehr.rm.datastructure.itemstructure.ItemStructure;
 import org.openehr.rm.support.identification.ObjectVersionID;
+import org.openehr.schemas.v1.OPERATIONALTEMPLATE;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -258,6 +260,34 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
         }
         return retObj;
     }
+
+    @QuerySetting(dialect = {
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "GET", method = "get", path = "vehr/template/introspect", responseType = ResponseType.Json),
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "GET", method = "get", path = "rest/v1/template/introspect", responseType = ResponseType.Json)
+    })
+    public Object webtemplate(I_SessionClientProperties props) throws ServiceManagerException {
+
+        String templateId = props.getClientProperty(I_CacheKnowledgeService.TEMPLATE_ID, (String)null);
+
+        if (templateId == null)
+            throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "No template Id give (templateId missing)");
+
+
+        Object retObj = null;
+
+        try {
+            OPERATIONALTEMPLATE operationaltemplate = (OPERATIONALTEMPLATE) this.getKnowledgeCache().retrieveTemplate(templateId);
+
+            retObj = new OptVisitor().traverse(operationaltemplate);
+
+        } catch (Exception e){
+            throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, ME, "Could not generate web template, reason:" + e);
+        }
+
+        return retObj;
+    }
+
+
 
     @QuerySetting(dialect = {
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "GET", method = "create", path = "vehr/template", responseType = ResponseType.Json),

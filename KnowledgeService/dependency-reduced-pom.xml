@@ -87,6 +87,8 @@
               <exclude>ethercis:ecis-validation</exclude>
               <exclude>ethercis:ecis-transform</exclude>
               <exclude>ethercis:ecis-query-service</exclude>
+              <exclude>ethercis:ecis-graphql-service</exclude>
+              <exclude>ethercis:ecis-webtemplate</exclude>
               <exclude>org.openehr:*</exclude>
               <exclude>jooq:*</exclude>
               <exclude>postgresql:*</exclude>
@@ -161,6 +163,12 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>ethercis</groupId>
+      <artifactId>ecis-webtemplate</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.openehr</groupId>
       <artifactId>openEHR.v1.OperationalTemplate</artifactId>
       <version>1.0.1</version>
@@ -185,4 +193,3 @@
   </properties>
 </project>
 
-
