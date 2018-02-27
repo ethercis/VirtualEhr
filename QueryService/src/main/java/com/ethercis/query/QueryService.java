@@ -37,6 +37,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -169,7 +170,11 @@ public class QueryService extends ServiceDataCluster implements QueryServiceMBea
                 throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "Unknown query expression, should be 'sql=' or 'aql='");
         }
 
-        if (result.size() == 0){
+        int resultsetSize = 0;
+        if (result.get("resultSet") != null)
+            resultsetSize = ((List)result.get("resultSet")).size();
+
+        if (resultsetSize == 0){
             global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_NO_CONTENT);
             //build the relative part of the link to the existing last version
             Map<String, Object> retMap = new HashMap<>();

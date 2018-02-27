@@ -86,6 +86,7 @@
               <exclude>ethercis:session-logger-service</exclude>
               <exclude>ethercis:ecis-validation</exclude>
               <exclude>ethercis:ecis-transform</exclude>
+              <exclude>ethercis:ecis-graphql-service</exclude>
               <exclude>org.openehr:*</exclude>
               <exclude>jooq:*</exclude>
               <exclude>postgresql:*</exclude>
@@ -196,4 +197,3 @@
   </properties>
 </project>
 
-
