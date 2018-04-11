@@ -67,7 +67,6 @@ public class LogonService extends ClusterInfo implements I_SessionManager {
 
 	final private String ME = "LogonService";
 	final private String Version = "1.0";
-	private RunTimeSingleton global;
 	private static Logger log = LogManager.getLogger(LogonService.class);
 
     private String LOGON_PARAMETER;

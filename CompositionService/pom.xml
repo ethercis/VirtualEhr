@@ -158,7 +158,7 @@
     <groupId>ethercis</groupId>
     <artifactId>ecis-composition-service</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.2-SNAPSHOT</version>
     <name>Service implementation to manage Composition entities</name>
     <!--<repositories>-->
         <!--<repository>-->
@@ -170,48 +170,63 @@
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-core</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-ehrdao</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-knowledge-cache</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-knowledge-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-logon-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-resource-access-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-system-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-servicemanager</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.openehr</groupId>
-            <artifactId>openehr-am-rm-term</artifactId>
-            <version>1.0.9</version>
+            <groupId>openehr</groupId>
+            <artifactId>openehr-rm-core</artifactId>
+            <version>1.0.14-ec1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>openehr</groupId>
+            <artifactId>openehr-rm-domain</artifactId>
+            <version>1.0.14-ec1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>openehr</groupId>
+            <artifactId>openehr-aom</artifactId>
+            <version>1.0.14-ec1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>openehr</groupId>
+            <artifactId>mini-termserv</artifactId>
+            <version>1.0.14-ec1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
@@ -292,7 +307,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.20.1</version>
+                <version>2.19.1</version>
             </plugin>
         </plugins>
     </reporting>

@@ -43,15 +43,15 @@ public class TimeStampTest extends TestCase {
             test(buf);
         System.out.println(buf);
 
-        testToString();
-        testToString();
-        testToString();
+        __testToString();
+        __testToString();
+        __testToString();
 
         System.out.println("TEST 1");
 
-        testValueOf();
-        testValueOf();
-        testValueOf();
+        __testValueOf();
+        __testValueOf();
+        __testValueOf();
 
         System.out.println("TEST 2");
 
@@ -91,7 +91,7 @@ public class TimeStampTest extends TestCase {
         return ts;
     }
     /** Test only */
-    private static final void testToString()
+    private static final void __testToString()
     {
         int count = 10000;
         long start = System.currentTimeMillis();
@@ -103,7 +103,7 @@ public class TimeStampTest extends TestCase {
         System.out.println("toString(): " + count + " toString " + elapsed + " millisec -> " + ((elapsed*1000.*1000.)/count) + " nanosec/toString()");
     }
     /** Test only */
-    private static final void testValueOf()
+    private static final void __testValueOf()
     {
         int count = 10000;
         TimeStamp ts1 = new TimeStamp();

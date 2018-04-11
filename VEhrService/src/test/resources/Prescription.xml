@@ -189,6 +189,29 @@
               <precision>0</precision>
             </value>
           </items>
+          <items archetype_node_id="at0006" xsi:type="v1:ELEMENT">
+            <name>
+              <value>Dose unit</value>
+            </name>
+            <value xsi:type="v1:DV_CODED_TEXT">
+              <value>some units</value>
+              <defining_code>
+                <terminology_id>
+                  <value>local</value>
+                </terminology_id>
+                <code_string>at9999</code_string>
+              </defining_code>
+            </value>
+          </items>
+          <items archetype_node_id="at0007" xsi:type="v1:ELEMENT">
+            <name>
+              <value>Dose duration</value>
+            </name>
+            <value xsi:type="v1:DV_QUANTITY">
+              <magnitude>1</magnitude>
+              <units>d</units>
+            </value>
+          </items>
         </description>
         <timing>
           <value>lunch</value>

@@ -36,7 +36,7 @@
     <value>001861fc-2a0a-45cc-8d4d-20679be022bd</value>
   </uid>
   <template_id>
-    <value>001861fc-2a0a-45cc-8d4d-20679be022bd</value>
+    <value>UK AoMRC Outpatient Letter</value>
   </template_id>
   <concept>UK AoMRC Outpatient Letter</concept>
   <definition>
@@ -11454,7 +11454,7 @@ Status is used to denote whether this is the initial request, or a follow-up req
                             <term_definitions code="at0001">
                               <items id="text">Medication name</items>
                               <items id="description">Mandatory medication name coded using a SNOMEDCT/dm+d term where possible, allowing plain text for historical/patient reported items , extemporaneous preparations or those not registered in dm+d.</items>
-                              <items id="comment">e.g.“Citalopram tab 20mg”, "Trimethoprim"</items>
+                              <items id="comment">e.g.“Citalopram tab 20mg�?, "Trimethoprim"</items>
                             </term_definitions>
                             <term_definitions code="at0002">
                               <items id="text">Route</items>
@@ -11464,17 +11464,17 @@ Status is used to denote whether this is the initial request, or a follow-up req
                             <term_definitions code="at0003">
                               <items id="text">Dose directions description</items>
                               <items id="description">A single plain text phrase describing the entire medication dosage and administration directions, including dose quantity and medication frequency.</items>
-                              <items id="comment">e.g. “I tablet at night” or “20mg at 10pm”</items>
+                              <items id="comment">e.g. “I tablet at night�? or “20mg at 10pm�?</items>
                             </term_definitions>
                             <term_definitions code="at0004">
                               <items id="text">Dispensing instruction</items>
                               <items id="description">Multiple plain text to record complex dispensing arrangements, particularly for Controlled Drug instalment dispensing.</items>
-                              <items id="comment">e.g. “Dispense weekly”</items>
+                              <items id="comment">e.g. “Dispense weekly�?</items>
                             </term_definitions>
                             <term_definitions code="at0005">
                               <items id="text">Additional instruction</items>
                               <items id="description">Additional multiple dosage or administration instructions as plain text. This may include guidance to the prescriber, patient or person administering the medication.</items>
-                              <items id="comment">e.g. “Omit morning dose on day of procedure”</items>
+                              <items id="comment">e.g. “Omit morning dose on day of procedure�?</items>
                             </term_definitions>
                             <term_definitions code="at0019">
                               <items id="text">Dose directions</items>
@@ -12179,7 +12179,7 @@ Status is used to denote whether this is the initial request, or a follow-up req
                                 <term_definitions code="at0004">
                                   <items id="text">Prescription endorsement</items>
                                   <items id="description">A coded value describing the kind of 'contract' in place under which the medication was supplied. Multiple endorsements / contracts are allowed.</items>
-                                  <items id="comment">e.g."ACBS" or “Private”
+                                  <items id="comment">e.g."ACBS" or “Private�?
 Assume "Standard" as default</items>
                                 </term_definitions>
                                 <term_definitions code="at0033">
@@ -13930,7 +13930,7 @@ Source: GP systems</items>
                             <term_definitions code="at0001">
                               <items id="text">Medication name</items>
                               <items id="description">Mandatory medication name coded using a SNOMEDCT/dm+d term where possible, allowing plain text for historical/patient reported items , extemporaneous preparations or those not registered in dm+d.</items>
-                              <items id="comment">e.g.“Citalopram tab 20mg”, "Trimethoprim"</items>
+                              <items id="comment">e.g.“Citalopram tab 20mg�?, "Trimethoprim"</items>
                             </term_definitions>
                             <term_definitions code="at0002">
                               <items id="text">Route</items>
@@ -13940,17 +13940,17 @@ Source: GP systems</items>
                             <term_definitions code="at0003">
                               <items id="text">Dose directions description</items>
                               <items id="description">A single plain text phrase describing the entire medication dosage and administration directions, including dose quantity and medication frequency.</items>
-                              <items id="comment">e.g. “I tablet at night” or “20mg at 10pm”</items>
+                              <items id="comment">e.g. “I tablet at night�? or “20mg at 10pm�?</items>
                             </term_definitions>
                             <term_definitions code="at0004">
                               <items id="text">Dispensing instruction</items>
                               <items id="description">Multiple plain text to record complex dispensing arrangements, particularly for Controlled Drug instalment dispensing.</items>
-                              <items id="comment">e.g. “Dispense weekly”</items>
+                              <items id="comment">e.g. “Dispense weekly�?</items>
                             </term_definitions>
                             <term_definitions code="at0005">
                               <items id="text">Additional instruction</items>
                               <items id="description">Additional multiple dosage or administration instructions as plain text. This may include guidance to the prescriber, patient or person administering the medication.</items>
-                              <items id="comment">e.g. “Omit morning dose on day of procedure”</items>
+                              <items id="comment">e.g. “Omit morning dose on day of procedure�?</items>
                             </term_definitions>
                             <term_definitions code="at0019">
                               <items id="text">Dose directions</items>
@@ -14655,7 +14655,7 @@ Source: GP systems</items>
                                 <term_definitions code="at0004">
                                   <items id="text">Prescription endorsement</items>
                                   <items id="description">A coded value describing the kind of 'contract' in place under which the medication was supplied. Multiple endorsements / contracts are allowed.</items>
-                                  <items id="comment">e.g."ACBS" or “Private”
+                                  <items id="comment">e.g."ACBS" or “Private�?
 Assume "Standard" as default</items>
                                 </term_definitions>
                                 <term_definitions code="at0033">
@@ -15898,7 +15898,7 @@ Source: GP systems</items>
                             <term_definitions code="at0001">
                               <items id="text">Medication name</items>
                               <items id="description">Mandatory medication name coded using a SNOMEDCT/dm+d term where possible, allowing plain text for historical/patient reported items , extemporaneous preparations or those not registered in dm+d.</items>
-                              <items id="comment">e.g.“Citalopram tab 20mg”, "Trimethoprim"</items>
+                              <items id="comment">e.g.“Citalopram tab 20mg�?, "Trimethoprim"</items>
                             </term_definitions>
                             <term_definitions code="at0002">
                               <items id="text">Route</items>
@@ -15908,17 +15908,17 @@ Source: GP systems</items>
                             <term_definitions code="at0003">
                               <items id="text">Dose directions description</items>
                               <items id="description">A single plain text phrase describing the entire medication dosage and administration directions, including dose quantity and medication frequency.</items>
-                              <items id="comment">e.g. “I tablet at night” or “20mg at 10pm”</items>
+                              <items id="comment">e.g. “I tablet at night�? or “20mg at 10pm�?</items>
                             </term_definitions>
                             <term_definitions code="at0004">
                               <items id="text">Dispensing instruction</items>
                               <items id="description">Multiple plain text to record complex dispensing arrangements, particularly for Controlled Drug instalment dispensing.</items>
-                              <items id="comment">e.g. “Dispense weekly”</items>
+                              <items id="comment">e.g. “Dispense weekly�?</items>
                             </term_definitions>
                             <term_definitions code="at0005">
                               <items id="text">Additional instruction</items>
                               <items id="description">Additional multiple dosage or administration instructions as plain text. This may include guidance to the prescriber, patient or person administering the medication.</items>
-                              <items id="comment">e.g. “Omit morning dose on day of procedure”</items>
+                              <items id="comment">e.g. “Omit morning dose on day of procedure�?</items>
                             </term_definitions>
                             <term_definitions code="at0019">
                               <items id="text">Dose directions</items>
@@ -16623,7 +16623,7 @@ Source: GP systems</items>
                                 <term_definitions code="at0004">
                                   <items id="text">Prescription endorsement</items>
                                   <items id="description">A coded value describing the kind of 'contract' in place under which the medication was supplied. Multiple endorsements / contracts are allowed.</items>
-                                  <items id="comment">e.g."ACBS" or “Private”
+                                  <items id="comment">e.g."ACBS" or “Private�?
 Assume "Standard" as default</items>
                                 </term_definitions>
                                 <term_definitions code="at0033">

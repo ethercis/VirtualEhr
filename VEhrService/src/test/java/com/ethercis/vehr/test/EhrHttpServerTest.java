@@ -10,17 +10,17 @@ import com.google.gson.GsonBuilder;
 import com.sun.javafx.binding.StringFormatter;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BytesContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.server.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,15 +34,14 @@ public class EhrHttpServerTest extends TestServerSimulator {
     List<Long> timings = new ArrayList<>();
     long start;
     UUID localPatient;
-//    String subjectCodeId = "99999-1234";
+//    String subjectCodeId = "9999999099";
     String subjectCodeId = UUID.randomUUID().toString();
     String subjectCodePrefix = "99999-";
 
-    String subjectNameSpace = "2.16.840.1.113883.2.1.4.3";
+    String subjectNameSpace = "uk.nhs.nhs_number";
     Gson json = new GsonBuilder().create();
     
 //    private static final String hostname = "188.166.246.78";
-    private static String hostname = "localhost";
 
     @Before
     public void setUp() throws Exception {
@@ -262,7 +261,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         ContentResponse response;
 
         //login first!
-        response = client.POST("http://"+hostname+":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+        response = client.POST("http://"+hostname+":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password).send();
 
         //get the session id from the header
         assertNotNull(response);
@@ -273,7 +272,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         Integer integer = new Random().nextInt();
         String id = StringFormatter.format("%d", Math.abs(integer % 9999)).getValue();
         String subjectId = subjectCodePrefix+id;
-        Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectId + "&subjectNamespace=" + subjectNameSpace);
+        Request request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr?subjectId=" + subjectId + "&subjectNamespace=" + subjectNameSpace);
 
         //pass other_details_xml in body
 //        Map<String, String> otherDetailsMap = new HashMap(){{
@@ -300,7 +299,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         //test retrieve ehr
         //NB. use implicit method!
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectId + "&subjectNamespace=" + subjectNameSpace);
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr?subjectId=" + subjectId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
@@ -312,14 +311,14 @@ public class EhrHttpServerTest extends TestServerSimulator {
 //
 //        assertEquals(ehrId, retrievedEhrId);
 //
-//        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/status?ehrId=" + retrievedEhrId);
+//        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr/status?ehrId=" + retrievedEhrId);
 //        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
 //        request.method(HttpMethod.GET);
 //        response = stopWatchRequestSend(request);
 //        assertNotNull(response);
 
         //#===================== update EHR STATUS =================================================
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/status/" + retrievedEhrId+"/other_details_xml?format=XML");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr/status/" + retrievedEhrId+"/other_details_xml?format=XML");
         //pass other_details_xml in body
         Map<String, String> otherDetailsMap = new HashMap(){{
             put("otherDetails", other_details_json);
@@ -338,7 +337,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         response = stopWatchRequestSend(request);
 
         //#===================== retrieve EHR STATUS =================================================
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/status?ehrId=" + retrievedEhrId);
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr/status?ehrId=" + retrievedEhrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
@@ -346,7 +345,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertNotNull(response);
 
         //dummy composition
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?templateId=testTemplate");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?templateId=testTemplate");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.content(new BytesContentProvider("test".getBytes()));
         request.method(HttpMethod.POST);
@@ -355,7 +354,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         //delete the poor bugger...
 
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?ehrId="+ehrId);
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr?ehrId="+ehrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
@@ -363,7 +362,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertEquals(200, response.getStatus()); //success
 
         //disconnect cleanly from server...
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/session");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/session");
 //        request.content(new BytesContentProvider(statusMapString.getBytes()));
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
@@ -470,12 +469,12 @@ public class EhrHttpServerTest extends TestServerSimulator {
         ContentResponse response;
 
         //login first!
-        response = client.POST("http://"+hostname+":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+        response = client.POST("http://"+hostname+":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password).send();
 
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
 
         //get the list of templates
-        Request requestTemplateService = client.newRequest("http://"+hostname+":8080/rest/v1/template");
+        Request requestTemplateService = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/template");
         requestTemplateService.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         requestTemplateService.method(HttpMethod.GET);
         response = stopWatchRequestSend(requestTemplateService);
@@ -485,11 +484,9 @@ public class EhrHttpServerTest extends TestServerSimulator {
         //add a template anc check response
         String prescriptionFilePath = "prescription.opt";
 
-        //read in a template into a string
-        Path path = Paths.get("/tmp/ecis_etc/knowledge/operational_templates/" + prescriptionFilePath);
-        byte[] content = Files.readAllBytes(path);
+        byte[] content = readXMLNoBOM("src/test/resources/knowledge/operational_templates/" + prescriptionFilePath);
 
-        requestTemplateService = client.newRequest("http://"+hostname+":8080/rest/v1/template");
+        requestTemplateService = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/template");
         requestTemplateService.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         requestTemplateService.method(HttpMethod.POST);
         requestTemplateService.content(new BytesContentProvider(content), "text/xml;charset=UTF-8");
@@ -497,7 +494,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertNotNull(response);
 
         //get an example
-        requestTemplateService = client.newRequest("http://"+hostname+":8080/rest/v1/template/prescription/example");
+        requestTemplateService = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/template/prescription/example");
         requestTemplateService.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         requestTemplateService.method(HttpMethod.GET);
         requestTemplateService.content(new BytesContentProvider(content), "text/xml;charset=UTF-8");
@@ -506,14 +503,14 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         //create ehr
 
-        Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        Request request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
         response = stopWatchRequestSend(request);
         UUID ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 
         //retrieve EHR
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
@@ -521,8 +518,8 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertNotNull(response);
 
         //create a composition
-//        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?templateId=prescription.opt&format=ECISFLAT");
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?templateId=prescription&format=ECISFLAT");
+//        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?templateId=prescription.opt&format=ECISFLAT");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?templateId=prescription&format=ECISFLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
         request.content(new BytesContentProvider(setQueryBody()), "text/plain");
@@ -532,7 +529,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         String strCompositionId = decodeBodyResponse(response).get("compositionUid");
 
         //retrieve the composition
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?uid=" + strCompositionId+"&format=XML");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?uid=" + strCompositionId+"&format=XML");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
@@ -548,7 +545,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         kvPairs.put("/context/participation|name", "Dr. Mabuse");
         kvPairs.put("/context/participation|mode", "face-to-face communication::openehr::216|");
 
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?uid=" + strCompositionId+"&format=ECISFLAT");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?uid=" + strCompositionId+"&format=ECISFLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.PUT);
         request.content(new BytesContentProvider(json.toJson(kvPairs).getBytes()), "text/plain");
@@ -557,7 +554,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         System.out.println(response.getContentAsString());
 
         //retrieve the composition
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?uid=" + strCompositionId+"&format=XML");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?uid=" + strCompositionId+"&format=XML");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
@@ -566,7 +563,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         System.out.println(response.getContentAsString());
 
 
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?uid=" + strCompositionId);
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?uid=" + strCompositionId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
@@ -576,7 +573,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
 
         //retrieve the composition
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?uid=" + strCompositionId+"&format=ECISFLAT");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?uid=" + strCompositionId+"&format=ECISFLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
@@ -586,12 +583,12 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
 
         //house keeping
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?ehrId="+ehrId);
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr?ehrId="+ehrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
 
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/session");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/session");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
@@ -610,18 +607,18 @@ public class EhrHttpServerTest extends TestServerSimulator {
         ContentResponse response;
 
         //login first!
-        response = client.POST("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+        response = client.POST("http://" + hostname + ":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password).send();
 
         //create ehr
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
 
-        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        Request request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
         response = stopWatchRequestSend(request);
         UUID ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/"+ehrId);
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr/"+ehrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Origin", "http://localhost:1234");
         request.method(HttpMethod.GET);
@@ -634,20 +631,18 @@ public class EhrHttpServerTest extends TestServerSimulator {
         //create required template
         String prescriptionFilePath = "prescription.opt";
         //read in a template into a string
-        Path path = Paths.get("/tmp/ecis_etc/knowledge/operational_templates/" + prescriptionFilePath);
-        byte[] content = Files.readAllBytes(path);
+        byte[] content = readXMLNoBOM("src/test/resources/knowledge/operational_templates/" + prescriptionFilePath);
 
-        Request requestTemplateService  = client.newRequest("http://"+hostname+":8080/rest/v1/template");
+        Request requestTemplateService  = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/template");
         requestTemplateService.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         requestTemplateService.method(HttpMethod.POST);
         requestTemplateService.content(new BytesContentProvider(content), "text/xml;charset=UTF-8");
         response = stopWatchRequestSend(requestTemplateService);
         assertNotNull(response);
 
-//        File xmlFile = new File("/Development/Dropbox/eCIS_Development/samples/IDCR Problem List.v1.xml");
-        File xmlFile = new File("src/main/test/resources/Prescription.xml");
+        File xmlFile = new File("src/test/resources/Prescription.xml");
         InputStream is = new FileInputStream(xmlFile);
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?format=RAW");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?format=RAW");
         request.header("Content-Type", "application/xml");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
@@ -659,7 +654,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         String compositionId = decodeXMLResponse(response, "compositionUid");
 
         //retrieve this composition under two formats...
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=RAW");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition/"+ compositionId+"?format=RAW");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Accept", "application/xml");
         request.method(HttpMethod.GET);
@@ -669,7 +664,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         System.out.println(response.getContentAsString());
 
         //delete composition
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/" + compositionId+"?format=RAW");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition/" + compositionId+"?format=RAW");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Accept", "application/xml");
         request.method(HttpMethod.DELETE);
@@ -680,12 +675,12 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
 
         //house keeping
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?ehrId=" + ehrId);
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/ehr?ehrId=" + ehrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
 
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/session");
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/session");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
@@ -699,39 +694,41 @@ public class EhrHttpServerTest extends TestServerSimulator {
         String userId = "guest";
         String password = "guest";
 
-        String templateId ="UK AoMRC Outpatient Letter.opt".replaceAll(" ","%20");
+        String subjectCodeId = "99999-1234";
+
+        String templateId ="UK AoMRC Outpatient Letter.opt";
 
         timings.clear();
 
         ContentResponse response;
 
         //login first!
-        response = client.POST("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+        response = client.POST("http://" + hostname + ":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password).send();
+        String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
+
+        //load the template in the embedded test server
+        byte[] content = readXMLNoBOM("src/test/resources/knowledge/operational_templates/" + templateId);
+        Request requestTemplateService  = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/template");
+        requestTemplateService.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
+        requestTemplateService.method(HttpMethod.POST);
+        requestTemplateService.content(new BytesContentProvider(content), "text/xml;charset=UTF-8");
+        response = stopWatchRequestSend(requestTemplateService);
+        assertEquals(Response.SC_OK, response.getStatus());
 
         //create ehr
-        String sessionId = response.getContentAsString().replaceAll("\\r\\n", "");
-//        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
-//        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
-//        request.method(HttpMethod.POST);
-//        response = stopWatchRequestSend(request);
-//        UUID ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
-
-        Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        Request request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
-        request.method(HttpMethod.GET);
+        request.method(HttpMethod.POST);
         response = stopWatchRequestSend(request);
 
-        assertNotNull(response);
-        String body = response.getContentAsString();
-
-        Map<String, String> map = json.fromJson(body, Map.class);
-        UUID ehrId = UUID.fromString(map.get("ehrId"));
+        assertEquals(Response.SC_OK, response.getStatus());
+        UUID ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 
 
-        File jsonSample = new File("/Development/Dropbox/eCIS_Development/samples/AOMRC GENERIC OUTPATIENT LETTER.json");
+        File jsonSample = new File("src/test/resources/AOMRC GENERIC OUTPATIENT LETTER.json");
         InputStream is = new FileInputStream(jsonSample);
-//        URL url = new URL("http://"+hostname+":8080/rest/v1/composition?templateId="+templateId+"&format=ECISFLAT");
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?templateId="+templateId+"&format=ECISFLAT");
+//        URL url = new URL("http://"+hostname+":"+httpPort+"/rest/v1/composition?templateId="+templateId+"&format=ECISFLAT");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?templateId="+"UK AoMRC Outpatient Letter".replaceAll(" ", "%20")+"&format=ECISFLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
         byte[] jsonContent = new byte[(int)jsonSample.length()];
@@ -739,10 +736,11 @@ public class EhrHttpServerTest extends TestServerSimulator {
         request.content(new BytesContentProvider(jsonContent), "application/json");
         response = stopWatchRequestSend(request);
         assertNotNull(response);
-        UUID compositionId = UUID.fromString(decodeBodyResponse(response).get("compositionUid"));
+        String openEHRUUID = decodeBodyResponse(response).get("compositionUid");
+        UUID compositionId = UUID.fromString(openEHRUUID.substring(0, openEHRUUID.indexOf("::")));
 
         //retrieve this composition under two formats...
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?uid=" + compositionId+"&format=ECISFLAT");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?uid=" + compositionId+"&format=ECISFLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
@@ -752,12 +750,12 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
 
         //house keeping
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?ehrId=" + ehrId);
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/ehr?ehrId=" + ehrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
 
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/session");
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/session");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
@@ -806,25 +804,25 @@ public class EhrHttpServerTest extends TestServerSimulator {
         ContentResponse response;
 
         //login first!
-        response = client.POST("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+        response = client.POST("http://" + hostname + ":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password).send();
 
         //create ehr
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
 
-        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        Request request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
         response = stopWatchRequestSend(request);
 
 //
-//        Request request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+//        Request request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
 //        request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
 //        request.method(HttpMethod.GET);
 //        response = stopWatchRequestSend(request);
 
         UUID ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/"+ehrId);
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr/"+ehrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Origin", "http://localhost:1234");
         request.method(HttpMethod.GET);
@@ -833,11 +831,11 @@ public class EhrHttpServerTest extends TestServerSimulator {
         assertNotNull(response);
         ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 
-        File flatjsonFile = new File("/Development/Dropbox/eCIS_Development/test/IDCR - Immunisation summary.v0.flat.json");
+        File flatjsonFile = new File("src/test/resources/IDCR - Immunisation summary.v0.flat.json");
 //        File flatjsonFile = new File("/Development/Dropbox/eCIS_Development/samples/"+testFile+".json");
         InputStream is = new FileInputStream(flatjsonFile);
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/composition?format=FLAT&templateId=IDCR - Immunisation summary.v0".replaceAll(" ", "%20"));
-//        request = client.newRequest("http://" + hostname + ":8080/rest/v1/composition?format=FLAT&templateId=" + testTemplate.replaceAll(" ", "%20"));
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/composition?format=FLAT&templateId=IDCR - Immunisation summary.v0".replaceAll(" ", "%20"));
+//        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/composition?format=FLAT&templateId=" + testTemplate.replaceAll(" ", "%20"));
         request.header("Content-Type", "application/json");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
@@ -849,7 +847,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         String compositionId = decodeBodyResponse(response).get("compositionUid");
 
         //retrieve this composition under two formats...
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition/"+ compositionId+"?format=FLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Accept", "application/json");
         request.method(HttpMethod.GET);
@@ -859,15 +857,15 @@ public class EhrHttpServerTest extends TestServerSimulator {
         System.out.println(response.getContentAsString());
 
         //get an example
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/template/IDCR%20-%20Laboratory%20Order.v0/example?format=FLAT");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/template/IDCR%20-%20Laboratory%20Order.v0/example?format=FLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
         response = stopWatchRequestSend(request);
         assertNotNull(response);
 
         //update composition
-        BytesContentProvider bytesContentProvider = jsonContentFromTestFile("/Development/Dropbox/eCIS_Development/samples/IDCR Lab Order RAW1_FLATJSON_UPDATE.json");
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
+        BytesContentProvider bytesContentProvider = jsonContentFromTestFile("src/test/resources/IDCR Lab Order RAW1_FLATJSON_UPDATE.json");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition/"+ compositionId+"?format=FLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Content-Type", "application/json");
         request.content(bytesContentProvider, "application/json");
@@ -879,7 +877,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
 
         //retrieve this composition under two formats...
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/"+ compositionId+"?format=FLAT");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition/"+ compositionId+"?format=FLAT");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Accept", "application/json");
         request.method(HttpMethod.GET);
@@ -889,7 +887,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         System.out.println(response.getContentAsString());
 
         //delete composition
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/" + compositionId+"?format=RAW");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition/" + compositionId+"?format=RAW");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Accept", "application/xml");
         request.method(HttpMethod.DELETE);
@@ -900,12 +898,12 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
 
         //house keeping
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?ehrId=" + ehrId);
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/ehr?ehrId=" + ehrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
 
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/session");
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/session");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
@@ -962,21 +960,21 @@ public class EhrHttpServerTest extends TestServerSimulator {
         ContentResponse response;
 
         //login first!
-        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password);
+        Request request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), "TEST-SESSION");
         request.method(HttpMethod.POST);
         response = stopWatchRequestSend(request);
-//        response = client.POST("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+//        response = client.POST("http://" + hostname + ":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password).send();
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
 
         //create ehr
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/ehr?subjectId=" + subjectCodeId + "&subjectNamespace=" + subjectNameSpace);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
         response = stopWatchRequestSend(request);
         UUID ehrId = UUID.fromString(decodeBodyResponse(response).get("ehrId"));
 
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/ehr/"+ehrId);
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/ehr/"+ehrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Origin", "http://localhost:1234");
         request.method(HttpMethod.GET);
@@ -988,20 +986,19 @@ public class EhrHttpServerTest extends TestServerSimulator {
         //create required template
         String prescriptionFilePath = "prescription.opt";
         //read in a template into a string
-        Path path = Paths.get("/tmp/ecis_etc/knowledge/operational_templates/" + prescriptionFilePath);
-        byte[] content = Files.readAllBytes(path);
+        byte[] content = readXMLNoBOM("src/test/resources/knowledge/operational_templates/" + prescriptionFilePath);
 
-        Request requestTemplateService  = client.newRequest("http://"+hostname+":8080/rest/v1/template");
+        Request requestTemplateService  = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/template");
         requestTemplateService.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         requestTemplateService.method(HttpMethod.POST);
         requestTemplateService.content(new BytesContentProvider(content), "text/xml;charset=UTF-8");
         response = stopWatchRequestSend(requestTemplateService);
-        assertNotNull(response);
+        assertEquals(Response.SC_OK, response.getStatus());
 
         //create composition
         File xmlFile = new File(resourcesRootPath + "/Prescription.xml");
         InputStream is = new FileInputStream(xmlFile);
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition?format=RAW");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition?format=RAW");
         request.header("Content-Type", "application/xml");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
@@ -1014,7 +1011,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         String encodedQuery = prescriptionQuery.replaceAll(" ", "%20");
 
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/query?aql="+encodedQuery);
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/query?aql="+encodedQuery);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
 //        //set query string in body
@@ -1026,7 +1023,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         System.out.println(response.getContentAsString());
 
         //delete composition
-        request = client.newRequest("http://"+hostname+":8080/rest/v1/composition/" + compositionId+"?format=RAW");
+        request = client.newRequest("http://"+hostname+":"+httpPort+"/rest/v1/composition/" + compositionId+"?format=RAW");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.header("Accept", "application/xml");
         request.method(HttpMethod.DELETE);
@@ -1037,12 +1034,12 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
 
         //house keeping
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/ehr?ehrId=" + ehrId);
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/ehr?ehrId=" + ehrId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
 
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/session");
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/session");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
@@ -1063,16 +1060,16 @@ public class EhrHttpServerTest extends TestServerSimulator {
         ContentResponse response;
 
         //login first!
-        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password);
+        Request request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), "TEST-SESSION");
         request.method(HttpMethod.POST);
         response = stopWatchRequestSend(request);
-//        response = client.POST("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+//        response = client.POST("http://" + hostname + ":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password).send();
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
 
         String encodedQuery = query.replaceAll(" ", "%20");
 
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/query?aql="+encodedQuery);
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/query?aql="+encodedQuery);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.GET);
 //        //set query string in body
@@ -1083,7 +1080,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         System.out.println(response.getContentAsString());
 
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/session");
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/session");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
@@ -1135,10 +1132,10 @@ public class EhrHttpServerTest extends TestServerSimulator {
         ContentResponse response;
 
         //login first!
-        response = client.POST("http://"+hostname+":8080/rest/v1/session?username=" + userId + "&password=" + password).send();
+        response = client.POST("http://"+hostname+":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password).send();
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
 
-        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/query");
+        Request request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/query");
         request.header("Content-Type", "application/json");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.POST);
@@ -1155,7 +1152,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
 
         System.out.println(response.getContentAsString());
 
-        request = client.newRequest("http://" + hostname + ":8080/rest/v1/session");
+        request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/session");
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
         request.method(HttpMethod.DELETE);
         response = stopWatchRequestSend(request);
@@ -1171,7 +1168,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         String password = "guest";
 
         //login first!
-        Request request = client.newRequest("http://" + hostname + ":8080/rest/v1/session?username=" + userId + "&password=" + password);
+        Request request = client.newRequest("http://" + hostname + ":"+httpPort+"/rest/v1/session?username=" + userId + "&password=" + password);
         request.header("x-bypass-credential", "true");
         request.header("x-session-timeout", "0");
         request.header("x-session-name", "TEST-INTERNAL");

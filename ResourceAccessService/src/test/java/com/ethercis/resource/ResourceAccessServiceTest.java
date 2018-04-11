@@ -22,7 +22,7 @@ public class ResourceAccessServiceTest extends TestServiceBase implements I_Runl
 
     @Before
     public void setUp() throws Exception {
-        System.out.println(new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource(".").getFile() + "/services.properties"))));
+        System.out.println(new String(Files.readAllBytes(Paths.get("src/test/resources/services.properties"))));
         if (initialized) return;
         super.init(new String[]{
                 "-propertyFile", "services.properties"

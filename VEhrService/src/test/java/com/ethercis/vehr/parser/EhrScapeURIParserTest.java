@@ -154,7 +154,7 @@ public class EhrScapeURIParserTest extends TestCase {
         when(request.getMethod()).thenReturn("POST");
         uriParser.parse(request);
         assertEquals("POST", uriParser.identifyMethod().toUpperCase());
-        assertEquals("XML", uriParser.identifyParametersAsProperties().getClientProperty("format").toString());
+        assertEquals("RAW", uriParser.identifyParametersAsProperties().getClientProperty("format").toString());
 
 
 //        HttpServletRequest request = mock(HttpServletRequest.class);

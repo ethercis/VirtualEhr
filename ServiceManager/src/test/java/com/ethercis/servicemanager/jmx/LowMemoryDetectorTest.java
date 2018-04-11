@@ -35,4 +35,8 @@ public class LowMemoryDetectorTest extends TestCase {
         System.out.println("DONE, hit a key to finish");
         System.in.read();
     }
+
+    public void testDummy(){
+        assertTrue(true);
+    }
 }

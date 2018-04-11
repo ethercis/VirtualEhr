@@ -3,6 +3,8 @@ package com.ethercis.vehr;
 
 import com.ethercis.logonservice.session.I_SessionManager;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import junit.framework.TestCase;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -11,6 +13,8 @@ import org.eclipse.jetty.http.HttpMethod;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Map;
 
 public class LauncherTest extends TestCase {
 
@@ -59,8 +63,7 @@ public class LauncherTest extends TestCase {
         assertNotNull(response);
 
         //simulate a DELETE session on the server side
-        String responseContent = response.getContentAsString();
-        String sessionId = responseContent.replaceAll("\\r\\n", "");
+        String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));;
         Request request = client.newRequest("http://localhost:8080/rest/v1/session?sessionId="+sessionId);
         request.header(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE), sessionId);
 
@@ -80,5 +83,11 @@ public class LauncherTest extends TestCase {
     @After
     public void tearDown() throws Exception {
 //        launcher.stop();
+    }
+
+    public String sessionId(String responseBody){
+        Gson json = new GsonBuilder().create();
+        Map<String, Object> responseMap = json.fromJson(responseBody, Map.class);
+        return (String) responseMap.get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
     }
 }

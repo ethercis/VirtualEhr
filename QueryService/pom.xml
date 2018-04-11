@@ -24,6 +24,8 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <user.deploy>../../ethercis-deploy</user.deploy>
+        <user.localDirectoryPath>${user.home}/.m2/repository</user.localDirectoryPath>
     </properties>
     <build>
         <plugins>
@@ -96,16 +98,18 @@
                             <exclude>ethercis:ecis-knowledge-service</exclude>
                             <exclude>ethercis:ecis-ehr-service</exclude>
                             <exclude>ethercis:ecis-party-identified-service</exclude>
-                            <exclude>ethercis:ecis-composition-service</exclude>
+                            <!--<exclude>ethercis:ecis-composition-service</exclude>-->
                             <exclude>ethercis:ecis-system-service</exclude>
-                            <!--<exclude>ethercis:ecis-resource-access-service</exclude>-->
+                            <exclude>ethercis:ecis-resource-access-service</exclude>
                             <exclude>ethercis:ecis-vehr-service</exclude>
                             <exclude>ethercis:ecis-authenticate-service</exclude>
+                            <exclude>ethercis:ecis-composition-service</exclude>
                             <exclude>ethercis:session-logger-service</exclude>
                             <exclude>ethercis:ecis-validation</exclude>
                             <exclude>ethercis:ecis-transform</exclude>
-                            <exclude>ethercis:ecis-query-service</exclude>
+                            <!--<exclude>ethercis:ecis-query-service</exclude>-->
                             <exclude>ethercis:ecis-graphql-service</exclude>
+
 
                             <exclude>org.openehr:*</exclude>
                             <exclude>jooq:*</exclude>
@@ -155,10 +159,10 @@
         </plugins>
     </build>
     <groupId>ethercis</groupId>
-    <artifactId>ecis-resource-access-service</artifactId>
+    <artifactId>ecis-query-service</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.0-SNAPSHOT</version>
-    <name>Service implementation to manage access to resources</name>
+    <version>1.1.2-SNAPSHOT</version>
+    <name>Service implementation to query the EHR</name>
     <!--<repositories>-->
         <!--<repository>-->
             <!--<id>local-maven-repo</id>-->
@@ -169,32 +173,42 @@
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-knowledge-cache</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-ehrdao</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-servicemanager</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-logon-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
-            <artifactId>ecis-knowledge-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <artifactId>ecis-resource-access-service</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq</artifactId>
-            <version>3.7.3</version>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-system-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-servicemanager</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-composition-service</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -212,4 +226,31 @@
             <version>4.11</version>
         </dependency>
     </dependencies>
+    <!--DON'T GENERATE PROJECT INFO REPORT-->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.9</version>
+                <reportSets>
+                    <reportSet>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </reportSet>
+                    <reportSet>
+                        <reports>
+                            <report>index</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.19.1</version>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

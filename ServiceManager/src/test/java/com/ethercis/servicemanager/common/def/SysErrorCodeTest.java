@@ -38,4 +38,8 @@ public class SysErrorCodeTest extends TestCase {
         }
     }
 
+    public void testDummy(){
+        assertTrue(true);
+    }
+
 }

@@ -55,7 +55,7 @@ import java.util.Map;
 
 @Service(id = "ServiceSecurityManager",system=true)
 @Attributes({ @Attribute(id = "server.security.policy.type", value = "SHIRO") ,
-              @Attribute(id = "server.security.shiro.inipath", value = "resources/authenticate.ini")
+              @Attribute(id = "server.security.shiro.inipath", value = "${user.dir}/../file_repo/authenticate.ini")
             })
 @RunLevelActions(value = {
 		@RunLevelAction(onStartupRunlevel = 6, sequence = 1, action = "LOAD"),
@@ -157,9 +157,9 @@ public class ServiceSecurityManager extends ClusterInfo implements I_Manager, Se
                 policyMode = Constants.POLICY_SHIRO;
                 //initialize Shiro security manager with the specified policy
                 try {
-                    String inipath = (String) serviceInfo.getParameters().get("server.security.shiro.inipath");
-                    if (inipath != null){
-                        inipath = global.getProperty().get("server.security.shiro.inipath", "");
+                    String inipath = global.getProperty().get("server.security.shiro.inipath", ""); //from services.properties
+                    if (inipath.isEmpty()){
+                        inipath = (String) serviceInfo.getParameters().get("server.security.shiro.inipath"); //use the default
                         if (inipath.length() == 0){
                             throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "No ini path supplied for Shiro configuration, please set server.security.shiro.inipath");
 

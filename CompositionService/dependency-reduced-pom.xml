@@ -4,7 +4,7 @@
   <groupId>ethercis</groupId>
   <artifactId>ecis-composition-service</artifactId>
   <name>Service implementation to manage Composition entities</name>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.1.2-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>
@@ -128,7 +128,7 @@
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-core</artifactId>
-      <version>1.1.1-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -140,7 +140,7 @@
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-ehrdao</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -152,7 +152,7 @@
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-knowledge-cache</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -164,37 +164,31 @@
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-knowledge-service</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-logon-service</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-resource-access-service</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-system-service</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-servicemanager</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.openehr</groupId>
-      <artifactId>openehr-am-rm-term</artifactId>
-      <version>1.0.9</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -224,7 +218,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.20.1</version>
+        <version>2.19.1</version>
       </plugin>
     </plugins>
   </reporting>

@@ -159,7 +159,7 @@
     <groupId>ethercis</groupId>
     <artifactId>ecis-ehr-service</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.2-SNAPSHOT</version>
     <name>Service implementation to manage EHR entities</name>
     <!--<repositories>-->
         <!--<repository>-->
@@ -171,67 +171,82 @@
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-core</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-transform</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-ehrdao</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-knowledge-cache</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-knowledge-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-logon-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-resource-access-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-system-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-composition-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-party-identified-service</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-servicemanager</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ecis-transform</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.openehr</groupId>
-            <artifactId>openehr-am-rm-term</artifactId>
-            <version>1.0.9</version>
+            <groupId>openehr</groupId>
+            <artifactId>openehr-rm-core</artifactId>
+            <version>1.0.14-ec1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>openehr</groupId>
+            <artifactId>openehr-rm-domain</artifactId>
+            <version>1.0.14-ec1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>openehr</groupId>
+            <artifactId>openehr-aom</artifactId>
+            <version>1.0.14-ec1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>openehr</groupId>
+            <artifactId>mini-termserv</artifactId>
+            <version>1.0.14-ec1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

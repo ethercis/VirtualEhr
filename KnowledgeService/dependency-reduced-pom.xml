@@ -4,7 +4,7 @@
   <groupId>ethercis</groupId>
   <artifactId>ecis-knowledge-service</artifactId>
   <name>Service implementation to manage access cache knowledge</name>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.1.2-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>
@@ -125,24 +125,30 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <id>local-maven-repo</id>
-      <url>${user.localMavenRepo}</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-core</artifactId>
-      <version>1.1.1-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>xbean</artifactId>
+          <groupId>org.apache.xbean</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-knowledge-cache</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>xbean</artifactId>
+          <groupId>org.apache.xbean</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
@@ -153,31 +159,25 @@
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-servicemanager</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-logon-service</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-webtemplate</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.openehr</groupId>
       <artifactId>openEHR.v1.OperationalTemplate</artifactId>
       <version>1.0.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.openehr</groupId>
-      <artifactId>adl-parser</artifactId>
-      <version>1.0.9</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
