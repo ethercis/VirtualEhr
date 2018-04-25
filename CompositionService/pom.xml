@@ -107,6 +107,7 @@
                             <exclude>ethercis:ecis-transform</exclude>
                             <exclude>ethercis:ecis-query-service</exclude>
                             <exclude>ethercis:ecis-graphql-service</exclude>
+                            <exclude>ethercis:ecis-webtemplate</exclude>
 
                             <exclude>org.openehr:*</exclude>
                             <exclude>jooq:*</exclude>
