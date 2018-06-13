@@ -18,6 +18,7 @@
 package com.ethercis.authenticate;
 
 import com.ethercis.authenticate.dummy.DummyAuthenticate;
+import com.ethercis.authenticate.jwt.JwtAuthenticate;
 import com.ethercis.authenticate.shiro.ShiroAuthenticate;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.def.Constants;
@@ -54,16 +55,18 @@ public abstract class Authenticate implements I_Authenticate {
      * get a new newWrapper for a virtual subject defined elsewhere
      * @param global
      * @param mode defines the actual policy mode: XML, LDAP, JDBC, DEBUG
-     * @param loginName the user id for this authenticate
+     * @param authenticationToken the user id for this authenticate
      * @return an interface to new Subject
      * @throws com.ethercis.servicemanager.exceptions.ServiceManagerException
      */
-    public static I_Authenticate newWrapper(RunTimeSingleton global, int mode, String loginName) throws ServiceManagerException {
+    public static I_Authenticate newWrapper(RunTimeSingleton global, int mode, String authenticationToken) throws ServiceManagerException {
         switch (mode) {
             case Constants.POLICY_DEBUG:
-                return new DummyAuthenticate(global, loginName);
+                return new DummyAuthenticate(global, authenticationToken);
             case Constants.POLICY_SHIRO:
-                return new ShiroAuthenticate(global, loginName);
+                return new ShiroAuthenticate(global, authenticationToken);
+			case Constants.POLICY_JWT:
+				return new JwtAuthenticate(global);
             default:
                 log.error("Authenticate mode is not defined properly, got:"+mode);
                 throw new ServiceManagerException(global, SysErrorCode.USER_CONFIGURATION, ME, "Authenticate mode is not defined properly, got:"+mode);
@@ -151,7 +154,7 @@ public abstract class Authenticate implements I_Authenticate {
 	 *            (password)
 	 * @return true is validated, false otherwise
 	 */
-	public boolean checkCredential(String credential) {
+	public boolean checkCredential(String credential) throws ServiceManagerException {
 		String encoded = null, salt, userEncoded;
 
 		encoded = user.getPassword();

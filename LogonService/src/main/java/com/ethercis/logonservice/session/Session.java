@@ -96,16 +96,16 @@ public class Session implements I_Session {
 	       }
 	       this.authenticated = false;
 	       String loginName = securityProps.getUserId();
-	       String passwd = securityProps.getCredential();
+	       String credential = securityProps.getCredential();
 	       this.ipAddress = securityProps.getClientIp();
 	       
-	       if (loginName == null || passwd == null) {
+	       if (loginName == null || credential == null) {
 	          throw new ServiceManagerException(runTimeSingleton, SysErrorCode.USER_SECURITY_AUTHENTICATION_ACCESSDENIED, ME, AuthErrorCode.USER_INVALID_CREDENTIALS.getFullMessage()+" id:"+loginName);
 	       }
 
 	       log.debug( "Checking password ...");
 	       this.authenticate = Authenticate.newWrapper(runTimeSingleton, securityManager.getPolicyMode(), loginName);
-	       this.authenticated = authenticate.checkCredential(passwd);
+	       this.authenticated = authenticate.checkCredential(credential);
 	       log.debug( "The user for " + loginName + " is " + ((this.authenticated)?"":" NOT ") + " authenticated");
 		   authenticate.release();
 	       

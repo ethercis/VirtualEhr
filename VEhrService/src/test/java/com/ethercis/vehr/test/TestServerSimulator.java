@@ -10,8 +10,10 @@ import com.google.gson.GsonBuilder;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -22,13 +24,12 @@ import java.util.Map;
  * ETHERCIS Project VirtualEhr
  * Created by Christian Chevalley on 7/2/2015.
  */
-public abstract class TestServerSimulator extends TestCase {
+public abstract class TestServerSimulator {
 
-    protected Launcher launcher = new Launcher();
-    protected HttpClient client;
+    protected Launcher launcher = null;
     protected RunTimeSingleton global;
     protected String resourcesRootPath;
-    protected final String httpPort = "8889";
+    protected final String httpPort = "8080";
     protected static String hostname = "localhost";
 
     @Before
@@ -43,42 +44,41 @@ public abstract class TestServerSimulator extends TestCase {
 //                "-debug", "true"
 //        });
 
+//        launcher.start(new String[]{
+//            "-propertyFile", "config/services.properties",
+//            "-java_util_logging_config_file", "config/logging.properties",
+//            "-servicesFile", "config/services.xml",
+//            "-dialect", "EHRSCAPE",
+////            "-server_port", httpPort,
+////            "-server_host", hostname,
+//            "-debug", "true"
+//        });
+        launcher = new Launcher();
+
         launcher.start(new String[]{
-            "-propertyFile", "config/services.properties",
-            "-java_util_logging_config_file", "config/logging.properties",
-            "-servicesFile", "config/services.xml",
-            "-dialect", "EHRSCAPE",
-            "-server_port", httpPort,
-            "-server_host", hostname,
-            "-debug", "true"
+                "-propertyFile", "config/services.properties",
+                "-java_util_logging_config_file", "config/logging.properties",
+                "-servicesFile", "config/services.xml",
+                "-dialect", "EHRSCAPE",
+//                "-server_port", httpPort,
+//                "-server_host", hostname,
+                "-debug", "true"
         });
 
         setResourcesRootPath();
 
         global = launcher.getGlobal();
-
-        client = new HttpClient();
-        client.setMaxConnectionsPerDestination(200); // max 200 concurrent connections to every address
-        client.setConnectTimeout(30000); // 30 seconds timeout; if no server reply, the request expires
-        client.start();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        //stop the client
-        client.stop();
-        launcher.stop();
     }
 
 
     protected void setResourcesRootPath() {
         resourcesRootPath = getClass()
-            .getClassLoader()
-            .getResource(".")
-            .getFile();
+                .getClassLoader()
+                .getResource(".")
+                .getFile();
     }
 
-    public String sessionId(String responseBody){
+    public String sessionId(String responseBody) {
         Gson json = new GsonBuilder().create();
         Map<String, Object> responseMap = json.fromJson(responseBody, Map.class);
         return (String) responseMap.get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));

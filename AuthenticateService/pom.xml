@@ -29,7 +29,7 @@
     <groupId>ethercis</groupId>
     <artifactId>ecis-authenticate-service</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <name>ecis-authenticate-service</name>
     <build>
         <plugins>
@@ -81,9 +81,15 @@
                         <filter>
                             <artifact>*:*:*</artifact>
                             <excludes>
+                                <exclude>schemaorg_apache_xmlbeans/**</exclude>
+                                <exclude>org/apache/xmlbeans/**</exclude>
+                                <!--<exclude>org/apache/shiro/**</exclude>-->
+                                <exclude>com/ethercis/mapping/**</exclude>
+                                <exclude>com/ethercis/ehrserver/**</exclude>
                                 <exclude>org/openehr/**</exclude>
                                 <exclude>org/jooq/**</exclude>
                                 <exclude>org/postgresql/**</exclude>
+                                <exclude>com/sun/xml/**</exclude>
                                 <exclude>xsd/**</exclude>
                             </excludes>
                         </filter>
@@ -95,6 +101,7 @@
                             <exclude>ethercis:ecis-ehrdao</exclude>
                             <exclude>ethercis:aql-processor</exclude>
                             <exclude>ethercis:ecis-knowledge-cache</exclude>
+                            <exclude>ethercis:ecis-meta-data-cache</exclude>
                             <exclude>ethercis:jooq-pg</exclude>
                             <!-- service modules -->
                             <exclude>ethercis:ecis-servicemanager</exclude>
@@ -171,6 +178,17 @@
             <artifactId>ecis-servicemanager</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.8.9</version>
+        </dependency>
         <dependency>
             <groupId>ethercis</groupId>
             <artifactId>ehrxml</artifactId>
@@ -184,7 +202,7 @@
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
-            <version>1.2.3</version>
+            <version>1.4.0</version>
         </dependency>
         <dependency>
             <groupId>de.ruedigermoeller</groupId>
@@ -192,11 +210,11 @@
             <version>2.40</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.xmlbeans/xmlbeans -->
-        <dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>2.5.0</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.xmlbeans</groupId>-->
+            <!--<artifactId>xmlbeans</artifactId>-->
+            <!--<version>2.5.0</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>

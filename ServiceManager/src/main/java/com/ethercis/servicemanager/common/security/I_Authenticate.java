@@ -33,6 +33,7 @@ public interface I_Authenticate {
     public void setUserId(String userId);
 	public String getUserCode();
 	public boolean checkCredential(String credential) throws ServiceManagerException;
+	public boolean checkCredential() throws ServiceManagerException;
 	public boolean checkPrivateCredentials(String logonId, String passwd) throws ServiceManagerException;
 	public int getTimeOut();
     public List<I_Principal> getPrincipals();

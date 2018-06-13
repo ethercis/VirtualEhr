@@ -32,6 +32,7 @@ import com.ethercis.ehr.knowledge.I_CacheKnowledgeService;
 import com.ethercis.ehr.util.FlatJsonCompositionConverter;
 import com.ethercis.ehr.util.I_FlatJsonCompositionConverter;
 import com.ethercis.logonservice.session.I_SessionManager;
+import com.ethercis.persistence.DataAccessExceptionMessage;
 import com.ethercis.persistence.ServiceDataCluster;
 import com.ethercis.servicemanager.annotation.*;
 import com.ethercis.servicemanager.cluster.I_Info;
@@ -52,6 +53,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.joda.time.DateTime;
+import org.jooq.exception.DataAccessException;
 import org.openehr.rm.composition.Composition;
 
 import java.io.StringReader;
@@ -69,11 +71,11 @@ import java.util.UUID;
  * Created by Christian Chevalley on 7/3/2015.
  */
 
-@Service(id ="CompositionService", version="1.0", system=true)
+@Service(id = "CompositionService", version = "1.0", system = true)
 
 @RunLevelActions(value = {
         @RunLevelAction(onStartupRunlevel = 9, sequence = 4, action = "LOAD"),
-        @RunLevelAction(onShutdownRunlevel = 9, sequence = 4, action = "STOP") })
+        @RunLevelAction(onShutdownRunlevel = 9, sequence = 4, action = "STOP")})
 
 public class CompositionService extends ServiceDataCluster implements I_CompositionService, CompositionServiceMBean {
 
@@ -86,7 +88,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
     private boolean supportCompositionXRef = false; //if set to false, will not try to link compositions
 
     @Override
-    public void doInit(RunTimeSingleton global, ServiceInfo serviceInfo)throws ServiceManagerException {
+    public void doInit(RunTimeSingleton global, ServiceInfo serviceInfo) throws ServiceManagerException {
         super.doInit(global, serviceInfo);
         //get a resource service instance
         //get the knowledge cache for composition handlers
@@ -100,7 +102,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         if (knowledgeCache == null)
             throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Cache knowledge service [CacheKnowledgeService,1.0] is not running, aborting");
 
-        putObject(I_Info.JMX_PREFIX+ME, this);
+        putObject(I_Info.JMX_PREFIX + ME, this);
 
         log.info("Composition service started...");
     }
@@ -109,17 +111,21 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
     private UUID getSessionEhrId(String sessionId) throws ServiceManagerException {
         I_SessionManager sessionManager = getRegisteredService(getGlobal(), "LogonService", "1.0");
         //retrieve the session manager
-        return (UUID) sessionManager.getSessionUserMap(sessionId).get(EHR_ID);
+        if (sessionManager != null)
+            return (UUID) sessionManager.getSessionUserMap(sessionId).get(EHR_ID);
+        else
+            return null;
     }
 
     private UUID retrieveEhrId(String sessionId, I_SessionClientProperties props) throws ServiceManagerException {
-        String uuidEncoded = props.getClientProperty(I_CompositionService.EHR_ID, (String)null);
+        String uuidEncoded = props.getClientProperty(I_CompositionService.EHR_ID, (String) null);
         if (uuidEncoded == null) {
             if (getSessionEhrId(sessionId) != null)
                 uuidEncoded = getSessionEhrId(sessionId).toString();
-            else
-                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "No Ehr Id found in context nor in query");
         }
+
+        if (uuidEncoded == null)
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "No Ehr Id found in context nor in query");
 
         UUID ehrId = UUID.fromString(uuidEncoded);
 
@@ -131,10 +137,10 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "POST", method = "post", path = "rest/v1/composition", responseType = ResponseType.Json)
     })
     public Object create(I_SessionClientProperties props) throws Exception {
-        auditSetter.handleProperties(getDataAccess(), props);
+        queryProlog(props);
         String sessionId = auditSetter.getSessionId();
-        String templateId = props.getClientProperty(I_CompositionService.TEMPLATE_ID, (String)null);
-        String linkUidStr = props.getClientProperty(I_CompositionService.LINK_ID, (String)null);
+        String templateId = props.getClientProperty(I_CompositionService.TEMPLATE_ID, (String) null);
+        String linkUidStr = props.getClientProperty(I_CompositionService.LINK_ID, (String) null);
         UUID linkUid = (linkUidStr != null) ? UUID.fromString(linkUidStr) : null;
         UUID ehrId = retrieveEhrId(sessionId, props);
 
@@ -147,12 +153,12 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Template Id must be specified");
 
         //get body stuff
-        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String)null);
+        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String) null);
 
         if (content == null)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content cannot be empty for a new composition");
 
-        Integer contentLength = (Integer)props.getClientProperty(Constants.REQUEST_CONTENT_LENGTH, (Integer)0);
+        Integer contentLength = (Integer) props.getClientProperty(Constants.REQUEST_CONTENT_LENGTH, (Integer) 0);
 
 //        if (content.length() != contentLength)
 //            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content may be altered found length ="+content.length()+" expected:"+contentLength);
@@ -161,7 +167,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
         UUID compositionId;
 
-        switch (format){
+        switch (format) {
             case XML:
                 I_CanonicalHandler canonicalHandler = new CanonicalHandler(getDataAccess(), templateId);
                 compositionId = canonicalHandler.storeComposition(ehrId, content, committerUuid, systemUuid, auditSetter.getDescription());
@@ -171,8 +177,8 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 Document document = DocumentHelper.createDocument();
                 Element root = document.addElement("compositionCreateRestResponseData");
                 root.addElement("action").addText("CREATE");
-                root.addElement("compositionUid").addText(encodeUuid(compositionId,1));
-                root.addElement("meta").addElement("href").addText(Constants.URI_TAG+"?"+encodeURI(null, compositionId, 1, null));
+                root.addElement("compositionUid").addText(encodeUuid(compositionId, 1));
+                root.addElement("meta").addElement("href").addText(Constants.URI_TAG + "?" + encodeURI(null, compositionId, 1, null));
                 global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_XML);
                 return document;
 
@@ -184,11 +190,11 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 linkComposition(linkUid, compositionId);
 
                 //create json response
-                global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
+                global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_JSON);
                 Map<String, Object> retmap = new HashMap<>();
                 retmap.put("action", "CREATE");
-                retmap.put(COMPOSITION_UID, encodeUuid(compositionId,1));
-                Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, compositionId, 1, null));
+                retmap.put(COMPOSITION_UID, encodeUuid(compositionId, 1));
+                Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, compositionId, 1, null));
                 retmap.putAll(metaref);
                 return retmap;
 
@@ -198,17 +204,17 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 linkComposition(linkUid, compositionId);
 
                 //create json response
-                global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
+                global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_JSON);
                 retmap = new HashMap<>();
                 retmap.put("action", "CREATE");
-                retmap.put(COMPOSITION_UID, encodeUuid(compositionId,1));
-                metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, compositionId, 1, null));
+                retmap.put(COMPOSITION_UID, encodeUuid(compositionId, 1));
+                metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, compositionId, 1, null));
                 retmap.putAll(metaref);
                 return retmap;
 
 
             default:
-                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "This format is not supported:"+format);
+                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "This format is not supported:" + format);
         }
     }
 
@@ -217,12 +223,13 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "GET", method = "get", path = "rest/v1/composition", responseType = ResponseType.String)
     })
     public Object retrieve(I_SessionClientProperties props) throws Exception {
+        queryProlog(props);
         I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, CompositionFormat.ECISFLAT.toString()));
         Integer version = -1;
         UUID uid = null;
 
-        String compositionId = props.getClientProperty(I_CompositionService.UID, (String)null);
-        if (compositionId == null){
+        String compositionId = props.getClientProperty(I_CompositionService.UID, (String) null);
+        if (compositionId == null) {
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Null or not supplied composition id");
         }
         try {
@@ -232,9 +239,8 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 uid = getCompositionUid(compositionId);
             } else
                 uid = getCompositionUid(compositionId);
-        }
-        catch (Exception e){
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Invalid composition id:"+compositionId);
+        } catch (Exception e) {
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Invalid composition id:" + compositionId);
         }
 
         Object retObj = null;
@@ -245,51 +251,59 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         if (version > 0)
             compositionAccess = I_CompositionAccess.retrieveCompositionVersion(getDataAccess(), uid, version);
         else {
-            compositionAccess = I_CompositionAccess.retrieveInstance2(getDataAccess(), uid);
-            if (compositionAccess == null && I_CompositionAccess.hasPreviousVersion(getDataAccess(), uid)){ //try to identify a previous version
-                //TODO: add life_cycle state to versions and return the first non deleted version id... right now it's always 1
-                global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_NO_CONTENT);
-                //build the relative part of the link to the existing last version
-                Map<String, Object> retMap = new HashMap<>();
-                retMap.put("Link", Constants.URI_TAG+"?"+encodeURI(null, uid, 2, format));
-                return retMap;
+            try {
+                compositionAccess = I_CompositionAccess.retrieveInstance2(getDataAccess(), uid);
+                if (compositionAccess == null && I_CompositionAccess.hasPreviousVersion(getDataAccess(), uid)) { //try to identify a previous version
+                    //TODO: add life_cycle state to versions and return the first non deleted version id... right now it's always 1
+                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_NO_CONTENT);
+                    //build the relative part of the link to the existing last version
+                    Map<String, Object> retMap = new HashMap<>();
+                    retMap.put("Link", Constants.URI_TAG + "?" + encodeURI(null, uid, 2, format));
+                    return retMap;
+                }
+            } catch (DataAccessException e) {
+                if (e.getMessage().contains("permission denied"))
+                    throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_SECURITY_AUTHORIZATION_NOTAUTHORIZED, ME, "Access denied");
+                else {
+                    throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_UNAVAILABLE, ME, "Could not complete query:" + new DataAccessExceptionMessage(e).error());
+                }
             }
         }
 
         if (compositionAccess == null)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Request did not give any result");
 
-        for (I_EntryAccess entryAccess: compositionAccess.getContent()) {
+        for (I_EntryAccess entryAccess : compositionAccess.getContent()) {
             switch (format) {
                 case XML:
-                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_XML);
+                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_XML);
                     retObj = new String(I_ContentBuilder.exportCanonicalXML(entryAccess.getComposition()));
                     break;
                 case ECISFLAT:
-                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
+                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_JSON);
                     Map<String, Object> retmap = new HashMap<>();
                     retmap.put("format", CompositionFormat.ECISFLAT.toString());
                     retmap.put("templateId", entryAccess.getTemplateId());
                     retmap.put("composition", new EcisFlattener().render(entryAccess.getComposition()));
-                    Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, uid, 1, null));
+                    Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, uid, 1, null));
                     retmap.putAll(metaref);
-                    retObj =  retmap;
+                    retObj = retmap;
                     break;
 
                 case FLAT:
                     I_FlatJsonCompositionConverter flatJsonCompositionConverter = FlatJsonCompositionConverter.getInstance(getDataAccess().getKnowledgeManager());
-                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
+                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_JSON);
                     retmap = new HashMap<>();
                     retmap.put("format", CompositionFormat.FLAT.toString());
                     retmap.put("templateId", entryAccess.getTemplateId());
                     retmap.put("composition", flatJsonCompositionConverter.fromComposition(entryAccess.getTemplateId(), entryAccess.getComposition()));
-                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, uid, 1, null));
+                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, uid, 1, null));
                     retmap.putAll(metaref);
-                    retObj =  retmap;
+                    retObj = retmap;
                     break;
 
                 case RAW:
-                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_JSON);
+                    global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_JSON);
                     Composition composition = entryAccess.getComposition();
                     I_CompositionSerializer compositionSerializer = I_CompositionSerializer.getInstance(CompositionSerializer.WalkerOutputMode.RAW);
                     retmap = new HashMap<>();
@@ -298,13 +312,13 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                     Gson gson = EncodeUtil.getGsonBuilderInstance().setPrettyPrinting().create();
                     Map rawEncoded = gson.fromJson(compositionSerializer.dbEncode(composition), Map.class);
                     retmap.put("composition", rawEncoded);
-                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, uid, 1, null));
+                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, uid, 1, null));
                     retmap.putAll(metaref);
-                    retObj =  retmap;
+                    retObj = retmap;
                     break;
 
                 default:
-                    throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Unsupported format:"+format);
+                    throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Unsupported format:" + format);
             }
         }
         return retObj;
@@ -315,9 +329,9 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "PUT", method = "put", path = "rest/v1/composition", responseType = ResponseType.Json)
     })
     public Object update(I_SessionClientProperties props) throws Exception {
-        auditSetter.handleProperties(getDataAccess(), props);
+        queryProlog(props);
         String sessionId = auditSetter.getSessionId();
-        String templateId = props.getClientProperty(I_CompositionService.TEMPLATE_ID, (String)null);
+        String templateId = props.getClientProperty(I_CompositionService.TEMPLATE_ID, (String) null);
         String uidStr = props.getClientProperty(I_CompositionService.UID, (String) null);
         if (uidStr == null || uidStr.length() == 0)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "A valid composition id must be supplied");
@@ -326,7 +340,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, CompositionFormat.ECISFLAT.toString()));
 
         //get body stuff
-        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String)null);
+        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String) null);
 
         if (content == null)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content cannot be empty for updating a composition");
@@ -340,7 +354,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
         Boolean result;
 
-        switch (format){
+        switch (format) {
             case XML:
                 CanonicalHandler canonicalHandler = new CanonicalHandler(getDataAccess(), templateId);
                 result = canonicalHandler.update(getDataAccess(), compositionId, content, auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
@@ -349,16 +363,15 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             case ECISFLAT:
                 I_CompositionAccess compositionAccess = I_CompositionAccess.retrieveInstance(getDataAccess(), compositionId);
                 if (compositionAccess == null)
-                    throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Could not find composition:"+compositionId);
+                    throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Could not find composition:" + compositionId);
 
                 //TODO: template id is not required
                 PvCompoHandler pvCompoHandler = new PvCompoHandler(this.getDataAccess(), compositionAccess, "*", null); //template id is not required
                 Map<String, Object> kvPairs;
                 try {
                     kvPairs = FlatJsonUtil.inputStream2Map(new StringReader(new String(content.getBytes())));
-                }
-                catch (Exception e){
-                    throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Error interpreting JSON in content:"+e);
+                } catch (Exception e) {
+                    throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Error interpreting JSON in content:" + e);
                 }
                 result = pvCompoHandler.updateComposition(kvPairs, auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
                 break;
@@ -366,7 +379,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             case FLAT:
                 compositionAccess = I_CompositionAccess.retrieveInstance(getDataAccess(), compositionId);
                 if (compositionAccess == null)
-                    throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Could not find composition:"+compositionId);
+                    throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Could not find composition:" + compositionId);
 
                 //get the template id
                 I_FlatJsonHandler flatJsonHandler = new FlatJsonHandler(getDataAccess(), compositionAccess, null, null);
@@ -374,18 +387,18 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                 break;
 
             default:
-                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "This format is not supported:"+format);
+                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "This format is not supported:" + format);
         }
 
         //TODO: set committer if passed
 
         if (!result)
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Update failed on composition:"+compositionId);
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Update failed on composition:" + compositionId);
 
         Map<String, Object> retmap = new HashMap<>();
         retmap.put("action", result ? "UPDATED" : "FAILED");
-        retmap.put(COMPOSITION_UID, encodeUuid(compositionId,1));
-        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, compositionId, 1, null));
+        retmap.put(COMPOSITION_UID, encodeUuid(compositionId, 1));
+        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, compositionId, 1, null));
         retmap.putAll(metaref);
 
         return retmap;
@@ -396,6 +409,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "DELETE", method = "delete", path = "rest/v1/composition", responseType = ResponseType.Json)
     })
     public Object delete(I_SessionClientProperties props) throws Exception {
+        queryProlog(props);
         String uidStr = props.getClientProperty(I_CompositionService.UID, (String) null);
         if (uidStr == null || uidStr.length() == 0)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "A valid composition id must be supplied");
@@ -406,88 +420,35 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
         I_CompositionAccess compositionAccess = I_CompositionAccess.retrieveInstance(getDataAccess(), compositionId);
         if (compositionAccess == null)
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Could not find composition:"+compositionId);
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Could not find composition:" + compositionId);
 
         Integer result = compositionAccess.delete(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
 
         if (result <= 0)
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Delete failed on composition:"+compositionAccess.getId());
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Delete failed on composition:" + compositionAccess.getId());
 
         Map<String, Object> retmap = new HashMap<>();
         retmap.put("action", result > 0 ? "DELETED" : "FAILED");
         retmap.put(COMPOSITION_UID, encodeUuid(compositionId, 1));
-        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG+"?"+encodeURI(null, compositionId, 1, null));
+        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, compositionId, 1, null));
         retmap.putAll(metaref);
         return retmap;
     }
 
-
-    private enum QueryMode {SQL, AQL, UNDEF}
-
-    @QuerySetting(dialect = {
-            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "POST", method = "post", path = "vehr/query", responseType = ResponseType.Json),
-            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "GET", method = "get", path = "rest/v1/query", responseType = ResponseType.Json)
-    })
-    public Object query(I_SessionClientProperties props) throws Exception {
-        QueryMode queryMode = QueryMode.UNDEF;
-
-        String sessionId = props.getClientProperty(I_SessionManager.SECRET_SESSION_ID_INTERNAL, (String)null);
-
-        String queryString = props.getClientProperty(I_CompositionService.SQL_QUERY, (String)null);
-
-        if (queryString == null){
-            queryString = props.getClientProperty(I_CompositionService.AQL_QUERY, (String)null);
-            if (queryString != null){
-                queryMode = QueryMode.AQL;
-            }
-            else
-                throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "No query parameter supplied");
-        }
-        else
-            queryMode = QueryMode.SQL;
-
-
-        //perform the query
-        Map<String, Object> result;
-
-        switch (queryMode){
-            case SQL:
-                result = I_EntryAccess.queryJSON(getDataAccess(), queryString);
-                break;
-            case AQL:
-                result = I_EntryAccess.queryAqlJson(getDataAccess(), queryString);
-                break;
-
-            default:
-                throw new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "Unknown query expression, should be 'sql=' or 'aql='");
-        }
-
-        if (result.size() == 0){
-            global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, ""+MethodName.RETURN_NO_CONTENT);
-            //build the relative part of the link to the existing last version
-            Map<String, Object> retMap = new HashMap<>();
-            retMap.put("Reason", "Query resultset is empty");
-            return retMap;
-        }
-
-        return result;
-
-    }
-
-    private String encodeUuid(UUID uuid, int version){
+    private String encodeUuid(UUID uuid, int version) {
         if (useNamespaceInCompositionId)
-            return uuid+"::"+getDataAccess().getServerNodeId()+"::"+version;
+            return uuid + "::" + getDataAccess().getServerNodeId() + "::" + version;
         else
-            return uuid+"::"+version;
+            return uuid + "::" + version;
     }
 
-    private UUID getCompositionUid(String fullcompositionUid){
+    private UUID getCompositionUid(String fullcompositionUid) {
         if (!fullcompositionUid.contains("::"))
             return UUID.fromString(fullcompositionUid);
         return UUID.fromString(fullcompositionUid.substring(0, fullcompositionUid.indexOf("::")));
     }
 
-    private int getCompositionVersion(String fullcompositionUid){
+    private int getCompositionVersion(String fullcompositionUid) {
         if (!fullcompositionUid.contains("::"))
             return 1; //current version
         return Integer.valueOf(fullcompositionUid.substring(fullcompositionUid.lastIndexOf("::") + 2));
@@ -497,16 +458,16 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         StringBuffer encoded = new StringBuffer();
 
         if (compositionId != null)
-            encoded.append(I_CompositionService.UID+"="+encodeUuid(compositionId, version));
+            encoded.append(I_CompositionService.UID + "=" + encodeUuid(compositionId, version));
         if (ehrId != null)
-            encoded.append("&"+I_CompositionService.EHR_ID+"="+ehrId);
+            encoded.append("&" + I_CompositionService.EHR_ID + "=" + ehrId);
         if (format != null)
-            encoded.append("&"+I_CompositionService.FORMAT+"="+format);
+            encoded.append("&" + I_CompositionService.FORMAT + "=" + format);
 
         return encoded.toString();
     }
 
-    private void linkComposition(UUID master, UUID child){
+    private void linkComposition(UUID master, UUID child) {
         if (!supportCompositionXRef)
             return;
         if (master == null || child == null)
@@ -514,7 +475,6 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         I_CompoXrefAccess compoXrefAccess = new CompoXRefAccess(getDataAccess());
         compoXrefAccess.setLink(master, child);
     }
-
 
 
 }

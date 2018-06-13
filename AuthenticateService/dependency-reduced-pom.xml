@@ -4,7 +4,7 @@
   <groupId>ethercis</groupId>
   <artifactId>ecis-authenticate-service</artifactId>
   <name>ecis-authenticate-service</name>
-  <version>1.1.2-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>
@@ -60,9 +60,14 @@
             <filter>
               <artifact>*:*:*</artifact>
               <excludes>
+                <exclude>schemaorg_apache_xmlbeans/**</exclude>
+                <exclude>org/apache/xmlbeans/**</exclude>
+                <exclude>com/ethercis/mapping/**</exclude>
+                <exclude>com/ethercis/ehrserver/**</exclude>
                 <exclude>org/openehr/**</exclude>
                 <exclude>org/jooq/**</exclude>
                 <exclude>org/postgresql/**</exclude>
+                <exclude>com/sun/xml/**</exclude>
                 <exclude>xsd/**</exclude>
               </excludes>
             </filter>
@@ -73,6 +78,7 @@
               <exclude>ethercis:ecis-ehrdao</exclude>
               <exclude>ethercis:aql-processor</exclude>
               <exclude>ethercis:ecis-knowledge-cache</exclude>
+              <exclude>ethercis:ecis-meta-data-cache</exclude>
               <exclude>ethercis:jooq-pg</exclude>
               <exclude>ethercis:ecis-servicemanager</exclude>
               <exclude>ethercis:ecis-logon-service</exclude>
@@ -127,7 +133,7 @@
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-servicemanager</artifactId>
-      <version>1.1.2-SNAPSHOT</version>
+      <version>1.2.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

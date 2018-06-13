@@ -32,8 +32,8 @@ import java.util.UUID;
 /**
  * Created by christian on 12/18/2015.
  */
-public class AuditSetter {
-    String COMMITTER_ID = "committerId" ;
+public class AuditSetter implements I_AuditSetter {
+    String COMMITTER_ID = "committerId";
     String COMMITTER_NAME = "committerName";
     String DESCRIPTION = "description";
     private IdentificationDef identificationDef;
@@ -52,17 +52,31 @@ public class AuditSetter {
         this.identificationDef = new IdentificationDef(global);
     }
 
-    public void handleProperties(I_DomainAccess domainAccess, I_SessionClientProperties props) throws ServiceManagerException {
-        sessionId = props.getClientProperty(I_SessionManager.SECRET_SESSION_ID_INTERNAL, (String)null);
-        committerId = props.getClientProperty(COMMITTER_ID, getSessionSubjectId(sessionId));
-        committerName = props.getClientProperty(COMMITTER_NAME, getSessionSubjectName(sessionId));
-        description = props.getClientProperty(DESCRIPTION, (String)null);
-        committerUuid = getCommitter(domainAccess, committerName, committerId);
-        systemUuid = getOrCreateSystemId(domainAccess, committerName+"-session", committerName+"@"+props.getClientProperty(I_SessionManager.CLIENT_IP, "LOCAL"));
+    @Override
+    public AuditSetter handleProperties(I_DomainAccess domainAccess, I_SessionClientProperties props) throws ServiceManagerException {
+        if (props.getClientProperties().containsKey(I_SessionManager.BYPASS_CREDENTIAL)){
+            sessionId = props.getClientProperty(I_SessionManager.SECRET_SESSION_ID_INTERNAL, "BYPASS");
+            committerId = props.getClientProperty(COMMITTER_ID, "BYPASS");
+            committerName = props.getClientProperty(COMMITTER_NAME, "BYPASS");
+            description = props.getClientProperty(DESCRIPTION, "BYPASS");
+            committerUuid = getCommitter(domainAccess, committerName, committerId);
+            systemUuid = getOrCreateSystemId(domainAccess, "BYPASS", "LOCAL");
+        }
+        else {
+            sessionId = props.getClientProperty(I_SessionManager.SECRET_SESSION_ID_INTERNAL, (String) null);
+            committerId = props.getClientProperty(COMMITTER_ID, getSessionSubjectId(sessionId));
+            committerName = props.getClientProperty(COMMITTER_NAME, getSessionSubjectName(sessionId));
+            description = props.getClientProperty(DESCRIPTION, (String) null);
+            committerUuid = getCommitter(domainAccess, committerName, committerId);
+            systemUuid = getOrCreateSystemId(domainAccess, committerName + "-session", committerName + "@" + props.getClientProperty(I_SessionManager.CLIENT_IP, "LOCAL"));
+        }
+
+        return this;
     }
 
     //TODO: refactor into IdentificationService
-    public UUID getCommitter(I_DomainAccess domainAccess, String name, String id){
+    @Override
+    public UUID getCommitter(I_DomainAccess domainAccess, String name, String id) {
         UUID committerId = I_PartyIdentifiedAccess.getOrCreatePartyByExternalRef(domainAccess, name, id,
                 identificationDef.getIdenficationScheme(),
                 identificationDef.getIdendificationNamespace(),
@@ -70,52 +84,64 @@ public class AuditSetter {
         return committerId;
     }
 
+    @Override
     public String getSessionSubjectName(String sessionId) throws ServiceManagerException {
         I_SessionManager sessionManager = ClusterInfo.getRegisteredService(global, "LogonService", "1.0");
         //retrieve the session manager
-        return sessionManager.getSubjectName(sessionId);
+        if (sessionManager != null)
+            return sessionManager.getSubjectName(sessionId);
+        else
+            return null;
     }
 
+    @Override
     public String getSessionSubjectId(String sessionId) throws ServiceManagerException {
         I_SessionManager sessionManager = ClusterInfo.getRegisteredService(global, "LogonService", "1.0");
         //retrieve the session manager
-        return sessionManager.getSubjectId(sessionId);
+        if (sessionManager != null)
+            return sessionManager.getSubjectId(sessionId);
+        else
+            return null;
     }
 
     //this is to avoid circular references
-    public UUID getOrCreateSystemId(I_DomainAccess domainAccess, String description, String systemAddress){
+    @Override
+    public UUID getOrCreateSystemId(I_DomainAccess domainAccess, String description, String systemAddress) {
         UUID systemId = null;
         try {
             systemId = I_SystemAccess.retrieveInstanceId(domainAccess, systemAddress);
-        } catch (Exception e){
+        } catch (Exception e) {
             ;
         }
 
-        if (systemId == null){
+        if (systemId == null) {
             try {
                 I_SystemAccess systemAccess = I_SystemAccess.getInstance(domainAccess, description, systemAddress);
                 systemId = systemAccess.commit();
-            }
-            catch (Exception e){
-                throw new IllegalArgumentException("Could not create client with settings:"+systemAddress);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Could not create client with settings:" + systemAddress);
             }
         }
 
         return systemId;
     }
 
+    @Override
     public String getSessionId() {
         return sessionId;
     }
 
+    @Override
     public UUID getCommitterUuid() {
         return committerUuid;
     }
 
+    @Override
     public UUID getSystemUuid() {
         return systemUuid;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }

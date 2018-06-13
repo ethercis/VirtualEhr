@@ -51,7 +51,6 @@ public class DummyAuthenticate implements I_Authenticate {
 	 * create a new authenticate for a given id (<b>logon id</b>)<p>
 	 * @param glob Global
 	 * @param id the logon id (unique)
-	 * @param policy the policy associated to this authenticate
 	 * @throws com.ethercis.servicemanager.exceptions.ServiceManagerException if the authenticate is revoked access or other error
 	 */
 	public DummyAuthenticate(RunTimeSingleton glob, String id) throws ServiceManagerException {
@@ -115,6 +114,12 @@ public class DummyAuthenticate implements I_Authenticate {
 	public boolean checkCredential(String credential){
 		return true;
 	}
+
+	@Override
+	public boolean checkCredential() throws ServiceManagerException {
+		return false;
+	}
+
 	/**
 	 * not used.
 	 * @param logonId

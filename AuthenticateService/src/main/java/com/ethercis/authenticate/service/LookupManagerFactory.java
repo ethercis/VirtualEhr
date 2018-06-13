@@ -46,9 +46,12 @@ public class LookupManagerFactory {
         else if (policyType.compareToIgnoreCase(Constants.STR_POLICY_SHIRO) == 0){
             lookupManager = new DummyLookupManager(global);
         }
+		else if (policyType.compareToIgnoreCase(Constants.STR_POLICY_JWT) == 0){
+			lookupManager = new DummyLookupManager(global);
+		}
 		else {
-			log.error("the policy is not defined, make sure variables 'server.security.policy' is set :" +policyType);
-			throw new ServiceManagerException(global, SysErrorCode.USER_CONFIGURATION, ME, "the policy is not defined, make sure variable 'server.security.policy' is set");
+				log.error("the policy is not defined, make sure variables 'server.security.policy' is set :" +policyType);
+				throw new ServiceManagerException(global, SysErrorCode.USER_CONFIGURATION, ME, "the policy is not defined, make sure variable 'server.security.policy' is set");
 		}
 		return lookupManager;
 	}

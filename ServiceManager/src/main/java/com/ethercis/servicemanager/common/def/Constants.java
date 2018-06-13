@@ -427,9 +427,40 @@ public final class Constants {
 	public static final String CLIENT_IP = "x-client-ip";
 	public static final String LAST_LOGIN = "x-last-login";
 	
-	//Property tags 
+	//Property tags
+	public static final String SERVER_PERSISTENCE_IMPLEMENTATION = "server.persistence.implementation";
+	public static final String SERVER_PERSISTENCE_JOOQ_DIALECT ="server.persistence.jooq.dialect";
+	public static final String SERVER_PERSISTENCE_JOOQ_URL ="server.persistence.jooq.url";
+	public static final String SERVER_PERSISTENCE_JOOQ_LOGIN ="server.persistence.jooq.login";
+	public static final String SERVER_PERSISTENCE_JOOQ_PASSWORD ="server.persistence.jooq.password";
+	public static final String SERVER_PERSISTENCE_JOOQ_DATABASE = "server.persistence.jooq.database";
+	public static final String SERVER_PERSISTENCE_JOOQ_HOST = "server.persistence.jooq.host";
+	public static final String SERVER_PERSISTENCE_JOOQ_PORT = "server.persistence.jooq.port";
+	public static final String SERVER_PERSISTENCE_JOOQ_MAX_CONNECTIONS = "server.persistence.jooq.max_connections";
+	public static final String SERVER_PERSISTENCE_MAX_IDLE = "server.persistence.dbcp2.max_idle";
+	public static final String SERVER_PERSISTENCE_MAX_ACTIVE = "server.persistence.dbcp2.max_active";
+	public static final String SERVER_PERSISTENCE_TEST_ON_BORROW="server.persistence.dbcp2.test_on_borrow";
+	public static final String SERVER_PERSISTENCE_AUTO_RECONNECT="server.persistence.dbcp2.auto_reconnect";
+	public static final String SERVER_PERSISTENCE_WAIT_MS="server.persistence.dbcp2.max_wait";
+	public static final String SERVER_PERSISTENCE_SET_POOL_PREPARED_STATEMENTS="server.persistence.dbcp2.set_pool_prepared_statements";
+	public static final String SERVER_PERSISTENCE_MAX_PREPARED_STATEMENTS="server.persistence.dbcp2.set_max_prepared_statements";
+	public static final String SERVER_PERSISTENCE_REMOVE_ABANDONNED="server.persistence.dbcp2.remove_abandonned";
+	public static final String SERVER_PERSISTENCE_REMOVE_ABANDONNED_TIMEOUT="server.persistence.dbcp2.remove_abandonned_timeout";
+	public static final String SERVER_PERSISTENCE_LOG_ABANDONNED="server.persistence.dbcp2.log_abandonned";
+	public static final String SERVER_PERSISTENCE_INITIAL_CONNECTIONS="server.persistence.dbcp2.initial_size";
+
 	public static final String XML_POLICY_PATH_TAG = "server.security.policy.xml.path";
 	public static final String POLICY_TYPE_TAG     = "server.security.policy.type";
+	public static final String DB_SECURITY_ROLE     = "server.security.db_role";
+	public static final String SERVER_AUDIT     = "server.audit";
+	public static final String DB_SECURITY_PRINCIPAL_PRECEDENCE = "server.security.role_precedence";
+	public static final String SQL_ENABLED     = "server.query.sql_enabled";
+	public static final String JWT_KEY     = "server.jwt.key";
+	public static final String JWT_KEY_FILE_PATH     = "server.jwt.key_file_path";
+	public static final String TOKEN_TYPE_BEARER = "Bearer";
+	public static final String TOKEN_USER_SESSION = "userSession";
+	public static final String TOKEN_PRINCIPAL_SESSION = "principalSession";
+	public static final String JWT_KEY_SIGNATURE     = "server.jwt.signature";
 	
 	//Policy Ldap configuration
 	public static final String LDAP_POLICY_HOST="server.security.policy.ldap.host";
@@ -444,6 +475,7 @@ public final class Constants {
 	public static final String STR_POLICY_JDBC = "JDBC";
 	public static final String STR_POLICY_DEBUG = "DEBUG";
     public static final String STR_POLICY_SHIRO = "SHIRO";
+	public static final String STR_POLICY_JWT = "JWT";
 	public static final String STR_POLICY_UNDEF = "";
 	
 	public static final int POLICY_XML = 1;
@@ -451,8 +483,12 @@ public final class Constants {
 	public static final int POLICY_JDBC = 3;
 	public static final int POLICY_DEBUG = 4;
     public static final int POLICY_SHIRO = 5;
+	public static final int POLICY_JWT = 6;
 	public static final int POLICY_UNDEF = 0;
 
 	//used by RM builder
 	public static final String DEFAULT_STRING = "$DEFAULT$";
+
+	//used by JwtAuthenticate
+	public static final String JWT_CONTEXT = "JWT_CONTEXT";
 }

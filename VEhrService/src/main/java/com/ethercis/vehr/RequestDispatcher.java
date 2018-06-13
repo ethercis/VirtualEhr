@@ -16,15 +16,13 @@
  */
 package com.ethercis.vehr;
 
-import com.ethercis.ehrserver.servicemap.Action;
-import com.ethercis.ehrserver.servicemap.MapperDocument;
 import com.ethercis.servicemanager.annotation.Attribute;
 import com.ethercis.servicemanager.annotation.Attributes;
 import com.ethercis.servicemanager.annotation.RunLevelAction;
 import com.ethercis.servicemanager.annotation.RunLevelActions;
-import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
 import com.ethercis.servicemanager.cluster.ContextNode;
+import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
 import com.ethercis.servicemanager.common.SessionClientProperties;
 import com.ethercis.servicemanager.common.def.Constants;
@@ -36,16 +34,11 @@ import com.ethercis.servicemanager.service.I_Service;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -326,94 +319,94 @@ public class RequestDispatcher extends ClusterInfo implements RequestDispatcherM
      *
      */
 
-	public void loadConfiguration(String pathToConfig) throws ServiceManagerException {
-		File f = new File(pathToConfig);
-
-		if (!f.exists()) {
-			log.warn("Could not find config file:" + pathToConfig);
-			throw new ServiceManagerException(global, SysErrorCode.USER_CONFIGURATION,
-					ME, "Could not find config file:" + pathToConfig);
-		}
-
-		try {
-			MapperDocument mapper = MapperDocument.Factory.parse(f);
-
-			log.info("Loading mapper configuration id:"
-					+ mapper.getMapper().getId() + ", version:"
-					+ mapper.getMapper().getVersion());
-
-			this.configurationAuthor = mapper.getMapper().getAuthor();
-			this.configurationID = mapper.getMapper().getId();
-			this.configurationOrganization = mapper.getMapper()
-					.getOrganization();
-			this.configurationVersion = mapper.getMapper().getVersion();
-
-			for (Action action : mapper.getMapper().getActionArray()) {
-				// add new entry
-				Map<String, ServiceAttribute> servicemap = new HashMap<String, ServiceAttribute>();
-				// this looks a bit complicated, but it is required to ensure
-				// that there is no upper-lower case issues there...
-				MethodName actionname = MethodName.toMethodName(action.getCategory());
-				actionmap.put(actionname.getMethodName(), servicemap);
-
-				for (Action.Service s : action.getServiceArray()) {
-					ServiceAttribute sa = new ServiceAttribute(this,
-							s.getServiceid(), s.getServiceversion(),
-							s.getResource());
-					servicemap.put(s.getPath(), sa);
-					// insert this entry into the actionmap
-					// add methods
-					for (Action.Service.Method m : s.getMethodArray()) {
-
-						// add signature if any or default to
-						// ClientSessionProperties
-
-						List<Class<?>> clazzes = new ArrayList<Class<?>>();
-
-						Action.Service.Method.Parameters parms = m.getParameters();
-						if (parms != null) {
-							for (String classname : parms.getClass1Array()) {
-								try {
-									Class<?> c = Class.forName(classname);
-									clazzes.add(c);
-								} catch (ClassNotFoundException e) {
-									log.warn("Could not resolve class name:"
-											+ classname);
-									throw new ServiceManagerException(global,
-											SysErrorCode.USER_CONFIGURATION,
-											ME, "Could not resolve class name:"
-													+ classname);
-								}
-							}
-						}
-						boolean resolve = !(s.getResource()
-								.equals(Constants.INTERNAL_RESOURCE_MAP_ONLY));
-						boolean async = m.isSetAsync() ? m.getAsync() : false;
-
-						sa.setMethod(resolve,
-								MethodName.toMethodName(m.getName()),
-								m.getImplementation(), m.getReturn(), async,
-								parms == null ? null : clazzes.toArray());
-
-					}
-				}
-			}
-
-		} catch (XmlException e) {
-			log.warn("Could not parse config file:" + pathToConfig + ","
-					+ e.getMessage());
-			throw new ServiceManagerException(global, SysErrorCode.USER_CONFIGURATION,
-					ME, "Could not parse config file:" + pathToConfig + ","
-							+ e.getMessage());
-		} catch (IOException e) {
-			log.warn("Could not parse config file:" + pathToConfig + ","
-					+ e.getMessage());
-			throw new ServiceManagerException(global, SysErrorCode.USER_CONFIGURATION,
-					ME, "Could not parse config file:" + pathToConfig + ","
-							+ e.getMessage());
-		}
-
-	}
+//	public void loadConfiguration(String pathToConfig) throws ServiceManagerException {
+//		File f = new File(pathToConfig);
+//
+//		if (!f.exists()) {
+//			log.warn("Could not find config file:" + pathToConfig);
+//			throw new ServiceManagerException(global, SysErrorCode.USER_CONFIGURATION,
+//					ME, "Could not find config file:" + pathToConfig);
+//		}
+//
+//		try {
+//			MapperDocument mapper = MapperDocument.Factory.parse(f);
+//
+//			log.info("Loading mapper configuration id:"
+//					+ mapper.getMapper().getId() + ", version:"
+//					+ mapper.getMapper().getVersion());
+//
+//			this.configurationAuthor = mapper.getMapper().getAuthor();
+//			this.configurationID = mapper.getMapper().getId();
+//			this.configurationOrganization = mapper.getMapper()
+//					.getOrganization();
+//			this.configurationVersion = mapper.getMapper().getVersion();
+//
+//			for (Action action : mapper.getMapper().getActionArray()) {
+//				// add new entry
+//				Map<String, ServiceAttribute> servicemap = new HashMap<String, ServiceAttribute>();
+//				// this looks a bit complicated, but it is required to ensure
+//				// that there is no upper-lower case issues there...
+//				MethodName actionname = MethodName.toMethodName(action.getCategory());
+//				actionmap.put(actionname.getMethodName(), servicemap);
+//
+//				for (Action.Service s : action.getServiceArray()) {
+//					ServiceAttribute sa = new ServiceAttribute(this,
+//							s.getServiceid(), s.getServiceversion(),
+//							s.getResource());
+//					servicemap.put(s.getPath(), sa);
+//					// insert this entry into the actionmap
+//					// add methods
+//					for (Action.Service.Method m : s.getMethodArray()) {
+//
+//						// add signature if any or default to
+//						// ClientSessionProperties
+//
+//						List<Class<?>> clazzes = new ArrayList<Class<?>>();
+//
+//						Action.Service.Method.Parameters parms = m.getParameters();
+//						if (parms != null) {
+//							for (String classname : parms.getClass1Array()) {
+//								try {
+//									Class<?> c = Class.forName(classname);
+//									clazzes.add(c);
+//								} catch (ClassNotFoundException e) {
+//									log.warn("Could not resolve class name:"
+//											+ classname);
+//									throw new ServiceManagerException(global,
+//											SysErrorCode.USER_CONFIGURATION,
+//											ME, "Could not resolve class name:"
+//													+ classname);
+//								}
+//							}
+//						}
+//						boolean resolve = !(s.getResource()
+//								.equals(Constants.INTERNAL_RESOURCE_MAP_ONLY));
+//						boolean async = m.isSetAsync() ? m.getAsync() : false;
+//
+//						sa.setMethod(resolve,
+//								MethodName.toMethodName(m.getName()),
+//								m.getImplementation(), m.getReturn(), async,
+//								parms == null ? null : clazzes.toArray());
+//
+//					}
+//				}
+//			}
+//
+//		} catch (XmlException e) {
+//			log.warn("Could not parse config file:" + pathToConfig + ","
+//					+ e.getMessage());
+//			throw new ServiceManagerException(global, SysErrorCode.USER_CONFIGURATION,
+//					ME, "Could not parse config file:" + pathToConfig + ","
+//							+ e.getMessage());
+//		} catch (IOException e) {
+//			log.warn("Could not parse config file:" + pathToConfig + ","
+//					+ e.getMessage());
+//			throw new ServiceManagerException(global, SysErrorCode.USER_CONFIGURATION,
+//					ME, "Could not parse config file:" + pathToConfig + ","
+//							+ e.getMessage());
+//		}
+//
+//	}
 
 	/**
 	 * returns the method for path and method mapping definition

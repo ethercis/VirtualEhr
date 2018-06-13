@@ -24,6 +24,7 @@ This code is therefore supplied under LGPL 2.1
 //Copyright
 package com.ethercis.logonservice.security;
 
+import com.ethercis.authenticate.jwt.JwtAuthenticateProvider;
 import com.ethercis.logonservice.session.Session;
 import com.ethercis.servicemanager.annotation.*;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
@@ -61,7 +62,7 @@ import java.util.Map;
 		@RunLevelAction(onStartupRunlevel = 6, sequence = 1, action = "LOAD"),
 		@RunLevelAction(onShutdownRunlevel = 8, sequence = 5, action = "STOP") })
 
-public class ServiceSecurityManager extends ClusterInfo implements I_Manager, ServiceSecurityManagerMBean {
+public class ServiceSecurityManager extends ClusterInfo implements I_Manager, I_SecurityManager, ServiceSecurityManagerMBean {
 	private static Logger log = LogManager.getLogger(Constants.LOGGER_SECURITY);
 	private static String ME = ServiceSecurityManager.class.getName();
 //	private Policy policy;
@@ -175,6 +176,11 @@ public class ServiceSecurityManager extends ClusterInfo implements I_Manager, Se
                     throw new ServiceManagerException(glob, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Could not initialize Shiro framework:"+e);
                 }
                 break;
+			case "JWT":
+				policyMode = Constants.POLICY_JWT;
+				//initialize JWT security manager with the specified policy
+				new JwtAuthenticateProvider(glob).init();
+				break;
             default:
                 throw new IllegalArgumentException("Supplied policy mode is not supported:"+policyType);
 
@@ -200,6 +206,7 @@ public class ServiceSecurityManager extends ClusterInfo implements I_Manager, Se
 		return global;
 	}
 
+	@Override
 	public int getPolicyMode(){
 		return policyMode;
 	}

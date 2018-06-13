@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:mapper author="CCH" id="dummyMap" organization="org"
+	version="TEST" xmlns:tns="http://ehrserver.ethercis.com/servicemap"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ehrserver.ethercis.com/servicemap schemas/servicemap.xsd ">
+	<tns:action category="GET">
+		<tns:service>
+			<tns:resource>DummyTestService</tns:resource>
+			<tns:path>dummy</tns:path>
+			<tns:serviceid>DUMMY</tns:serviceid>
+			<tns:serviceversion>1.0</tns:serviceversion>
+			<tns:method>
+				<tns:name>get</tns:name>
+				<tns:implementation>method1</tns:implementation>
+				<tns:return>Base64</tns:return>
+			</tns:method>
+			<tns:method>
+				<tns:name>post</tns:name>
+				<tns:implementation>method2</tns:implementation>
+				<tns:return>Json</tns:return>
+			</tns:method>
+			<tns:method>
+				<tns:name>execute</tns:name>
+				<tns:implementation>method3</tns:implementation>
+				<tns:return>Html</tns:return>
+			</tns:method>
+			<tns:method async="true">
+				<tns:name>read</tns:name>
+				<tns:implementation>method4</tns:implementation>
+				<tns:return>Xml</tns:return>
+				<tns:parameters>
+					<tns:class>java.lang.String</tns:class>
+					<tns:class>java.lang.Integer</tns:class>
+					<tns:class>java.lang.Long</tns:class>
+				</tns:parameters>
+			</tns:method>
+			<tns:method>
+				<tns:name>ping</tns:name>
+				<tns:implementation>method5</tns:implementation>
+				<tns:return>Xml</tns:return>
+				<tns:parameters>
+					<tns:class>com.privantis.servicemanager.session.SessionClientProperties</tns:class>
+				</tns:parameters>
+			</tns:method>
+		</tns:service>
+		<tns:service>
+			<tns:resource>CalendarService</tns:resource>
+			<tns:path>calendar/appointment</tns:path>
+			<tns:serviceid>CalendarService</tns:serviceid>
+			<tns:serviceversion>1.0</tns:serviceversion>
+			<tns:method>
+				<tns:name>get</tns:name>
+				<tns:implementation>getAppointmentMonthly</tns:implementation>
+				<tns:return>Xml</tns:return>
+			</tns:method>
+		</tns:service>
+		<tns:service>
+			<tns:resource>__sys__MapOnly</tns:resource>
+			<tns:path>vehr/policy</tns:path>
+			<tns:method>
+				<tns:name>connect</tns:name>
+				<tns:return>Property</tns:return>
+			</tns:method>
+			<tns:method>
+				<tns:name>disconnect</tns:name>
+				<tns:return>Property</tns:return>
+			</tns:method>
+		</tns:service>
+	</tns:action>
+	<tns:action category="POST">
+		<tns:service>
+			<tns:resource>DummyTestService</tns:resource>
+			<tns:path>dummy</tns:path>
+			<tns:serviceid>DUMMY</tns:serviceid>
+			<tns:serviceversion>1.0</tns:serviceversion>
+			<tns:method>
+				<tns:name>post</tns:name>
+				<tns:implementation>method2</tns:implementation>
+				<tns:return>Json</tns:return>
+			</tns:method>
+		</tns:service>
+	</tns:action>
+</tns:mapper>

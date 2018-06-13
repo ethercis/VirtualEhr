@@ -36,6 +36,7 @@
                     <excludes>
                         <!-- don't enable test on access gate since it requires authorization implementation -->
                         <exclude>**/AccessGateTest.java</exclude>
+                        <exclude>**/LauncherTest.java</exclude>
                     </excludes>
                     <skipTests>false</skipTests>
                 </configuration>
@@ -80,6 +81,11 @@
                         <filter>
                             <artifact>*:*:*</artifact>
                             <excludes>
+                                <exclude>schemaorg_apache_xmlbeans/**</exclude>
+                                <exclude>org/apache/xmlbeans/**</exclude>
+                                <exclude>org/apache/shiro/**</exclude>
+                                <exclude>com/ethercis/mapping/**</exclude>
+                                <exclude>com/ethercis/ehrserver/**</exclude>
                                 <exclude>org/openehr/**</exclude>
                                 <exclude>org/jooq/**</exclude>
                                 <exclude>org/postgresql/**</exclude>
@@ -94,6 +100,7 @@
                             <exclude>ethercis:ecis-ehrdao</exclude>
                             <exclude>ethercis:aql-processor</exclude>
                             <exclude>ethercis:ecis-knowledge-cache</exclude>
+                            <exclude>ethercis:ecis-meta-data-cache</exclude>
                             <exclude>ethercis:jooq-pg</exclude>
                             <!-- service modules -->
                             <exclude>ethercis:ecis-servicemanager</exclude>
@@ -163,7 +170,7 @@
     <groupId>ethercis</groupId>
     <artifactId>ecis-vehr-service</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <name>vEhr gateway service and server launcher instance</name>
     <!--<repositories>-->
         <!--<repository>-->
@@ -182,6 +189,16 @@
             <artifactId>ecis-servicemanager</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jsr173_api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-authenticate-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>ethercis</groupId>-->
             <!--<artifactId>session-logger-service</artifactId>-->
@@ -193,6 +210,109 @@
             <groupId>ethercis</groupId>
             <artifactId>ecis-ehr-service</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-composition-service</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-party-identified-service</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-query-service</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-knowledge-cache</artifactId>
+            <version>${project.version}</version>
+            <!--<scope>test</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-ehrdao</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>jooq-pg</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>aql-processor</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-validation</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-transform</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-webtemplate</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-meta-data-cache</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-knowledge-service</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-resource-access-service</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-party-identified-service</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-system-service</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ethercis</groupId>
+            <artifactId>ecis-query-service</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.xbean</groupId>
@@ -208,22 +328,37 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.3.11.M0</version>
+            <version>9.4.10.v20180503</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>9.3.11.M0</version>
+            <version>9.4.10.v20180503</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlets</artifactId>
-            <version>9.3.11.M0</version>
+            <version>9.4.10.v20180503</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
-            <version>9.3.11.M0</version>
+            <version>9.4.10.v20180503</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-monitor</artifactId>
+            <version>9.4.0.M0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-jmx</artifactId>
+            <version>9.4.10.v20180503</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-jmx</artifactId>
+            <version>9.4.10.v20180503</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -287,13 +422,6 @@
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
         </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -305,16 +433,30 @@
             <artifactId>jackson-datatype-joda</artifactId>
             <version>2.7.2</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.core</groupId>-->
+            <!--<artifactId>jackson-core</artifactId>-->
+            <!--<version>2.8.5</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.8.5</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
             <version>1.3.1</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>ethercis</groupId>
-            <artifactId>ecis-party-identified-service</artifactId>
+            <artifactId>jooq-pg</artifactId>
             <version>${project.version}</version>
+            <!--<scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>openehr</groupId>
@@ -323,6 +465,28 @@
                 1.0.14-ec1-SNAPSHOT
             </version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-client</artifactId>
+            <version>9.4.10.v20180503</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-http-client-transport</artifactId>
+            <version>9.4.10.v20180503</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-openjdk8-server</artifactId>
+            <version>9.4.10.v20180503</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-openjdk8-client</artifactId>
+            <version>9.4.10.v20180503</version>
         </dependency>
     </dependencies>
     <!--DON'T GENERATE PROJECT INFO REPORT-->

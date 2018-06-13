@@ -78,6 +78,7 @@ public class PartyIdentifiedService extends ServiceDataCluster implements I_Part
         }
     )
     public Integer delete(I_SessionClientProperties props) throws ServiceManagerException {
+        queryProlog(props);
         UUID uuid = UUID.fromString(props.getClientProperty("id", ""));
         return I_PartyIdentifiedAccess.deleteInstance(getDataAccess(), uuid);
     }

@@ -1,0 +1,158 @@
+ <!--
+    
+    Deployment configuration XML schema
+   
+    Author: C. Chevalley
+-->
+<xs:schema targetNamespace="http://ehrserver.ethercis.com/definitions/1.0"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:cns="http://ehrserver.ethercis.com/definitions/1.0"
+    elementFormDefault="qualified"
+    version="0.1">
+    <!--xmlns:rs="http://oak.austco.com/resident/0.1"-->
+    <xs:annotation>
+        <xs:documentation>
+            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                <body>
+                    <h1>Service Definitions Configuration Schema</h1>
+                    <p>
+                        Defines the structure of the service configurations. The ROOT element of this schema is "definitions"
+                        The sequence of elements is as follows:
+                    </p>
+                    <ul>
+                        <li>DoW: Day of Week</li>  
+                    </ul>
+                    <H1>Specific information</H1>
+                    <h2>Duration</h2>
+                    <p>the duration type format follows ISO 8601:<br/>
+                        PnYnMnDTnHnMnS, where P defines the duration type: for instance
+                        PT2H30M10S stands for a duration of 2hrs, 30mns, 10 secs.
+                        The standard can be found at: <a href="http://www.iso.ch/iso/en/prods-services/popstds/datesandtime.html">ISO</a>
+                        and explanation about how this standard applies to XML is found <a href="http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#adding-durations-to-dateTimes">
+                            here</a>
+                    </p>
+                    <h2>Imported schemas</h2>
+                    <ul>
+                        <li><strong>messages </strong>definitions of localized errors, literals and menu items</li>
+                        <li><strong>oakids </strong>definition of the syntax used for IDs and IDREFs</li>                        
+                    </ul>
+                    <h3>Version</h3>
+                    <p>$Header$</p>
+                </body></html>     
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name="installerInfo">
+        <xs:sequence>
+            <xs:element name="installerName" type="xs:string"/>
+            <xs:element name="contactPhone" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="deploymentInfo">
+        <xs:sequence>
+            <xs:element name="contactPhone" type="xs:string"/>
+            <xs:element name="streetAddress" type="xs:string"/>
+            <xs:element name="suburb" type="xs:string"/>
+            <xs:element name="townCity" type="xs:string"/>
+            <xs:element name="postCode" type="xs:string"/>
+            <xs:element name="country" type="xs:string"/>
+            <xs:element name="locationNaming" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="ActivationTimes">
+        <xs:annotation>
+            <xs:documentation>
+                ActivationTimes type to specify start and stop time of a period. 
+                If one of the boundary is missing then it is substituted by respectively
+                the beginning (start) or end (stop) of the day.
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:simpleContent>
+            <xs:extension base="xs:anySimpleType">
+                <xs:attribute name="start" type="xs:time" use="optional"/>
+                <xs:attribute name="stop" type="xs:time" use="optional"/>               
+            </xs:extension>
+        </xs:simpleContent>        
+    </xs:complexType>      
+      
+    <xs:complexType name="DoW">
+        <xs:annotation>
+            <xs:documentation>
+                DoW type is defined to allow to set an "ON/OFF" (true|false) 
+                attribute on the day of the week for example: <Saturday stat="1"/>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <!-- if both start and stop time are not specified, assume allways active -->
+            <!-- activation may consist of a sequence of periods -->
+            <xs:element name="period" type="cns:ActivationTimes" minOccurs="0"  maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="stat" type="xs:boolean" use="required"/>
+    </xs:complexType>
+  
+    <xs:complexType name="WeekPlan">
+	<xs:annotation>
+		<xs:documentation>
+			The WeekPlan allows to set a week base planning
+		</xs:documentation>
+	</xs:annotation>
+        <xs:sequence>
+            <!-- Group can be restricted to given periods/days -->
+            <xs:element name="Monday" type="cns:DoW"/>
+            <xs:element name="Tuesday" type="cns:DoW"/>
+            <xs:element name="Wednesday" type="cns:DoW"/>
+            <xs:element name="Thursday" type="cns:DoW"/>
+            <xs:element name="Friday" type="cns:DoW"/>
+            <xs:element name="Saturday" type="cns:DoW"/>                                            
+            <xs:element name="Sunday" type="cns:DoW"/>
+        </xs:sequence>        
+    </xs:complexType>
+
+    <xs:complexType name="ClusterInfo">
+        <xs:sequence>
+            <xs:element name="URL" type="xs:string">
+                
+            </xs:element>
+            <xs:element name="ServerSiteID" type="xs:string">
+                
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!--The site configuration-->
+    <xs:element name="definitions">
+        <xs:annotation>
+            <xs:documentation>
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml">
+                    <body>
+                        <h1>Definitions Element</h1>
+                        <p>The definition element is the global container (eg. the ROOT element) which holds all
+                            the definition, rules and configuration for a given deployment.
+                        </p>
+                        <h2>Object key attributes</h2>
+                        <ul>
+                            <li><strong>ID </strong>the unique id of this deployment (syntax is strictly enforced)</li>
+                        </ul>
+                        <p>the deployment element <strong>must</strong> contain a version attribute (which format is free)</p>
+                        <h2>Foreign keys</h2>
+                        <p>None</p>
+                    </body>
+                </html>                                                                                                                
+            </xs:documentation>
+        </xs:annotation>        
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="SiteAddress" type="cns:deploymentInfo"/>
+                <xs:element name="InstallerInformation" type="cns:installerInfo"/>
+                <xs:element name="ClusterInformation" type="cns:ClusterInfo"/>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:ID" use="required"/>
+            <xs:attribute name="version" type="xs:token" use="required"/>
+            <xs:attribute name="name" type="xs:string" use="optional"/>
+            <xs:attribute name="serverAddress" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

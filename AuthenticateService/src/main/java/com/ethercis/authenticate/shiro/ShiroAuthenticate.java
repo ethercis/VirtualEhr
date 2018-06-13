@@ -135,6 +135,12 @@ public class ShiroAuthenticate implements I_Authenticate {
 
         return checkPrivateCredentials(userid, credential);
 	}
+
+	@Override
+	public boolean checkCredential() throws ServiceManagerException {
+		return false;
+	}
+
 	/**
 	 * not used.
 	 * @param logonId

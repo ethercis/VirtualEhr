@@ -56,11 +56,11 @@ import java.util.*;
  * ETHERCIS Project VirtualEhr
  * Created by Christian Chevalley on 6/30/2015.
  */
-@Service(id ="EhrService", version="1.0", system=true)
+@Service(id = "EhrService", version = "1.0", system = true)
 
 @RunLevelActions(value = {
         @RunLevelAction(onStartupRunlevel = 9, sequence = 4, action = "LOAD"),
-        @RunLevelAction(onShutdownRunlevel = 9, sequence = 4, action = "STOP") })
+        @RunLevelAction(onShutdownRunlevel = 9, sequence = 4, action = "STOP")})
 
 public class EhrService extends ServiceDataCluster implements I_EhrService, EhrServiceMBean {
 
@@ -72,13 +72,13 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
     private Logger log = LogManager.getLogger(EhrService.class);
 
     @Override
-    public void doInit(RunTimeSingleton global, ServiceInfo serviceInfo)throws ServiceManagerException {
+    public void doInit(RunTimeSingleton global, ServiceInfo serviceInfo) throws ServiceManagerException {
         super.doInit(global, serviceInfo);
 
         //get the resolution mode for subject
         subjectMode = EhrAccess.PARTY_MODE.valueOf(global.getProperty().get("ehr.subject.mode", EhrAccess.PARTY_MODE.EXTERNAL_REF.toString()));
 
-        log.info("Subject identification mode is set to:"+subjectMode.name());
+        log.info("Subject identification mode is set to:" + subjectMode.name());
 
         //get a resource service instance
         putObject(I_Info.JMX_PREFIX + ME, this);
@@ -89,7 +89,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
     public UUID create(UUID partyId, UUID systemId) throws Exception {
         //check if an Ehr already exists for this party
         if (I_EhrAccess.checkExist(getDataAccess(), partyId))
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Specified party has already an EHR set (partyId="+partyId+")");
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Specified party has already an EHR set (partyId=" + partyId + ")");
 
         I_EhrAccess ehrAccess = I_EhrAccess.getInstance(getDataAccess(), partyId, systemId, null, null);
         return ehrAccess.commit(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
@@ -99,11 +99,11 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
     public UUID create(UUID partyId, UUID systemId, Object otherDetails, String otherDetailsTemplateId) throws Exception {
         //check if an Ehr already exists for this party
         if (I_EhrAccess.checkExist(getDataAccess(), partyId))
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Specified party has already an EHR set (partyId="+partyId+")");
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Specified party has already an EHR set (partyId=" + partyId + ")");
 
         I_EhrAccess ehrAccess = I_EhrAccess.getInstance(getDataAccess(), partyId, systemId, null, null);
-        if (otherDetails instanceof String && otherDetails != null && otherDetailsTemplateId != null){
-            String otherDetailsStr = (String)otherDetails;
+        if (otherDetails instanceof String && otherDetails != null && otherDetailsTemplateId != null) {
+            String otherDetailsStr = (String) otherDetails;
             if (otherDetailsStr.startsWith("<")) { //assume XML
                 //the xml string is given within a CDATA
                 otherDetailsStr = otherDetailsStr.replace("<![CDATA[", "");
@@ -113,11 +113,9 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             }
             if (otherDetailsStr.startsWith("{")) { //assume JSON
                 ehrAccess.setOtherDetails(otherDetailsStr, otherDetailsTemplateId);
-            }
-            else
-                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Could not identify other_details format:"+otherDetailsStr);
-        }
-        else if (otherDetails instanceof Map){
+            } else
+                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Could not identify other_details format:" + otherDetailsStr);
+        } else if (otherDetails instanceof Map) {
             Map<String, Object> other_details = new HashMap<>();
             other_details.put(CompositionSerializer.TAG_OTHER_DETAILS.substring(1), otherDetails);
             ehrAccess.setOtherDetails(other_details, null);
@@ -126,7 +124,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
     }
 
     @Override
-    public UUID retrieve(String subjectId, String nameSpace){
+    public UUID retrieve(String subjectId, String nameSpace) {
 
         UUID subjectUuid;
         switch (subjectMode) {
@@ -137,7 +135,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
                 subjectUuid = I_PartyIdentifiedAccess.findReferencedParty(getDataAccess(), subjectId, CompositionAttributesHelper.DEMOGRAPHIC, nameSpace, CompositionAttributesHelper.PARTY);
                 return I_EhrAccess.retrieveInstanceBySubject(getDataAccess(), subjectUuid);
         }
-        return  null;
+        return null;
     }
 
     @Override
@@ -151,9 +149,9 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "GET", method = "get", path = "rest/v1/ehr", responseType = ResponseType.Json)
     })
     public Object retrieve(I_SessionClientProperties props) throws Exception {
-        auditSetter.handleProperties(getDataAccess(), props);
+        queryProlog(props);
         String subjectId = props.getClientProperty(I_EhrService.SUBJECTID_PARAMETER, (String) null);
-        String nameSpace = props.getClientProperty(I_EhrService.SUBJECTNAMESPACE_PARAMETER, (String)null);
+        String nameSpace = props.getClientProperty(I_EhrService.SUBJECTNAMESPACE_PARAMETER, (String) null);
         String sessionId = auditSetter.getSessionId();
         I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, "XML"));
 
@@ -181,24 +179,22 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Invalid or null ehrId");
         }
 
-        Map<String, String> subjectIds = I_EhrAccess.fetchSubjectIdentifiers(getDataAccess(), ehrUuid);
+        Map<String, Object> subjectIds = I_EhrAccess.fetchSubjectIdentifiers(getDataAccess(), ehrUuid);
         I_SystemAccess systemAccess = I_SystemAccess.retrieveInstance(getDataAccess(), ehrAccess.getSystemId());
 
-        HashMap statusMap = new HashMap(){{
+        HashMap statusMap = new HashMap() {{
             put(SUBJECT_IDS, subjectIds);
             put(QUERYABLE, ehrAccess.isQueryable());
             put(MODIFIABLE, ehrAccess.isModifiable());
-            if (ehrAccess.isSetOtherDetails()){
-                put(OTHER_DETAILS, "<![CDATA["+ehrAccess.exportOtherDetailsXml()+"]]>");
+            if (ehrAccess.isSetOtherDetails()) {
+                put(OTHER_DETAILS, "<![CDATA[" + ehrAccess.exportOtherDetailsXml() + "]]>");
                 put(OTHER_DETAILS_TEMPLATE_ID, ehrAccess.getOtherDetailsTemplateId());
-            }
-            else if (ehrAccess.isSetOtherDetailsSerialized()){
-                if (format.equals(I_CompositionService.CompositionFormat.ECISFLAT)){
+            } else if (ehrAccess.isSetOtherDetailsSerialized()) {
+                if (format.equals(I_CompositionService.CompositionFormat.ECISFLAT)) {
                     Map<String, Object> retmap = gson.fromJson(ehrAccess.getOtherDetailsSerialized(), TreeMap.class);
                     Map<String, String> flatten = new EcisFlattener().generateEcisFlat(retmap);
                     put(OTHER_DETAILS, flatten);
-                }
-                else {
+                } else {
                     Map<String, Object> retmap = gson.fromJson(ehrAccess.getOtherDetailsSerialized(), TreeMap.class);
                     put(OTHER_DETAILS, retmap);
                 }
@@ -212,7 +208,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
         retmap.put("action", "RETRIEVE");
         retmap.put("ehrStatus", statusMap);
         retmap.put(I_EhrService.EHRID_PARAMETER, ehrUuid.toString());
-        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + I_CompositionService.EHR_ID+"="+ehrUuid);
+        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + I_CompositionService.EHR_ID + "=" + ehrUuid);
         retmap.putAll(metaref);
 
         return retmap;
@@ -223,14 +219,13 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "GET", method = "get", path = "rest/v1/ehr/status", responseType = ResponseType.Json)
     })
     public Object retrieveStatus(I_SessionClientProperties props) throws Exception {
-        auditSetter.handleProperties(getDataAccess(), props);
+        queryProlog(props);
         UUID ehrUuid;
 //        try {
         String ehrId = props.getClientProperty(I_EhrService.EHRID_PARAMETER, (String) null);
         if (ehrId != null) {
             ehrUuid = UUID.fromString(ehrId);
-        }
-        else {
+        } else {
             //assume retrieve ehr with subjectId and subjectNameSpace
             return retrieve(props);
         }
@@ -254,13 +249,13 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "POST", method = "post", path = "rest/v1/ehr", responseType = ResponseType.Json)
     })
     public Object create(I_SessionClientProperties props) throws Exception {
-        auditSetter.handleProperties(getDataAccess(), props);
+        queryProlog(props);
         String subjectIdCode = props.getClientProperty(I_EhrService.SUBJECTID_PARAMETER, (String) null);
         String subjectNameSpace = props.getClientProperty(I_EhrService.SUBJECTNAMESPACE_PARAMETER, (String) null);
         String systemSettings = props.getClientProperty(SYSTEM_SETTINGS, (String) null);
 
         //get body stuff
-        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String)null);
+        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String) null);
 
         Object otherDetails = null;
         String otherDetailsTemplateId = null;
@@ -270,7 +265,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             Map<String, Object> atributes = json.fromJson(content, Map.class);
 
             otherDetails = atributes.getOrDefault(OTHER_DETAILS, null);
-            otherDetailsTemplateId = (String)atributes.getOrDefault(OTHER_DETAILS_TEMPLATE_ID, null);
+            otherDetailsTemplateId = (String) atributes.getOrDefault(OTHER_DETAILS_TEMPLATE_ID, null);
         }
 
         String sessionId = auditSetter.getSessionId();
@@ -288,19 +283,19 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
                     subjectUuid = I_PartyIdentifiedAccess.getOrCreatePartyByExternalRef(getDataAccess(), null, subjectIdCode, CompositionAttributesHelper.DEMOGRAPHIC, subjectNameSpace, CompositionAttributesHelper.PARTY);
                     break;
             }
-        } catch (Exception e){
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Ehr cannot be created, there is no existing subject with this identifier:"+subjectIdCode+"::"+subjectNameSpace);
+        } catch (Exception e) {
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Ehr cannot be created, there is no existing subject with this identifier:" + subjectIdCode + "::" + subjectNameSpace);
         }
 
         if (subjectUuid == null)
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Subject is not existing for id code="+subjectIdCode+" ,issuer="+subjectNameSpace);
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Subject is not existing for id code=" + subjectIdCode + " ,issuer=" + subjectNameSpace);
 
         UUID systemId = null;
-        if (systemSettings != null){ //NB: a systemSettings == null is valid, it is defaulted to the local system
+        if (systemSettings != null) { //NB: a systemSettings == null is valid, it is defaulted to the local system
             try {
                 systemId = I_SystemAccess.retrieveInstanceId(getDataAccess(), systemSettings);
             } catch (Exception e) {
-                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "System is not existing for settings="+systemSettings);
+                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "System is not existing for settings=" + systemSettings);
             }
         }
 
@@ -308,7 +303,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
 
         Map<String, Object> retmap = new HashMap<>();
         retmap.put(I_EhrService.EHRID_PARAMETER, ehrId.toString());
-        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + I_CompositionService.EHR_ID+"="+ehrId);
+        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + I_CompositionService.EHR_ID + "=" + ehrId);
         retmap.putAll(metaref);
         retmap.put("action", "CREATE");
 
@@ -322,15 +317,15 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "PUT", method = "put", path = "rest/v1/ehr/status", responseType = ResponseType.Json)
     })
     public Object updateStatus(I_SessionClientProperties props) throws Exception {
-        auditSetter.handleProperties(getDataAccess(), props);
+        queryProlog(props);
         String sessionId = auditSetter.getSessionId();
         UUID ehrId = UUID.fromString(props.getClientProperty(I_EhrService.EHRID_PARAMETER, (String) null));
 
-        if (ehrId == null )
+        if (ehrId == null)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "No valid ehr Id parameter found in query");
 
         //get body stuff
-        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String)null);
+        String content = props.getClientProperty(Constants.REQUEST_CONTENT, (String) null);
 
         if (content == null)
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "Content cannot be empty for updating ehr status");
@@ -342,7 +337,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Passed ehr Id does not match an existing EHR");
 
         //check for other_details
-        if (props.getClientProperties().containsKey("other_details")){
+        if (props.getClientProperties().containsKey("other_details")) {
             I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, I_CompositionService.CompositionFormat.ECISFLAT.toString()));
             if (format.equals(I_CompositionService.CompositionFormat.XML)) {
                 Gson json = new GsonBuilder().create();
@@ -355,8 +350,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
                 Locatable itemStructure = I_ContentBuilder.parseOtherDetailsXml(new ByteArrayInputStream(otherDetailsXml.getBytes()));
                 ehrAccess.setOtherDetails(itemStructure, otherDetailsTemplateId);
                 ehrAccess.update(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), null, I_ConceptAccess.ContributionChangeType.modification, auditSetter.getDescription(), true);
-            }
-            else if (format.equals(I_CompositionService.CompositionFormat.RAW)){
+            } else if (format.equals(I_CompositionService.CompositionFormat.RAW)) {
                 Gson json = new GsonBuilder().create();
                 Map<String, Object> attributes = json.fromJson(content, Map.class);
                 String otherDetailsRaw = (String) attributes.getOrDefault(OTHER_DETAILS, null);
@@ -367,12 +361,10 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
                 ehrAccess.setOtherDetails(serialized, otherDetailsTemplateId);
                 ehrAccess.update(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), null, I_ConceptAccess.ContributionChangeType.modification, auditSetter.getDescription(), true);
 
+            } else {
+                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "format for other_details is not supported:" + format);
             }
-            else {
-                throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "format for other_details is not supported:"+format);
-            }
-        }
-        else {
+        } else {
 
             //get the map structure from the passed content string
             Gson json = new GsonBuilder().create();
@@ -415,7 +407,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
         Map<String, Object> retmap = new HashMap<>();
         retmap.put(I_EhrService.EHRID_PARAMETER, ehrId.toString());
         retmap.put("action", "UPDATE");
-        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + I_CompositionService.EHR_ID+"="+ehrId);
+        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + I_CompositionService.EHR_ID + "=" + ehrId);
         retmap.putAll(metaref);
         setSessionEhr(sessionId, ehrId);
 
@@ -426,7 +418,8 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
     private void setSessionEhr(String sessionId, UUID ehrId) throws ServiceManagerException {
         I_SessionManager sessionManager = getRegisteredService(getGlobal(), "LogonService", "1.0", null);
         //retrieve the session manager
-        sessionManager.getSessionUserMap(sessionId).put(I_CompositionService.EHR_ID, ehrId);
+        if (sessionManager != null)
+            sessionManager.getSessionUserMap(sessionId).put(I_CompositionService.EHR_ID, ehrId);
     }
 
     @QuerySetting(dialect = {
@@ -434,7 +427,7 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "DELETE", method = "delete", path = "rest/v1/ehr", responseType = ResponseType.String)
     })
     public String delete(I_SessionClientProperties props) throws ServiceManagerException {
-        auditSetter.handleProperties(getDataAccess(), props);
+        queryProlog(props);
         String ehrId = props.getClientProperty(I_EhrService.EHRID_PARAMETER, (String) null);
 
         if (ehrId == null || ehrId.length() == 0)
@@ -453,10 +446,9 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             if (result > 0)
                 return "Done";
             else
-                return "Could not delete Ehr (id="+ehrId+")";
-        }
-        catch (Exception e){
-            throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_UNAVAILABLE, ME, "Problem accessing DB"+e.getMessage());
+                return "Could not delete Ehr (id=" + ehrId + ")";
+        } catch (Exception e) {
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_UNAVAILABLE, ME, "Problem accessing DB" + e.getMessage());
         }
 
 

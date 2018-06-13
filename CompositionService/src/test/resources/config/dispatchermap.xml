@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:mapper author="CCH" id="dummyMap" organization="org"
+	version="TEST" xmlns:tns="http://ehrserver.ethercis.com/definitions/1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ehrserver.ethercis.com/definitions/1.0 ../schemas/servicemap.xsd ">
+	<tns:action category="GET">
+		<tns:service>
+			<tns:resource>LogonService</tns:resource>
+			<tns:path>vehr</tns:path>
+			<tns:serviceid>LogonService</tns:serviceid>
+			<tns:serviceversion>1.0</tns:serviceversion>
+			<tns:method>
+				<tns:name>connect</tns:name>
+				<tns:implementation>connect</tns:implementation>
+				<tns:return>Property</tns:return>
+			</tns:method>
+			<tns:method>
+				<tns:name>disconnect</tns:name>
+				<tns:implementation>disconnect</tns:implementation>
+				<tns:return>Void</tns:return>
+			</tns:method>
+		</tns:service>
+		
+		<tns:service>
+			<tns:resource>__sys__MapOnly</tns:resource>
+			<tns:path>vehr/policy</tns:path>
+			<tns:method>
+				<tns:name>get</tns:name>
+				<tns:return>Void</tns:return>
+			</tns:method>
+			<tns:method>
+				<tns:name>exist</tns:name>
+				<tns:return>String</tns:return>
+			</tns:method>
+			<tns:method>
+				<tns:name>view</tns:name>
+				<tns:return>XmlArray</tns:return>
+			</tns:method>
+			<tns:method>
+				<tns:name>execute</tns:name>
+				<tns:return>Void</tns:return>
+			</tns:method>
+		</tns:service>
+	</tns:action>
+	<tns:action category="POST">
+		<tns:service>
+			<tns:resource>__sys__MapOnly</tns:resource>
+			<tns:path>vehr/policy</tns:path>
+			<tns:method>
+				<tns:name>change</tns:name>
+				<tns:return>XmlArray</tns:return>
+			</tns:method>
+			<tns:method>
+				<tns:name>extend</tns:name>
+				<tns:return>XmlArray</tns:return>
+			</tns:method>
+		</tns:service>
+		
+	</tns:action>
+</tns:mapper>
