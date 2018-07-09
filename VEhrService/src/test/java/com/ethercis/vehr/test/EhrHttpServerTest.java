@@ -5,15 +5,10 @@ import com.ethercis.logonservice.session.I_SessionManager;
 import com.ethercis.partyservice.I_PartyIdentifiedService;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
-import com.ethercis.vehr.Launcher;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.sun.javafx.binding.StringFormatter;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
@@ -21,12 +16,14 @@ import org.eclipse.jetty.client.util.BytesContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.util.*;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -297,7 +294,7 @@ public class EhrHttpServerTest extends TestServerSimulator {
         String sessionId = response.getHeaders().get(I_SessionManager.SECRET_SESSION_ID(I_ServiceRunMode.DialectSpace.EHRSCAPE));
         //generate a random subjectCodeId
         Integer integer = new Random().nextInt();
-        String id = StringFormatter.format("%d", Math.abs(integer % 9999)).getValue();
+        String id = String.format("%d", Math.abs(integer % 9999));
         String subjectId = subjectCodePrefix + id;
         Request request = client.newRequest("http://" + hostname + ":" + httpPort + "/rest/v1/ehr?subjectId=" + subjectId + "&subjectNamespace=" + subjectNameSpace);
 
