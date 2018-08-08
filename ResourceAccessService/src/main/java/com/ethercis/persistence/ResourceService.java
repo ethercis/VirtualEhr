@@ -86,12 +86,21 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
         Map<String, Object> properties = new HashMap<>();
         properties.put(I_DomainAccess.KEY_KNOWLEDGE, knowledgeService.getKnowledgeCache());
 
+        //add the properties of interest
+
+        for (Object key: global.getProperty().getProperties().keySet()){
+            //we do this to perform environment substitution
+            if (key instanceof String && ((String) key).startsWith(I_DomainAccess.KEY_PGJDBC_PREFIX)){
+                properties.put((String)key, get((String)key, null));
+            }
+        }
+
         switch (implementation){
             case "jooq":
                 properties.put(I_DomainAccess.KEY_DIALECT, get(Constants.SERVER_PERSISTENCE_JOOQ_DIALECT, "POSTGRES"));
                 properties.put(I_DomainAccess.KEY_URL, get(Constants.SERVER_PERSISTENCE_JOOQ_URL, null));
-                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, "postgres"));
-                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, "postgres"));
+                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, null));
+                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, null));
 
                 try {
                     domainAccess = I_DomainAccess.getInstance(properties);
@@ -108,8 +117,8 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
 //                properties.put(I_DomainAccess.KEY_SCHEMA, get("server.persistence.jooq.dialect", "ehr"));
                 properties.put(I_DomainAccess.KEY_HOST, get(Constants.SERVER_PERSISTENCE_JOOQ_HOST, null));
                 properties.put(I_DomainAccess.KEY_PORT, get(Constants.SERVER_PERSISTENCE_JOOQ_PORT, null));
-                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, "postgres"));
-                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PORT, "postgres"));
+                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, null));
+                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, null));
                 properties.put(I_DomainAccess.KEY_MAX_CONNECTION, get(Constants.SERVER_PERSISTENCE_JOOQ_MAX_CONNECTIONS, "10"));
 
                 try {
@@ -124,8 +133,8 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
                 properties.put(I_DomainAccess.KEY_CONNECTION_MODE, I_DomainAccess.DBCP2_POOL);
                 properties.put(I_DomainAccess.KEY_DIALECT, get(Constants.SERVER_PERSISTENCE_JOOQ_DIALECT, "POSTGRES"));
                 properties.put(I_DomainAccess.KEY_URL, get(Constants.SERVER_PERSISTENCE_JOOQ_URL, null));
-                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, "postgres"));
-                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, "postgres"));
+                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, null));
+                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, null));
 
                 properties.put(I_DomainAccess.KEY_MAX_IDLE, get(Constants.SERVER_PERSISTENCE_MAX_IDLE, null));
                 properties.put(I_DomainAccess.KEY_MAX_ACTIVE, get(Constants.SERVER_PERSISTENCE_MAX_ACTIVE, null));

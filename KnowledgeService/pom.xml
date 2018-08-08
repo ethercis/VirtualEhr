@@ -164,7 +164,7 @@
     <groupId>ethercis</groupId>
     <artifactId>ecis-knowledge-service</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
     <name>Service implementation to manage access cache knowledge</name>
     <dependencies>
         <dependency>

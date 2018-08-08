@@ -4,7 +4,7 @@
   <groupId>ethercis</groupId>
   <artifactId>ecis-system-service</artifactId>
   <name>Service implementation to manage System entities</name>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.3.0-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>
@@ -135,25 +135,25 @@
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-core</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.3.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-ehrdao</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.3.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-resource-access-service</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.3.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ethercis</groupId>
       <artifactId>ecis-servicemanager</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.3.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
