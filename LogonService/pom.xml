@@ -25,6 +25,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <user.deploy>../../ethercis-deploy</user.deploy>
         <user.localDirectoryPath>${user.home}/.m2/repository</user.localDirectoryPath>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     </properties>
     <build>
         <plugins>
@@ -159,6 +161,40 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <file>${basedir}/src/main/java/com/ethercis/logonservice/BuildVersion.java</file>
+                    <replacements>
+                        <replacement>
+                            <token>projectId = ".*"</token>
+                            <value>projectId = "${project.name}"</value>
+                        </replacement>
+                        <replacement>
+                            <token>versionNumber = ".*"</token>
+                            <value>versionNumber = "${project.version}"</value>
+                        </replacement>
+                        <replacement>
+                            <token>buildDate = ".*"</token>
+                            <value>buildDate = "${timestamp}"</value>
+                        </replacement>
+                        <replacement>
+                            <token>buildUser = ".*"</token>
+                            <value>buildUser = "${user.name}"</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
             </plugin>
         </plugins>
     </build>

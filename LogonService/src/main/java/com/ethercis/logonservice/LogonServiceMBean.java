@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Christian Chevalley
+ * Copyright (c) Ripple Foundation CIC Ltd, UK, 2017
+ * Author: Christian Chevalley
  * This file is part of Project Ethercis
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//Copyright
-package com.ethercis.authenticate.service;
+
+
+package com.ethercis.logonservice;
 
 import com.ethercis.servicemanager.jmx.BuildMetaData;
 
-public interface AuthenticateServiceMBean extends BuildMetaData{
-	String getType();
-	String getVersion();
+/**
+ * ETHERCIS Project VirtualEhr
+ * Created by Christian Chevalley on 6/1/2015.
+ */
+public interface LogonServiceMBean extends BuildMetaData {
+    String getType();
+    String getVersion();
+
+    String getLogonParameter();
+    String getPasswordParameter();
+    String getSessionIdParameter();
+    void setLogonParameter(String val);
+    void setPasswordParameter(String val);
+    void setSessionIdParameter(String val);
 }

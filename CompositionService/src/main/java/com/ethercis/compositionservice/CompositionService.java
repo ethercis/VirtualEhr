@@ -28,7 +28,6 @@ import com.ethercis.ehr.encode.EncodeUtil;
 import com.ethercis.ehr.encode.I_CompositionSerializer;
 import com.ethercis.ehr.json.FlatJsonUtil;
 import com.ethercis.ehr.keyvalues.EcisFlattener;
-import com.ethercis.ehr.knowledge.I_CacheKnowledgeService;
 import com.ethercis.ehr.util.FlatJsonCompositionConverter;
 import com.ethercis.ehr.util.I_FlatJsonCompositionConverter;
 import com.ethercis.logonservice.session.I_SessionManager;
@@ -43,6 +42,7 @@ import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.systemservice.I_SystemService;
@@ -52,7 +52,6 @@ import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.joda.time.DateTime;
 import org.jooq.exception.DataAccessException;
 import org.openehr.rm.composition.Composition;
 
@@ -82,7 +81,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
     final private String ME = "CompositionService";
     final private String Version = "1.0";
     private Logger log = LogManager.getLogger(CompositionService.class);
-    private I_CacheKnowledgeService knowledgeCache;
+//    private I_CacheKnowledgeService knowledgeCache;
     private I_SystemService systemService;
     private boolean useNamespaceInCompositionId = false;
     private boolean supportCompositionXRef = false; //if set to false, will not try to link compositions
@@ -94,15 +93,16 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         //get the knowledge cache for composition handlers
         useNamespaceInCompositionId = global.getProperty().get("composition.uid.namespace", true);
         supportCompositionXRef = global.getProperty().get("composition.xref", false);
-        knowledgeCache = getRegisteredService(getGlobal(), "CacheKnowledgeService", "1.0");
+//        knowledgeCache = getRegisteredService(getGlobal(), "CacheKnowledgeService", "1.0");
 
         if (supportCompositionXRef)
             log.info("Composition Service XREF support enabled");
 
-        if (knowledgeCache == null)
-            throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Cache knowledge service [CacheKnowledgeService,1.0] is not running, aborting");
+//        if (knowledgeCache == null)
+//            throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Cache knowledge service [CacheKnowledgeService,1.0] is not running, aborting");
 
-        putObject(I_Info.JMX_PREFIX + ME, this);
+//        putObject(I_Info.JMX_PREFIX + ME, this);
+        AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), CompositionServiceMBean.class, this);
 
         log.info("Composition service started...");
     }
@@ -474,6 +474,47 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             return;
         I_CompoXrefAccess compoXrefAccess = new CompoXRefAccess(getDataAccess());
         compoXrefAccess.setLink(master, child);
+    }
+
+
+    @Override
+    public String getBuildVersion() {
+        return BuildVersion.versionNumber;
+    }
+
+    @Override
+    public String getBuildId() {
+        return BuildVersion.projectId;
+    }
+
+    @Override
+    public String getBuildDate() {
+        return BuildVersion.buildDate;
+    }
+
+    @Override
+    public String getBuildUser() {
+        return BuildVersion.buildUser;
+    }
+
+    @Override
+    public boolean getUseNamespaceInCompositionId() {
+        return useNamespaceInCompositionId;
+    }
+
+    @Override
+    public boolean getSupportCompositionXRef() {
+        return supportCompositionXRef;
+    }
+
+    @Override
+    public void setUseNamespaceInCompositionId(boolean val) {
+        useNamespaceInCompositionId = val;
+    }
+
+    @Override
+    public void setSupportCompositionXRef(boolean val) {
+        supportCompositionXRef = val;
     }
 
 

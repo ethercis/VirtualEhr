@@ -364,7 +364,7 @@ public abstract class ClusterInfo implements I_Service, I_Info {
 			String name = keys[i];
 			ContextNode child = new ContextNode(ContextNode.ADMIN_MARKER_TAG,
 					name, this.contextNode);
-			log.info("MBean '" + name + "' found. Will attach it logonservice '"
+			log.info("MBean '" + name + "' found. Will attach as '"
 					+ child.getRelativeName() + "' to '"
 					+ this.contextNode.getAbsoluteName() + "'");
 			try {

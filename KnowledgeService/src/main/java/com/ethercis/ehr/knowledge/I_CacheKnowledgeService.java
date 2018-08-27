@@ -26,4 +26,6 @@ public interface I_CacheKnowledgeService {
 	java.lang.String FORMAT = "format";
 
 	public abstract I_KnowledgeCache getKnowledgeCache();
+
+	String reload();
 }

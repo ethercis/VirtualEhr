@@ -25,9 +25,12 @@ This code is therefore supplied under LGPL 2.1
 package com.ethercis.logonservice.security;
 
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.BuildMetaData;
 
-public interface ServiceSecurityManagerMBean {
+public interface ServiceSecurityManagerMBean  extends BuildMetaData {
 	public void releaseSession(String sessionId, String qos_literal) throws ServiceManagerException;
 	public void changeSecretSessionId(String oldSessionId, String newSessionId) throws ServiceManagerException;
-	
+
+	String security_mode();
+	String reload() throws ServiceManagerException;
 }

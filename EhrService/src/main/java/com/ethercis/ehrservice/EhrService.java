@@ -36,6 +36,7 @@ import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.transform.rawjson.RawJsonParser;
@@ -81,7 +82,8 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
         log.info("Subject identification mode is set to:" + subjectMode.name());
 
         //get a resource service instance
-        putObject(I_Info.JMX_PREFIX + ME, this);
+//        putObject(I_Info.JMX_PREFIX + ME, this);
+        AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), EhrServiceMBean.class, this);
         log.info("EhrService service started...");
     }
 
@@ -423,10 +425,10 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
     }
 
     @QuerySetting(dialect = {
-            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "GET", method = "delete", path = "vehr/ehr", responseType = ResponseType.String),
-            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "DELETE", method = "delete", path = "rest/v1/ehr", responseType = ResponseType.String)
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.STANDARD, httpMethod = "GET", method = "delete", path = "vehr/ehr", responseType = ResponseType.Json),
+            @QuerySyntax(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, httpMethod = "DELETE", method = "delete", path = "rest/v1/ehr", responseType = ResponseType.Json)
     })
-    public String delete(I_SessionClientProperties props) throws ServiceManagerException {
+    public Object delete(I_SessionClientProperties props) throws ServiceManagerException {
         queryProlog(props);
         String ehrId = props.getClientProperty(I_EhrService.EHRID_PARAMETER, (String) null);
 
@@ -434,24 +436,72 @@ public class EhrService extends ServiceDataCluster implements I_EhrService, EhrS
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "No valid ehr Id parameter found in query");
 
         UUID ehrUuid = UUID.fromString(ehrId);
+        I_EhrAccess ehrAccess;
 
         try {
-            I_EhrAccess ehrAccess = I_EhrAccess.retrieveInstance(getDataAccess(), ehrUuid);
+            ehrAccess = I_EhrAccess.retrieveInstance(getDataAccess(), ehrUuid);
+        }
+        catch (Exception e){
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Passed ehr Id does not match an existing EHR");
+        }
 
-            if (ehrAccess == null)
-                throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Passed ehr Id does not match an existing EHR");
+        if (ehrAccess == null)
+            throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_NOT_FOUND, ME, "Passed ehr Id does not match an existing EHR");
 
-            Integer result = ehrAccess.delete(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
+        Integer result = 0;
 
-            if (result > 0)
-                return "Done";
-            else
-                return "Could not delete Ehr (id=" + ehrId + ")";
+        try {
+            result = ehrAccess.delete(auditSetter.getCommitterUuid(), auditSetter.getSystemUuid(), auditSetter.getDescription());
+
         } catch (Exception e) {
             throw new ServiceManagerException(getGlobal(), SysErrorCode.RESOURCE_UNAVAILABLE, ME, "Problem accessing DB" + e.getMessage());
         }
 
+        if (result > 0) {
+            Map<String, Object> retmap = new HashMap<>();
+            retmap.put(I_EhrService.EHRID_PARAMETER, ehrId.toString());
+            retmap.put("action", "DELETE");
+            Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + I_CompositionService.EHR_ID + "=" + ehrId);
+            retmap.putAll(metaref);
+            return retmap;
+        }
+        else {
+            global.getProperty().set(MethodName.RETURN_TYPE_PROPERTY, "" + MethodName.RETURN_NO_CONTENT);
+            //build the relative part of the link to the existing last version
+            Map<String, Object> retMap = new HashMap<>();
+            retMap.put("Reason", "Delete ehrId failed");
+            return retMap;
+        }
 
     }
 
+    @Override
+    public String getBuildVersion() {
+        return BuildVersion.versionNumber;
+    }
+
+    @Override
+    public String getBuildId() {
+        return BuildVersion.projectId;
+    }
+
+    @Override
+    public String getBuildDate() {
+        return BuildVersion.buildDate;
+    }
+
+    @Override
+    public String getBuildUser() {
+        return BuildVersion.buildUser;
+    }
+
+    @Override
+    public String getSubjectMode() {
+        return subjectMode.toString();
+    }
+
+    @Override
+    public void setSubjectMode(String mode) {
+        subjectMode = EhrAccess.PARTY_MODE.valueOf(mode);
+    }
 }

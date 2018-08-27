@@ -17,16 +17,23 @@
 //Copyright
 package com.ethercis.persistence;
 
+import com.ethercis.servicemanager.jmx.BuildMetaData;
+
 import java.sql.SQLException;
 
 /**
  * ETHERCIS Project VirtualEhr
  * Created by Christian Chevalley on 6/30/2015.
  */
-public interface ResourceServiceMBean {
+public interface ResourceServiceMBean extends BuildMetaData{
+    String getType();
+    String getVersion();
+
     String settings() throws SQLException;
 
     String checkDBConnection();
+
+    String reload_knowledge() throws Exception;
 
     String restartDBConnection();
 }

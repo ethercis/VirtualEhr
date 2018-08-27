@@ -19,22 +19,37 @@
 
 package com.ethercis.ehr.knowledge;
 
+import com.ethercis.servicemanager.jmx.BuildMetaData;
+import com.ethercis.servicemanager.jmx.Description;
+
 /**
  * ETHERCIS Project VirtualEhr
  * Created by Christian Chevalley on 6/1/2015.
  */
-public interface CacheKnowledgeServiceMBean {
+@Description("Manages Knowledge Cache internals")
+public interface CacheKnowledgeServiceMBean extends BuildMetaData {
+
+    String getType();
+    String getVersion();
     /**
      * show list of available commands
      * @return
      */
-    public String usage();
+    String usage();
 
     /**
      * reload the cache (with force caching depending on settings)
      * @return
      */
-    public String reload();
+//    String reload();
+
+    /**
+     * load an operational template file
+     * @param filename
+     * @return
+     */
+    @Description("add an operational template file uploaded in OPT PATH")
+    String add(String filename);
 
     /**
      * get the current cache statistics
@@ -58,7 +73,13 @@ public interface CacheKnowledgeServiceMBean {
      * show the list of operational templates
      * @return
      */
-    String showOPT();
+    String showOptList();
+
+    /**
+     * show operational template
+     * @return
+     */
+    String showOpt(String opt);
 
     /**
      * enable/disable force caching on reload

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Christian Chevalley
+ * Copyright (c) Ripple Foundation CIC Ltd, UK, 2017
+ * Author: Christian Chevalley
  * This file is part of Project Ethercis
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//Copyright
-package com.ethercis.authenticate.service;
 
-import com.ethercis.servicemanager.jmx.BuildMetaData;
+package com.ethercis.ehrservice;
 
-public interface AuthenticateServiceMBean extends BuildMetaData{
-	String getType();
-	String getVersion();
+/**
+ * Created by christian on 8/17/2018.
+ */
+public class BuildVersion {
+    public static String projectId = "Service implementation to manage EHR entities";
+    public static String versionNumber = "1.3.0-SNAPSHOT";
+    public static String buildDate = "2018-08-23 03:24:22";
+    public static String buildUser = "christian";
 }

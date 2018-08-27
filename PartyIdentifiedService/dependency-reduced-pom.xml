@@ -129,6 +129,40 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.3</version>
+        <executions>
+          <execution>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <file>${basedir}/src/main/java/com/ethercis/partyservice/BuildVersion.java</file>
+          <replacements>
+            <replacement>
+              <token>projectId = ".*"</token>
+              <value>projectId = "${project.name}"</value>
+            </replacement>
+            <replacement>
+              <token>versionNumber = ".*"</token>
+              <value>versionNumber = "${project.version}"</value>
+            </replacement>
+            <replacement>
+              <token>buildDate = ".*"</token>
+              <value>buildDate = "${timestamp}"</value>
+            </replacement>
+            <replacement>
+              <token>buildUser = ".*"</token>
+              <value>buildUser = "${user.name}"</value>
+            </replacement>
+          </replacements>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -195,8 +229,10 @@
   </reporting>
   <properties>
     <user.deploy>../../ethercis-deploy</user.deploy>
+    <timestamp>${maven.build.timestamp}</timestamp>
     <user.localDirectoryPath>${user.home}/.m2/repository</user.localDirectoryPath>
     <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 </project>

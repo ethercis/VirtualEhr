@@ -36,16 +36,7 @@ package com.ethercis.servicemanager.runlevel;
 import com.ethercis.servicemanager.jmx.I_AdminUsage;
 
 public interface RunlevelManagerMBean  extends I_AdminUsage {
-	/**
-	 * Access the current run level of xmlBlaster. 
-	 * @return 0 is halted and 9 is fully operational
-	 */
 	public int getCurrentRunlevel();
-
-	/**
-	 * Change the run level of xmlBlaster. 
-	 * @param 0 is halted and 9 is fully operational
-	 */
 	public String setRunlevel(String level) throws Exception;
 
 }

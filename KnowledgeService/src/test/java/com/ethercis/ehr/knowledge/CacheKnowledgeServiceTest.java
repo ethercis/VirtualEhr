@@ -124,22 +124,22 @@ public class CacheKnowledgeServiceTest {
         System.out.print(knowledge.optList());
     }
 
-    @Test
-    public void _testReload() throws ServiceManagerException {
-        I_CacheKnowledgeService service = ClusterInfo.getRegisteredService(controller, "CacheKnowledgeService", "1.0", new Object[] {null});
-
-        I_KnowledgeCache knowledge = service.getKnowledgeCache();
-
-        String atlist = knowledge.archeypesList();
-        String oetlist = knowledge.oetList();
-        String optlist = knowledge.optList();
-
-        ((CacheKnowledgeService)service).reload();
-
-        assertEquals(atlist, knowledge.archeypesList());
-        assertEquals(oetlist, knowledge.oetList());
-        assertEquals(optlist, knowledge.optList());
-
-    }
+//    @Test
+//    public void _testReload() throws ServiceManagerException {
+//        I_CacheKnowledgeService service = ClusterInfo.getRegisteredService(controller, "CacheKnowledgeService", "1.0", new Object[] {null});
+//
+//        I_KnowledgeCache knowledge = service.getKnowledgeCache();
+//
+//        String atlist = knowledge.archeypesList();
+//        String oetlist = knowledge.oetList();
+//        String optlist = knowledge.optList();
+//
+//        ((CacheKnowledgeService)service).reload();
+//
+//        assertEquals(atlist, knowledge.archeypesList());
+//        assertEquals(oetlist, knowledge.oetList());
+//        assertEquals(optlist, knowledge.optList());
+//
+//    }
 
 }

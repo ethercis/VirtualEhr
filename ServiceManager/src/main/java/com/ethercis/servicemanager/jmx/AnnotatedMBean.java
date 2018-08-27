@@ -77,7 +77,7 @@ public class AnnotatedMBean extends StandardMBean{
     public static void RegisterMBean(String name, Class mbeanclass, Object object) {
     	MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
     	try {
-    	ObjectName objname = new ObjectName("com.ethercis.service:type="+name);
+    	ObjectName objname = new ObjectName("com.ethercis:type="+name);
     	AnnotatedMBean mbean = new AnnotatedMBean(object, mbeanclass);
     	mbs.registerMBean(mbean, objname);
     	}
