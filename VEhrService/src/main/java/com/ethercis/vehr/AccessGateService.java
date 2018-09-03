@@ -21,6 +21,7 @@ import com.ethercis.logonservice.access.QueryUnit;
 import com.ethercis.logonservice.security.I_SecurityManager;
 import com.ethercis.servicemanager.annotation.*;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
+import com.ethercis.servicemanager.cluster.I_Info;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.ClientProperty;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
@@ -30,6 +31,7 @@ import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.common.session.I_QueryUnit;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.jmx.SerializeHelper;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
@@ -148,6 +150,8 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
             queryWrapper = new JwtQuery(global);
         }
 
+//        putObject(I_Info.JMX_PREFIX+ME, this);
+        AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), AccessGateServiceMBean.class, this);
         log.info(ME + "," + version + " service started...");
     }
 
@@ -246,4 +250,18 @@ public class AccessGateService extends ClusterInfo implements AccessGateServiceM
         return securityManager.getPolicyMode();
     }
 
+    @Override
+    public String settings() {
+        StringBuffer sb = new StringBuffer();
+
+        if (queryWrapper instanceof JwtQuery) {
+            sb.append("Mode: JWT");
+        } else if (queryWrapper instanceof SessionManagedQuery){
+            sb.append("Mode: SHIRO");
+
+        } else {
+            sb.append("Mode: ERROR: could not identify authentication mode");
+        }
+        return sb.toString();
+    }
 }

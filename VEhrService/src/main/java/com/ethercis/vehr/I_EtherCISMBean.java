@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015 Christian Chevalley
+ * Copyright (c) Ripple Foundation CIC Ltd, UK, 2017
+ * Author: Christian Chevalley
  * This file is part of Project Ethercis
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.ethercis.vehr;
 
-public interface AccessGateServiceMBean {
+import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.BuildMetaData;
 
-    String settings();
+/**
+ * Created by christian on 8/21/2018.
+ */
+public interface I_EtherCISMBean extends BuildMetaData {
 
+    String context() throws ServiceManagerException;
 }

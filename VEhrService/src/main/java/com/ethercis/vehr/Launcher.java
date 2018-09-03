@@ -19,6 +19,7 @@ package com.ethercis.vehr;
 
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -37,6 +38,7 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
@@ -55,7 +57,7 @@ import java.util.List;
  * ETHERCIS Project VirtualEhr
  * Created by Christian Chevalley on 5/12/2015.
  */
-public class Launcher implements I_HttpServiceConfiguration {
+public class Launcher implements I_HttpServiceConfiguration, I_EtherCISMBean {
 
     public static String command_server_port = "server_port";
     public static String command_server_host = "server_host";
@@ -153,6 +155,18 @@ public class Launcher implements I_HttpServiceConfiguration {
         // Scheduler
         server.addBean(new ScheduledExecutorScheduler());
 
+        //JMX
+        if (global.getProperty().propertyExists(I_HttpServiceConfiguration.SERVER_USE_JMX)) {
+            Boolean enabled = Boolean.parseBoolean(global.getProperty().get(I_HttpServiceConfiguration.SERVER_USE_JMX, "false"));
+            if (enabled){
+                MBeanContainer mbContainer=new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
+                server.addEventListener(mbContainer);
+                server.addBean(mbContainer);
+                server.addBean(Log.getLog());
+                logger.info("Server is JMX enabled");
+            }
+        }
+
         // Handler Structure
         HandlerCollection handlers = new HandlerCollection();
         ContextHandlerCollection contexts = new ContextHandlerCollection();
@@ -245,6 +259,8 @@ public class Launcher implements I_HttpServiceConfiguration {
         handlerList.setHandlers(new Handler[]{servletContextHandler, new DefaultHandler()});
         server.setHandler(handlerList);
 
+        AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), I_EtherCISMBean.class, this);
+
         try {
             server.start();
 
@@ -265,6 +281,11 @@ public class Launcher implements I_HttpServiceConfiguration {
 
     public RunTimeSingleton getGlobal() {
         return vEhrGateServlet.getGlobal();
+    }
+
+    @Override
+    public String context() throws ServiceManagerException {
+        return vEhrGateServlet.getGlobal().getDump();
     }
 
     public static void main(String[] args) throws Exception {
@@ -392,5 +413,25 @@ public class Launcher implements I_HttpServiceConfiguration {
         requestLogHandler.setRequestLog(requestLog);
 
         return requestLogHandler;
+    }
+
+    @Override
+    public String getBuildVersion() {
+        return BuildVersion.versionNumber;
+    }
+
+    @Override
+    public String getBuildId() {
+        return BuildVersion.projectId;
+    }
+
+    @Override
+    public String getBuildDate() {
+        return BuildVersion.buildDate;
+    }
+
+    @Override
+    public String getBuildUser() {
+        return BuildVersion.buildUser;
     }
 }

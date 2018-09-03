@@ -235,7 +235,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
         try {
             //TODO: decode with/without namespace depending on configuration
             if (compositionId.contains("::")) {
-                version = getCompositionVersion(compositionId) - 1; //user pass versions as 1 (current), 2, 3, 4 ...
+                version = getCompositionVersion(compositionId); //version number is inorder: 1, 2, 3 etc.
                 uid = getCompositionUid(compositionId);
             } else
                 uid = getCompositionUid(compositionId);
@@ -285,7 +285,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                     retmap.put("format", CompositionFormat.ECISFLAT.toString());
                     retmap.put("templateId", entryAccess.getTemplateId());
                     retmap.put("composition", new EcisFlattener().render(entryAccess.getComposition()));
-                    Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, uid, 1, null));
+                    Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, entryAccess.getComposition().getUid().toString(), null));
                     retmap.putAll(metaref);
                     retObj = retmap;
                     break;
@@ -297,7 +297,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                     retmap.put("format", CompositionFormat.FLAT.toString());
                     retmap.put("templateId", entryAccess.getTemplateId());
                     retmap.put("composition", flatJsonCompositionConverter.fromComposition(entryAccess.getTemplateId(), entryAccess.getComposition()));
-                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, uid, 1, null));
+                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, entryAccess.getComposition().getUid().toString(), null));
                     retmap.putAll(metaref);
                     retObj = retmap;
                     break;
@@ -312,7 +312,7 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
                     Gson gson = EncodeUtil.getGsonBuilderInstance().setPrettyPrinting().create();
                     Map rawEncoded = gson.fromJson(compositionSerializer.dbEncode(composition), Map.class);
                     retmap.put("composition", rawEncoded);
-                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, uid, 1, null));
+                    metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, entryAccess.getComposition().getUid().toString(), null));
                     retmap.putAll(metaref);
                     retObj = retmap;
                     break;
@@ -397,8 +397,9 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
         Map<String, Object> retmap = new HashMap<>();
         retmap.put("action", result ? "UPDATED" : "FAILED");
-        retmap.put(COMPOSITION_UID, encodeUuid(compositionId, 1));
-        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, compositionId, 1, null));
+        //get the composition uid with the right version number
+        retmap.put(COMPOSITION_UID, encodeUuid(compositionId, I_CompositionAccess.getLastVersionNumber(getDataAccess(), compositionId)));
+        Map<String, Map<String, String>> metaref = MetaBuilder.add2MetaMap(null, "href", Constants.URI_TAG + "?" + encodeURI(null, uidStr, null));
         retmap.putAll(metaref);
 
         return retmap;
@@ -459,6 +460,19 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
 
         if (compositionId != null)
             encoded.append(I_CompositionService.UID + "=" + encodeUuid(compositionId, version));
+        if (ehrId != null)
+            encoded.append("&" + I_CompositionService.EHR_ID + "=" + ehrId);
+        if (format != null)
+            encoded.append("&" + I_CompositionService.FORMAT + "=" + format);
+
+        return encoded.toString();
+    }
+
+    private String encodeURI(UUID ehrId, String compositionId, I_CompositionService.CompositionFormat format) {
+        StringBuffer encoded = new StringBuffer();
+
+        if (compositionId != null)
+            encoded.append(I_CompositionService.UID + "=" + compositionId);
         if (ehrId != null)
             encoded.append("&" + I_CompositionService.EHR_ID + "=" + ehrId);
         if (format != null)

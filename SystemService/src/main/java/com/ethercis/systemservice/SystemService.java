@@ -21,8 +21,10 @@ import com.ethercis.persistence.ServiceDataCluster;
 import com.ethercis.servicemanager.annotation.RunLevelAction;
 import com.ethercis.servicemanager.annotation.RunLevelActions;
 import com.ethercis.servicemanager.annotation.Service;
+import com.ethercis.servicemanager.cluster.I_Info;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +41,7 @@ import java.util.UUID;
         @RunLevelAction(onStartupRunlevel = 9, sequence = 3, action = "LOAD"),
         @RunLevelAction(onShutdownRunlevel = 9, sequence = 3, action = "STOP") })
 
-public class SystemService extends ServiceDataCluster implements I_SystemService {
+public class SystemService extends ServiceDataCluster implements I_SystemService, SystemServiceMBean {
 
     final private String ME = "SystemService";
     final private String Version = "1.0";
@@ -48,6 +50,8 @@ public class SystemService extends ServiceDataCluster implements I_SystemService
     @Override
     protected void doInit(RunTimeSingleton global, ServiceInfo serviceInfo) throws ServiceManagerException {
         super.doInit(global, serviceInfo);
+//        putObject(I_Info.JMX_PREFIX+ME, this);
+        AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), SystemServiceMBean.class, this);
     }
 
     @Override
@@ -87,6 +91,26 @@ public class SystemService extends ServiceDataCluster implements I_SystemService
 
         return systemId;
 
+    }
+
+    @Override
+    public String getBuildVersion() {
+        return BuildVersion.versionNumber;
+    }
+
+    @Override
+    public String getBuildId() {
+        return BuildVersion.projectId;
+    }
+
+    @Override
+    public String getBuildDate() {
+        return BuildVersion.buildDate;
+    }
+
+    @Override
+    public String getBuildUser() {
+        return BuildVersion.buildUser;
     }
 
 }

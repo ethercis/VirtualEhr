@@ -34,6 +34,9 @@ public interface I_HttpServiceConfiguration {
     String SERVER_HTTP_SEND_SERVER_VERSION = "server.http.send_server_version";
     String SERVER_HTTP_SEND_DATE_HEADER = "server.http.send_date_header";
 
+    //JMX
+    String SERVER_USE_JMX = "server.use_jmx";
+
     //SSL
     String SERVER_HTTPS_PORT = "server.https.port";
     String SERVER_HTTPS_HOST = "server.https.host";
