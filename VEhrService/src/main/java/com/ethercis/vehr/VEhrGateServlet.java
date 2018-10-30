@@ -701,14 +701,10 @@ public class VEhrGateServlet extends HttpServlet implements
 
             /** timeout has occurred in async task... handle it */
             public void onTimeout(AsyncEvent event) throws IOException {
-                log.info("onTimeout called:" + event.toString());
-                Thread.dumpStack();
-                try {
-                    errorOutput(context.getResponse(), new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "Request timeout"));
-                } catch (ServletException e) {
-                    e.printStackTrace();
-                }
+                log.warn("onTimeout called:" + event.toString());
                 context.complete();
+                new TimeoutEventResponse(event).write();
+
             }
 
             /**
@@ -717,13 +713,8 @@ public class VEhrGateServlet extends HttpServlet implements
              */
             public void onError(AsyncEvent event) throws IOException {
                 log.info("onError called:" + event.toString());
-                try {
-                    errorOutput(context.getResponse(), new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, event.toString()));
-                } catch (ServletException e) {
-                    e.printStackTrace();
-                }
-//				context.getResponse().getWriter().write(event.getAsyncContext().toString());
                 context.complete();
+                new RequestErrorEventResponse(event).write();
             }
 
             /** async context has started, nothing to do */
@@ -792,7 +783,12 @@ public class VEhrGateServlet extends HttpServlet implements
                     }
                 } catch (Exception e) {
                     log("Problem processing task", e);
-                    e.printStackTrace();
+//                    try {
+//                        errorOutput(ctx.getResponse(), new ServiceManagerException(global, SysErrorCode.USER_ILLEGALARGUMENT, "request timeout"));
+//                    } catch (ServletException e1) {
+//                        ;
+//                    }
+//                    e.printStackTrace();
                 }
 
             }
