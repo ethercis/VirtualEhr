@@ -43,11 +43,16 @@ public class JwtContext {
     private static final String ME = JwtContext.class.getName();
     private Jws<io.jsonwebtoken.Claims> claim;
     RunTimeSingleton global;
+    SignatureAlgorithm algorithm;
 
     public JwtContext(RunTimeSingleton global) throws ServiceManagerException {
         String secretKey;
         this.global = global;
-        SignatureAlgorithm algorithm = SignatureAlgorithm.HS256;
+
+        //signature algorithm from services.properties or jvm variable
+        String algorithmParm = global.getProperty().get(Constants.JWT_ALGORITHM, "HS256");
+
+        this.algorithm = SignatureAlgorithm.forName(algorithmParm);
         //get the JWT key
         secretKey = signature();
 
@@ -79,13 +84,12 @@ public class JwtContext {
      * @return
      */
     public String createToken(String key, String userId, String role) {
-        SignatureAlgorithm sigAlg = SignatureAlgorithm.HS256;
         byte[] apiKeySecretBytes = key.getBytes();
-        Key signingKey = new SecretKeySpec(apiKeySecretBytes, sigAlg.getJcaName());
+        Key signingKey = new SecretKeySpec(apiKeySecretBytes, algorithm.getJcaName());
 
         JwtBuilder builder = Jwts.builder()
                 .setSubject(userId)
-                .signWith(sigAlg, signingKey);
+                .signWith(algorithm, signingKey);
 
         if (role != null)
             builder = builder.claim(I_JwtAuthenticate.ROLE, role);
