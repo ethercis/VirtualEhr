@@ -137,18 +137,16 @@ public class ShiroAuthenticateTest extends TestCase {
 
     public void testJwtAuthenticateSignatureAlgorithm() throws ServiceManagerException {
 
-        RunTimeSingleton runTimeSingleton = RunTimeSingleton.instance().getClone(new String[]{"-propertyFile", "src/test/resources/services.properties"});
+        RunTimeSingleton runTimeSingleton = RunTimeSingleton.instance().getClone(new String[]{"-propertyFile", "src/test/resources/services2.properties"});
 
         runTimeSingleton.getProperty().getProperties().put(Constants.JWT_KEY_FILE_PATH, "src/test/resources/jwt.cfg");
 
         JwtContext jwtContext = new JwtContext(runTimeSingleton);
-        String jwt = jwtContext.createToken("joe", "user");
+        try {
+            String jwt = jwtContext.createToken("joe", "user");
+            fail("Should have identified wrong signature");
+        } catch (Exception e){}
 
-        runTimeSingleton.addObjectEntry(Constants.JWT_CONTEXT, jwtContext);
-
-        I_Authenticate authenticate = Authenticate.newWrapper(runTimeSingleton, Constants.POLICY_JWT, null);
-
-        assertTrue(authenticate.checkCredential(jwt));
     }
 
 

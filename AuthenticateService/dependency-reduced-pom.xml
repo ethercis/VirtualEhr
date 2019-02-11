@@ -203,6 +203,7 @@
   </reporting>
   <properties>
     <user.deploy>../../ethercis-deploy</user.deploy>
+    <pac4j.version>3.2.0</pac4j.version>
     <timestamp>${maven.build.timestamp}</timestamp>
     <user.localDirectoryPath>${user.home}/.m2/repository</user.localDirectoryPath>
     <maven.compiler.source>1.8</maven.compiler.source>
