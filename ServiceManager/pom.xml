@@ -221,6 +221,8 @@
             <groupId>ethercis</groupId>
             <artifactId>ehrxml</artifactId>
             <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../file_repo/lib/ehrxml-1.0.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jettison</groupId>

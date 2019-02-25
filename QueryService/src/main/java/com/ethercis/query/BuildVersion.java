@@ -24,6 +24,6 @@ package com.ethercis.query;
 public class BuildVersion {
     public static String projectId = "Service implementation to query the EHR";
     public static String versionNumber = "1.3.0-SNAPSHOT";
-    public static String buildDate = "2018-08-20 03:57:26";
+    public static String buildDate = "2019-02-25 02:55:14";
     public static String buildUser = "christian";
 }

@@ -24,6 +24,6 @@ package com.ethercis.partyservice;
 public class BuildVersion {
     public static String projectId = "Service implementation to manage PartyIdentified entities";
     public static String versionNumber = "1.3.0-SNAPSHOT";
-    public static String buildDate = "2018-08-22 04:07:40";
+    public static String buildDate = "2019-02-25 02:35:33";
     public static String buildUser = "christian";
 }

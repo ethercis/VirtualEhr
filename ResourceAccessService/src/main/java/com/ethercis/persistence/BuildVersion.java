@@ -24,6 +24,6 @@ package com.ethercis.persistence;
 public class BuildVersion {
     public static String projectId = "Service implementation to manage access to resources";
     public static String versionNumber = "1.3.0-SNAPSHOT";
-    public static String buildDate = "2018-08-22 06:35:54";
+    public static String buildDate = "2019-02-25 02:35:33";
     public static String buildUser = "christian";
 }

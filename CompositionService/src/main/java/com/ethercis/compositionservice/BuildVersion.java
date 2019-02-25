@@ -24,6 +24,6 @@ package com.ethercis.compositionservice;
 public class BuildVersion {
     public static String projectId = "Service implementation to manage Composition entities";
     public static String versionNumber = "1.3.0-SNAPSHOT";
-    public static String buildDate = "2018-08-23 03:19:25";
+    public static String buildDate = "2019-02-25 02:45:24";
     public static String buildUser = "christian";
 }

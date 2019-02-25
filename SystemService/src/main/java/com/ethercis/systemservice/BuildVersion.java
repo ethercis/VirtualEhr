@@ -24,6 +24,6 @@ package com.ethercis.systemservice;
 public class BuildVersion {
     public static String projectId = "Service implementation to manage System entities";
     public static String versionNumber = "1.3.0-SNAPSHOT";
-    public static String buildDate = "2018-08-22 04:07:40";
+    public static String buildDate = "2019-02-25 02:38:26";
     public static String buildUser = "christian";
 }

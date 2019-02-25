@@ -40,7 +40,7 @@
                         <exclude>**/AccessGateTest.java</exclude>
                         <exclude>**/LauncherTest.java</exclude>
                     </excludes>
-                    <skipTests>false</skipTests>
+                    <skipTests>true</skipTests>
                 </configuration>
             </plugin>
             <plugin>
@@ -262,12 +262,6 @@
         </dependency>
         <dependency>
             <groupId>ethercis</groupId>
-            <artifactId>ecis-query-service</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ethercis</groupId>
             <artifactId>ecis-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -360,6 +354,8 @@
             <groupId>ethercis</groupId>
             <artifactId>ehrxml</artifactId>
             <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../file_repo/lib/ehrxml-1.0.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>

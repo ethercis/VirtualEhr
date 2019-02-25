@@ -25,7 +25,9 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <timestamp>${maven.build.timestamp}</timestamp>
+        <user.deploy>../../ethercis-deploy</user.deploy>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        <java-ref-library>1.0.14-ec1-SNAPSHOT</java-ref-library>
     </properties>
     <build>
         <plugins>
@@ -244,11 +246,11 @@
             <!--<version>1.0.1</version>-->
             <!--<scope>test</scope>-->
         <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>openehr</groupId>-->
-            <!--<artifactId>adl-parser</artifactId>-->
-            <!--<version>1.0.14-ec1-SNAPSHOT</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>openehr</groupId>
+            <artifactId>xml-beans</artifactId>
+            <version>${java-ref-library}</version>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>org.apache.xmlbeans</groupId>-->
             <!--<artifactId>xmlbeans</artifactId>-->
