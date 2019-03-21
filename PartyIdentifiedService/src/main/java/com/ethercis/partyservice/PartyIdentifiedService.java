@@ -18,11 +18,14 @@
 package com.ethercis.partyservice;
 
 import com.ethercis.dao.access.interfaces.I_PartyIdentifiedAccess;
+import com.ethercis.logonservice.*;
 import com.ethercis.persistence.ServiceDataCluster;
 import com.ethercis.servicemanager.annotation.*;
+import com.ethercis.servicemanager.cluster.I_Info;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import org.apache.logging.log4j.LogManager;
@@ -40,7 +43,7 @@ import java.util.UUID;
 @RunLevelActions(value = {
         @RunLevelAction(onStartupRunlevel = 9, sequence = 3, action = "LOAD"),
         @RunLevelAction(onShutdownRunlevel = 9, sequence = 3, action = "STOP") })
-public class PartyIdentifiedService extends ServiceDataCluster implements I_PartyIdentifiedService {
+public class PartyIdentifiedService extends ServiceDataCluster implements I_PartyIdentifiedService, PartyIdentifiedServiceMBean {
 
     final private String ME = "PartyIdentifiedService";
     final private String Version = "1.0";
@@ -49,6 +52,8 @@ public class PartyIdentifiedService extends ServiceDataCluster implements I_Part
     @Override
     protected void doInit(RunTimeSingleton global, ServiceInfo serviceInfo) throws ServiceManagerException {
         super.doInit(global, serviceInfo);
+//        putObject(I_Info.JMX_PREFIX+ME, this);
+        AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), PartyIdentifiedServiceMBean.class, this);
 
     }
 
@@ -81,5 +86,25 @@ public class PartyIdentifiedService extends ServiceDataCluster implements I_Part
         queryProlog(props);
         UUID uuid = UUID.fromString(props.getClientProperty("id", ""));
         return I_PartyIdentifiedAccess.deleteInstance(getDataAccess(), uuid);
+    }
+
+    @Override
+    public String getBuildVersion() {
+        return BuildVersion.versionNumber;
+    }
+
+    @Override
+    public String getBuildId() {
+        return BuildVersion.projectId;
+    }
+
+    @Override
+    public String getBuildDate() {
+        return BuildVersion.buildDate;
+    }
+
+    @Override
+    public String getBuildUser() {
+        return BuildVersion.buildUser;
     }
 }

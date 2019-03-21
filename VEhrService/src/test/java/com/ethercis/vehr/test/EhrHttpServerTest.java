@@ -7,6 +7,7 @@ import com.ethercis.servicemanager.cluster.ClusterInfo;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+//import com.sun.javafx.binding.StringFormatter;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import org.eclipse.jetty.client.HttpClient;

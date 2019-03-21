@@ -19,35 +19,32 @@
 
 package com.ethercis.ehr.knowledge;
 
-import com.ethercis.ehr.json.FlatJsonUtil;
-import com.ethercis.ehr.json.JsonUtil;
-import com.ethercis.ehr.util.FlatJsonCompositionConverter;
-import com.ethercis.ehr.util.I_FlatJsonCompositionConverter;
-import com.ethercis.opt.OptVisitor;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.openehr.rm.common.generic.PartyIdentified;
 import com.ethercis.ehr.building.I_ContentBuilder;
 import com.ethercis.ehr.building.util.CompositionAttributesHelper;
 import com.ethercis.ehr.building.util.ContextHelper;
-import com.ethercis.ehr.encode.CompositionSerializer;
+import com.ethercis.ehr.json.JsonUtil;
 import com.ethercis.ehr.keyvalues.EcisFlattener;
-import com.ethercis.logonservice.session.I_SessionManager;
+import com.ethercis.ehr.util.FlatJsonCompositionConverter;
+import com.ethercis.ehr.util.I_FlatJsonCompositionConverter;
+import com.ethercis.opt.OptVisitor;
 import com.ethercis.servicemanager.annotation.*;
-import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
-import com.ethercis.servicemanager.cluster.I_Info;
+import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
 import com.ethercis.servicemanager.common.MetaBuilder;
 import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openehr.rm.common.archetyped.Locatable;
+import org.openehr.rm.common.generic.PartyIdentified;
 import org.openehr.rm.composition.Composition;
 import org.openehr.rm.composition.EventContext;
 import org.openehr.rm.datastructure.itemstructure.ItemStructure;
@@ -55,11 +52,11 @@ import org.openehr.rm.support.identification.ObjectVersionID;
 import org.openehr.schemas.v1.OPERATIONALTEMPLATE;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.ethercis.ehr.building.util.CompositionAttributesHelper.createComposer;
 
 /**
  * Cache Knowledge Service class
@@ -110,6 +107,7 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
 	/* (non-Javadoc)
 	 * @see com.ethercis.ehr.cache.I_ResourceService#getKnowledgeCache()
 	 */
+    //TODO: could be deprecated
 	@Override
 	public I_KnowledgeCache getKnowledgeCache(){
 		return cache;
@@ -129,7 +127,8 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
             throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "Severe error while loading cache:"+e);
         }
 
-        putObject(I_Info.JMX_PREFIX+ME, this);
+//        putObject(I_Info.JMX_PREFIX+ME, this);
+        AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), CacheKnowledgeServiceMBean.class, this);
 
         log.info(ME + " successfully started");
         log.info("Statistics:\n"+statistics());
@@ -319,7 +318,7 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
     })
     public Object reload(I_SessionClientProperties properties) throws Exception {
         String status = reload();
-
+//        String status = "";
         Map<String, Object> retmap = new HashMap<>();
         retmap.put("action", "RELOAD");
         retmap.put("status", status);
@@ -353,8 +352,25 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
                 this.cache = new KnowledgeCache(global.getProperty().getProperties(), serviceInfo.getParameters());
             else
                 this.cache = new KnowledgeCache(global.getProperty().getProperties(), null); //assume from environment
+
+            //update DataAccess with the new cache
+//            I_ResourceService resourceService = getRegisteredService(getGlobal(), "ResourceService", "1.0");
+//            resourceService.getDomainAccess().getDataAccess().setKnowledgeManager(cache);
+//            resourceService.getDomainAccess().getIntrospectCache().setKnowledge(cache).invalidate().synchronize();
         } catch (Exception e){
             return "Could not reload cache with exception:"+e;
+        }
+        return "Reload successfully done\n";
+    }
+
+    @Override
+    public String add(String filename) {
+        try {
+            //get the template file name
+            byte[] opt = Files.readAllBytes(Paths.get(cache.getOptPath()+"/"+filename));
+            cache.addOperationalTemplate(opt);
+        } catch (Exception e){
+            return "Could not load file with exception:"+e;
         }
         return "Reload successfully done\n";
     }
@@ -375,9 +391,20 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
     }
 
     @Override
-    public String showOPT(){
+    public String showOptList(){
         return cache.optList();
     }
+
+    @Override
+    public String showOpt(String opt){
+        try {
+            OPERATIONALTEMPLATE operationaltemplate = cache.retrieveOperationalTemplate(opt);
+            return operationaltemplate.xmlText();
+        } catch (Exception e){
+            return "Could not load file with exception:"+e;
+        }
+    }
+
 
     @Override
     public String setForceCache(boolean set){
@@ -392,4 +419,24 @@ public class CacheKnowledgeService extends ClusterInfo implements I_CacheKnowled
 
     @Override
     public String errors() { return cache.processingErrors(); }
+
+    @Override
+    public String getBuildVersion() {
+        return BuildVersion.versionNumber;
+    }
+
+    @Override
+    public String getBuildId() {
+        return BuildVersion.projectId;
+    }
+
+    @Override
+    public String getBuildDate() {
+        return BuildVersion.buildDate;
+    }
+
+    @Override
+    public String getBuildUser() {
+        return BuildVersion.buildUser;
+    }
 }

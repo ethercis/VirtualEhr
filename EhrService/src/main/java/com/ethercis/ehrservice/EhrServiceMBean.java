@@ -17,9 +17,16 @@
 //Copyright
 package com.ethercis.ehrservice;
 
+import com.ethercis.servicemanager.jmx.BuildMetaData;
+
 /**
  * ETHERCIS Project VirtualEhr
  * Created by Christian Chevalley on 9/18/2015.
  */
-public interface EhrServiceMBean {
+public interface EhrServiceMBean  extends BuildMetaData {
+    String getType();
+    String getVersion();
+
+    String getSubjectMode();
+    void setSubjectMode(String mode);
 }

@@ -25,6 +25,8 @@ This code is therefore supplied under LGPL 2.1
 package com.ethercis.logonservice.security;
 
 import com.ethercis.authenticate.jwt.JwtAuthenticateProvider;
+import com.ethercis.authenticate.jwt.JwtContext;
+import com.ethercis.logonservice.BuildVersion;
 import com.ethercis.logonservice.session.Session;
 import com.ethercis.servicemanager.annotation.*;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
@@ -134,59 +136,63 @@ public class ServiceSecurityManager extends ClusterInfo implements I_Manager, I_
 	public void doInit(RunTimeSingleton glob, ServiceInfo serviceInfo) throws ServiceManagerException {
 		this.global = (glob == null) ? RunTimeSingleton.instance() : glob;
 
-        String policyType = get(Constants.POLICY_TYPE_TAG, "DEBUG");
+		configure();
+
+		AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), ServiceSecurityManagerMBean.class, this);
+	}
+
+	private void configure() throws ServiceManagerException {
+		String policyType = get(Constants.POLICY_TYPE_TAG, "DEBUG");
 
 //        if (serviceInfo != null && serviceInfo.getParameters().containsKey(Constants.POLICY_TYPE_TAG))
 //            policyType = (String) serviceInfo.getParameters().get(Constants.POLICY_TYPE_TAG);
 //        else //look in environment or default
 //		    policyType = global.getProperty().get(Constants.POLICY_TYPE_TAG, "DEBUG");
 
-        switch (policyType){ //Java 1.8 !
-            case "XML":
-                policyMode = Constants.POLICY_XML;
-                break;
-            case "LDAP":
-                policyMode = Constants.POLICY_LDAP;
-                break;
-            case "JDBC":
-                policyMode = Constants.POLICY_JDBC;
-                break;
-            case "DEBUG":
-                policyMode = Constants.POLICY_DEBUG;
-                break;
-            case "SHIRO":
-                policyMode = Constants.POLICY_SHIRO;
-                //initialize Shiro security manager with the specified policy
-                try {
-                    String inipath = global.getProperty().get("server.security.shiro.inipath", ""); //from services.properties
-                    if (inipath.isEmpty()){
-                        inipath = (String) serviceInfo.getParameters().get("server.security.shiro.inipath"); //use the default
-                        if (inipath.length() == 0){
-                            throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "No ini path supplied for Shiro configuration, please set server.security.shiro.inipath");
+		switch (policyType){ //Java 1.8 !
+			case "XML":
+				policyMode = Constants.POLICY_XML;
+				break;
+			case "LDAP":
+				policyMode = Constants.POLICY_LDAP;
+				break;
+			case "JDBC":
+				policyMode = Constants.POLICY_JDBC;
+				break;
+			case "DEBUG":
+				policyMode = Constants.POLICY_DEBUG;
+				break;
+			case "SHIRO":
+				policyMode = Constants.POLICY_SHIRO;
+				//initialize Shiro security manager with the specified policy
+				try {
+					String inipath = global.getProperty().get("server.security.shiro.inipath", ""); //from services.properties
+					if (inipath.isEmpty()){
+						inipath = (String) serviceInfo.getParameters().get("server.security.shiro.inipath"); //use the default
+						if (inipath.length() == 0){
+							throw new ServiceManagerException(global, SysErrorCode.INTERNAL_ILLEGALARGUMENT, ME, "No ini path supplied for Shiro configuration, please set server.security.shiro.inipath");
 
-                        }
-                    }
-                    Ini configuration = new Ini();
-                    InputStream inputStream = new FileInputStream(inipath);
-                    configuration.load(inputStream);
-                    Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(configuration);
-                    org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
-                    SecurityUtils.setSecurityManager(securityManager);
-                } catch (Exception e){
-                    throw new ServiceManagerException(glob, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Could not initialize Shiro framework:"+e);
-                }
-                break;
+						}
+					}
+					Ini configuration = new Ini();
+					InputStream inputStream = new FileInputStream(inipath);
+					configuration.load(inputStream);
+					Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(configuration);
+					org.apache.shiro.mgt.SecurityManager securityManager = factory.getInstance();
+					SecurityUtils.setSecurityManager(securityManager);
+				} catch (Exception e){
+					throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Could not initialize Shiro framework:"+e);
+				}
+				break;
 			case "JWT":
 				policyMode = Constants.POLICY_JWT;
 				//initialize JWT security manager with the specified policy
-				new JwtAuthenticateProvider(glob).init();
+				new JwtAuthenticateProvider(global).init();
 				break;
-            default:
-                throw new IllegalArgumentException("Supplied policy mode is not supported:"+policyType);
+			default:
+				throw new IllegalArgumentException("Supplied policy mode is not supported:"+policyType);
 
-        }
-
-		AnnotatedMBean.RegisterMBean(serviceId, ServiceSecurityManagerMBean.class, this);
+		}
 	}
 
 	public String getType() {
@@ -209,6 +215,52 @@ public class ServiceSecurityManager extends ClusterInfo implements I_Manager, I_
 	@Override
 	public int getPolicyMode(){
 		return policyMode;
+	}
+
+	@Override
+	public String security_mode(){
+		StringBuffer stringBuffer = new StringBuffer();
+		switch (policyMode){
+			case Constants.POLICY_JWT:
+				stringBuffer.append("Security JWT\n");
+				stringBuffer.append("key filepath:"+global.getProperty().get(Constants.JWT_KEY_FILE_PATH, "<?>"));
+				break;
+			case Constants.POLICY_SHIRO:
+				stringBuffer.append("Security SHIRO\n");
+				stringBuffer.append("Ini file path:"+global.getProperty().get("server.security.shiro.inipath", ""));
+				break;
+			default:
+				stringBuffer.append("Security *UNDEF*\n");
+				break;
+		}
+
+		return stringBuffer.toString();
+	}
+
+	@Override
+	public String reload() throws ServiceManagerException {
+		configure();
+		return "Reload successful";
+	}
+
+	@Override
+	public String getBuildVersion() {
+		return BuildVersion.versionNumber;
+	}
+
+	@Override
+	public String getBuildId() {
+		return BuildVersion.projectId;
+	}
+
+	@Override
+	public String getBuildDate() {
+		return BuildVersion.buildDate;
+	}
+
+	@Override
+	public String getBuildUser() {
+		return BuildVersion.buildUser;
 	}
 
 }

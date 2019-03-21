@@ -17,10 +17,9 @@
 //Copyright
 package com.ethercis.authenticate.service;
 
-public interface AuthenticateServiceMBean {
-	
-	public String getType();
+import com.ethercis.servicemanager.jmx.BuildMetaData;
 
-	public String getVersion();
-
+public interface AuthenticateServiceMBean extends BuildMetaData{
+	String getType();
+	String getVersion();
 }

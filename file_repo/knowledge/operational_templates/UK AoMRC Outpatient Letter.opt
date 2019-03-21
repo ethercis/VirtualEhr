@@ -1028,7 +1028,7 @@
                     </term_definitions>
                     <term_definitions code="at0021">
                       <items id="text">Reporting name</items>
-                      <items id="description">The subject?s name as it is to be used for reporting, when used with a specific identifier.</items>
+                      <items id="description">The subject’s name as it is to be used for reporting, when used with a specific identifier.</items>
                     </term_definitions>
                     <term_definitions code="at0022">
                       <items id="text">Preferred name</items>
@@ -2468,7 +2468,7 @@
                             </term_definitions>
                             <term_definitions code="at0021">
                               <items id="text">Reporting name</items>
-                              <items id="description">The subject?s name as it is to be used for reporting, when used with a specific identifier.</items>
+                              <items id="description">The subject’s name as it is to be used for reporting, when used with a specific identifier.</items>
                             </term_definitions>
                             <term_definitions code="at0022">
                               <items id="text">Preferred name</items>
@@ -3124,7 +3124,7 @@
                             </term_definitions>
                             <term_definitions code="at0021">
                               <items id="text">Reporting name</items>
-                              <items id="description">The subject?s name as it is to be used for reporting, when used with a specific identifier.</items>
+                              <items id="description">The subject’s name as it is to be used for reporting, when used with a specific identifier.</items>
                             </term_definitions>
                             <term_definitions code="at0022">
                               <items id="text">Preferred name</items>
@@ -7177,7 +7177,7 @@ Status is used to denote whether this is the initial request, or a follow-up req
                     </term_definitions>
                     <term_definitions code="at0040">
                       <items id="text">Caused by</items>
-                      <items id="description">This concept identifies the direct cause or causative agent of a Problem/Diagnosis. The concept includes the idea of ?complications?, ?causative agent? and ?due to?. Note: Where no causality or sequence of events is known, this relationship type should be left blank.</items>
+                      <items id="description">This concept identifies the direct cause or causative agent of a Problem/Diagnosis. The concept includes the idea of ‘complications’, ‘causative agent’ and ‘due to’. Note: Where no causality or sequence of events is known, this relationship type should be left blank.</items>
                     </term_definitions>
                     <term_definitions code="at0041">
                       <items id="text">Following</items>
@@ -9957,7 +9957,7 @@ Status is used to denote whether this is the initial request, or a follow-up req
                     </term_definitions>
                     <term_definitions code="at0040">
                       <items id="text">Caused by</items>
-                      <items id="description">This concept identifies the direct cause or causative agent of a Problem/Diagnosis. The concept includes the idea of ?complications?, ?causative agent? and ?due to?. Note: Where no causality or sequence of events is known, this relationship type should be left blank.</items>
+                      <items id="description">This concept identifies the direct cause or causative agent of a Problem/Diagnosis. The concept includes the idea of ‘complications’, ‘causative agent’ and ‘due to’. Note: Where no causality or sequence of events is known, this relationship type should be left blank.</items>
                     </term_definitions>
                     <term_definitions code="at0041">
                       <items id="text">Following</items>
@@ -11454,7 +11454,7 @@ Status is used to denote whether this is the initial request, or a follow-up req
                             <term_definitions code="at0001">
                               <items id="text">Medication name</items>
                               <items id="description">Mandatory medication name coded using a SNOMEDCT/dm+d term where possible, allowing plain text for historical/patient reported items , extemporaneous preparations or those not registered in dm+d.</items>
-                              <items id="comment">e.g.?Citalopram tab 20mg??, "Trimethoprim"</items>
+                              <items id="comment">e.g.“Citalopram tab 20mg�?, "Trimethoprim"</items>
                             </term_definitions>
                             <term_definitions code="at0002">
                               <items id="text">Route</items>
@@ -11464,17 +11464,17 @@ Status is used to denote whether this is the initial request, or a follow-up req
                             <term_definitions code="at0003">
                               <items id="text">Dose directions description</items>
                               <items id="description">A single plain text phrase describing the entire medication dosage and administration directions, including dose quantity and medication frequency.</items>
-                              <items id="comment">e.g. ?I tablet at night?? or ?20mg at 10pm??</items>
+                              <items id="comment">e.g. “I tablet at night�? or “20mg at 10pm�?</items>
                             </term_definitions>
                             <term_definitions code="at0004">
                               <items id="text">Dispensing instruction</items>
                               <items id="description">Multiple plain text to record complex dispensing arrangements, particularly for Controlled Drug instalment dispensing.</items>
-                              <items id="comment">e.g. ?Dispense weekly??</items>
+                              <items id="comment">e.g. “Dispense weekly�?</items>
                             </term_definitions>
                             <term_definitions code="at0005">
                               <items id="text">Additional instruction</items>
                               <items id="description">Additional multiple dosage or administration instructions as plain text. This may include guidance to the prescriber, patient or person administering the medication.</items>
-                              <items id="comment">e.g. ?Omit morning dose on day of procedure??</items>
+                              <items id="comment">e.g. “Omit morning dose on day of procedure�?</items>
                             </term_definitions>
                             <term_definitions code="at0019">
                               <items id="text">Dose directions</items>
@@ -12174,12 +12174,12 @@ Status is used to denote whether this is the initial request, or a follow-up req
                                 </archetype_id>
                                 <term_definitions code="at0000">
                                   <items id="text">Medication event</items>
-                                  <items id="description">Records an event in the ?supply? of the medication to the patient, ?supply? covering repeat authorisation, prescription issue, administration and dispensing of the medication.</items>
+                                  <items id="description">Records an event in the ‘supply’ of the medication to the patient, ‘supply’ covering repeat authorisation, prescription issue, administration and dispensing of the medication.</items>
                                 </term_definitions>
                                 <term_definitions code="at0004">
                                   <items id="text">Prescription endorsement</items>
                                   <items id="description">A coded value describing the kind of 'contract' in place under which the medication was supplied. Multiple endorsements / contracts are allowed.</items>
-                                  <items id="comment">e.g."ACBS" or ?Private??
+                                  <items id="comment">e.g."ACBS" or “Private�?
 Assume "Standard" as default</items>
                                 </term_definitions>
                                 <term_definitions code="at0033">
@@ -13930,7 +13930,7 @@ Source: GP systems</items>
                             <term_definitions code="at0001">
                               <items id="text">Medication name</items>
                               <items id="description">Mandatory medication name coded using a SNOMEDCT/dm+d term where possible, allowing plain text for historical/patient reported items , extemporaneous preparations or those not registered in dm+d.</items>
-                              <items id="comment">e.g.?Citalopram tab 20mg??, "Trimethoprim"</items>
+                              <items id="comment">e.g.“Citalopram tab 20mg�?, "Trimethoprim"</items>
                             </term_definitions>
                             <term_definitions code="at0002">
                               <items id="text">Route</items>
@@ -13940,17 +13940,17 @@ Source: GP systems</items>
                             <term_definitions code="at0003">
                               <items id="text">Dose directions description</items>
                               <items id="description">A single plain text phrase describing the entire medication dosage and administration directions, including dose quantity and medication frequency.</items>
-                              <items id="comment">e.g. ?I tablet at night?? or ?20mg at 10pm??</items>
+                              <items id="comment">e.g. “I tablet at night�? or “20mg at 10pm�?</items>
                             </term_definitions>
                             <term_definitions code="at0004">
                               <items id="text">Dispensing instruction</items>
                               <items id="description">Multiple plain text to record complex dispensing arrangements, particularly for Controlled Drug instalment dispensing.</items>
-                              <items id="comment">e.g. ?Dispense weekly??</items>
+                              <items id="comment">e.g. “Dispense weekly�?</items>
                             </term_definitions>
                             <term_definitions code="at0005">
                               <items id="text">Additional instruction</items>
                               <items id="description">Additional multiple dosage or administration instructions as plain text. This may include guidance to the prescriber, patient or person administering the medication.</items>
-                              <items id="comment">e.g. ?Omit morning dose on day of procedure??</items>
+                              <items id="comment">e.g. “Omit morning dose on day of procedure�?</items>
                             </term_definitions>
                             <term_definitions code="at0019">
                               <items id="text">Dose directions</items>
@@ -14650,12 +14650,12 @@ Source: GP systems</items>
                                 </archetype_id>
                                 <term_definitions code="at0000">
                                   <items id="text">Medication event</items>
-                                  <items id="description">Records an event in the ?supply? of the medication to the patient, ?supply? covering repeat authorisation, prescription issue, administration and dispensing of the medication.</items>
+                                  <items id="description">Records an event in the ‘supply’ of the medication to the patient, ‘supply’ covering repeat authorisation, prescription issue, administration and dispensing of the medication.</items>
                                 </term_definitions>
                                 <term_definitions code="at0004">
                                   <items id="text">Prescription endorsement</items>
                                   <items id="description">A coded value describing the kind of 'contract' in place under which the medication was supplied. Multiple endorsements / contracts are allowed.</items>
-                                  <items id="comment">e.g."ACBS" or ?Private??
+                                  <items id="comment">e.g."ACBS" or “Private�?
 Assume "Standard" as default</items>
                                 </term_definitions>
                                 <term_definitions code="at0033">
@@ -15898,7 +15898,7 @@ Source: GP systems</items>
                             <term_definitions code="at0001">
                               <items id="text">Medication name</items>
                               <items id="description">Mandatory medication name coded using a SNOMEDCT/dm+d term where possible, allowing plain text for historical/patient reported items , extemporaneous preparations or those not registered in dm+d.</items>
-                              <items id="comment">e.g.?Citalopram tab 20mg??, "Trimethoprim"</items>
+                              <items id="comment">e.g.“Citalopram tab 20mg�?, "Trimethoprim"</items>
                             </term_definitions>
                             <term_definitions code="at0002">
                               <items id="text">Route</items>
@@ -15908,17 +15908,17 @@ Source: GP systems</items>
                             <term_definitions code="at0003">
                               <items id="text">Dose directions description</items>
                               <items id="description">A single plain text phrase describing the entire medication dosage and administration directions, including dose quantity and medication frequency.</items>
-                              <items id="comment">e.g. ?I tablet at night?? or ?20mg at 10pm??</items>
+                              <items id="comment">e.g. “I tablet at night�? or “20mg at 10pm�?</items>
                             </term_definitions>
                             <term_definitions code="at0004">
                               <items id="text">Dispensing instruction</items>
                               <items id="description">Multiple plain text to record complex dispensing arrangements, particularly for Controlled Drug instalment dispensing.</items>
-                              <items id="comment">e.g. ?Dispense weekly??</items>
+                              <items id="comment">e.g. “Dispense weekly�?</items>
                             </term_definitions>
                             <term_definitions code="at0005">
                               <items id="text">Additional instruction</items>
                               <items id="description">Additional multiple dosage or administration instructions as plain text. This may include guidance to the prescriber, patient or person administering the medication.</items>
-                              <items id="comment">e.g. ?Omit morning dose on day of procedure??</items>
+                              <items id="comment">e.g. “Omit morning dose on day of procedure�?</items>
                             </term_definitions>
                             <term_definitions code="at0019">
                               <items id="text">Dose directions</items>
@@ -16618,12 +16618,12 @@ Source: GP systems</items>
                                 </archetype_id>
                                 <term_definitions code="at0000">
                                   <items id="text">Medication event</items>
-                                  <items id="description">Records an event in the ?supply? of the medication to the patient, ?supply? covering repeat authorisation, prescription issue, administration and dispensing of the medication.</items>
+                                  <items id="description">Records an event in the ‘supply’ of the medication to the patient, ‘supply’ covering repeat authorisation, prescription issue, administration and dispensing of the medication.</items>
                                 </term_definitions>
                                 <term_definitions code="at0004">
                                   <items id="text">Prescription endorsement</items>
                                   <items id="description">A coded value describing the kind of 'contract' in place under which the medication was supplied. Multiple endorsements / contracts are allowed.</items>
-                                  <items id="comment">e.g."ACBS" or ?Private??
+                                  <items id="comment">e.g."ACBS" or “Private�?
 Assume "Standard" as default</items>
                                 </term_definitions>
                                 <term_definitions code="at0033">
@@ -23835,7 +23835,7 @@ The exact subset definitions have not yet been agreed and may change prior to fu
                                         <lower>1</lower>
                                         <upper>1</upper>
                                       </precision>
-                                      <units>?C</units>
+                                      <units>°C</units>
                                     </list>
                                   </children>
                                 </attributes>
@@ -26716,7 +26716,7 @@ The exact subset definitions have not yet been agreed and may change prior to fu
             </term_definitions>
             <term_definitions code="at0040">
               <items id="text">Caused by</items>
-              <items id="description">This concept identifies the direct cause or causative agent of a Problem/Diagnosis. The concept includes the idea of ?complications?, ?causative agent? and ?due to?. Note: Where no causality or sequence of events is known, this relationship type should be left blank.</items>
+              <items id="description">This concept identifies the direct cause or causative agent of a Problem/Diagnosis. The concept includes the idea of ‘complications’, ‘causative agent’ and ‘due to’. Note: Where no causality or sequence of events is known, this relationship type should be left blank.</items>
             </term_definitions>
             <term_definitions code="at0041">
               <items id="text">Following</items>
@@ -28036,7 +28036,7 @@ The exact subset definitions have not yet been agreed and may change prior to fu
             </term_definitions>
             <term_definitions code="at0040">
               <items id="text">Caused by</items>
-              <items id="description">This concept identifies the direct cause or causative agent of a Problem/Diagnosis. The concept includes the idea of ?complications?, ?causative agent? and ?due to?. Note: Where no causality or sequence of events is known, this relationship type should be left blank.</items>
+              <items id="description">This concept identifies the direct cause or causative agent of a Problem/Diagnosis. The concept includes the idea of ‘complications’, ‘causative agent’ and ‘due to’. Note: Where no causality or sequence of events is known, this relationship type should be left blank.</items>
             </term_definitions>
             <term_definitions code="at0041">
               <items id="text">Following</items>
@@ -31291,7 +31291,7 @@ This archetype also acts as the parent for specialisations appropriate for more 
             </term_definitions>
             <term_definitions code="at0075">
               <items id="text">Datetime result issued</items>
-              <items id="description">The date and/or time that the result was issued for the recorded ?test status?.</items>
+              <items id="description">The date and/or time that the result was issued for the recorded ‘test status’.</items>
               <items id="comment">The date and time related to the results status is useful for version control and cumulative results for the report.</items>
             </term_definitions>
             <term_definitions code="at0077">
@@ -32982,7 +32982,7 @@ This archetype also acts as the parent for specialisations appropriate for more 
             </term_definitions>
             <term_definitions code="at0006">
               <items id="text">Anatomical site</items>
-              <items id="description">Details of the anatomical site of imaging examination, including laterality, if all individual findings and results are related to the same anatomical location. If the anatomical site is sufficiently specified with a code in the Examination test name, then this additional data is not required. Finer-grained multiple anatomical sites may be represented per ?Result group?.</items>
+              <items id="description">Details of the anatomical site of imaging examination, including laterality, if all individual findings and results are related to the same anatomical location. If the anatomical site is sufficiently specified with a code in the Examination test name, then this additional data is not required. Finer-grained multiple anatomical sites may be represented per ‘Result group’.</items>
             </term_definitions>
             <term_definitions code="at0007">
               <items id="text">Overall result status</items>
@@ -33035,7 +33035,7 @@ values, or information about the source of the value where this may be relevant 
             </term_definitions>
             <term_definitions code="at0019">
               <items id="text">Anatomical site</items>
-              <items id="description">Details about the individual anatomical location to which these ?Result group? examination results refer, where finer-grained representation of Anatomical location is required.</items>
+              <items id="description">Details about the individual anatomical location to which these ‘Result group’ examination results refer, where finer-grained representation of Anatomical location is required.</items>
             </term_definitions>
             <term_definitions code="at0020">
               <items id="text">Radiological diagnosis</items>
@@ -33583,7 +33583,7 @@ values, or information about the source of the value where this may be relevant 
       </items>
     </constraints>
   </view>
-</template>inds all the results together. If a name or code is used, it is provided by run-time re-naming of the 'Result group' element or may be fixed in a specialised archetype or template. Coding with a terminology, potentially a pre-coordinated term including specimen type, is preferred where possible for the name. Should be coded with LOINC or SNOMED CT.</items>
+</template>type or template. Coding with a terminology, potentially a pre-coordinated term including specimen type, is preferred where possible for the name. Should be coded with LOINC or SNOMED CT.</items>
             </term_definitions>
             <term_definitions code="at0016">
               <items id="text">Result</items>

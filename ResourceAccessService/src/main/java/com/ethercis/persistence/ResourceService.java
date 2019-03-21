@@ -23,15 +23,18 @@ import com.ethercis.servicemanager.annotation.RunLevelAction;
 import com.ethercis.servicemanager.annotation.RunLevelActions;
 import com.ethercis.servicemanager.annotation.Service;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
-import com.ethercis.servicemanager.cluster.I_Info;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.service.ServiceInfo;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSourceMXBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DataSourceConnectionProvider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -84,14 +87,24 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
             throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "KnowledgeService is not running, please check your configuration");
 
         Map<String, Object> properties = new HashMap<>();
+        //TODO: is it still used?
         properties.put(I_DomainAccess.KEY_KNOWLEDGE, knowledgeService.getKnowledgeCache());
+
+        //add the properties of interest
+
+        for (Object key: global.getProperty().getProperties().keySet()){
+            //we do this to perform environment substitution
+            if (key instanceof String && ((String) key).startsWith(I_DomainAccess.KEY_PGJDBC_PREFIX)){
+                properties.put((String)key, get((String)key, null));
+            }
+        }
 
         switch (implementation){
             case "jooq":
                 properties.put(I_DomainAccess.KEY_DIALECT, get(Constants.SERVER_PERSISTENCE_JOOQ_DIALECT, "POSTGRES"));
                 properties.put(I_DomainAccess.KEY_URL, get(Constants.SERVER_PERSISTENCE_JOOQ_URL, null));
-                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, "postgres"));
-                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, "postgres"));
+                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, null));
+                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, null));
 
                 try {
                     domainAccess = I_DomainAccess.getInstance(properties);
@@ -108,8 +121,8 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
 //                properties.put(I_DomainAccess.KEY_SCHEMA, get("server.persistence.jooq.dialect", "ehr"));
                 properties.put(I_DomainAccess.KEY_HOST, get(Constants.SERVER_PERSISTENCE_JOOQ_HOST, null));
                 properties.put(I_DomainAccess.KEY_PORT, get(Constants.SERVER_PERSISTENCE_JOOQ_PORT, null));
-                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, "postgres"));
-                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PORT, "postgres"));
+                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, null));
+                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, null));
                 properties.put(I_DomainAccess.KEY_MAX_CONNECTION, get(Constants.SERVER_PERSISTENCE_JOOQ_MAX_CONNECTIONS, "10"));
 
                 try {
@@ -124,8 +137,8 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
                 properties.put(I_DomainAccess.KEY_CONNECTION_MODE, I_DomainAccess.DBCP2_POOL);
                 properties.put(I_DomainAccess.KEY_DIALECT, get(Constants.SERVER_PERSISTENCE_JOOQ_DIALECT, "POSTGRES"));
                 properties.put(I_DomainAccess.KEY_URL, get(Constants.SERVER_PERSISTENCE_JOOQ_URL, null));
-                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, "postgres"));
-                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, "postgres"));
+                properties.put(I_DomainAccess.KEY_LOGIN, get(Constants.SERVER_PERSISTENCE_JOOQ_LOGIN, null));
+                properties.put(I_DomainAccess.KEY_PASSWORD, get(Constants.SERVER_PERSISTENCE_JOOQ_PASSWORD, null));
 
                 properties.put(I_DomainAccess.KEY_MAX_IDLE, get(Constants.SERVER_PERSISTENCE_MAX_IDLE, null));
                 properties.put(I_DomainAccess.KEY_MAX_ACTIVE, get(Constants.SERVER_PERSISTENCE_MAX_ACTIVE, null));
@@ -141,6 +154,10 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
 
                 try {
                     domainAccess = I_DomainAccess.getInstance(properties);
+                    BasicDataSource dataSource = ((BasicDataSource) ((DataSourceConnectionProvider) domainAccess.getContext().configuration().connectionProvider()).dataSource());
+                    dataSource.setJmxName("org.apache.dbcp:DataSource=ecis");
+                    //register this object
+                    AnnotatedMBean.RegisterMBean("org.apache.commons.dbcp2.BasicDataSource", BasicDataSourceMXBean.class, dataSource);
                 } catch (Exception e) {
                     throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Unable to setup DB layer access" + e);
                 }
@@ -152,7 +169,8 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
 
         }
 
-        putObject(I_Info.JMX_PREFIX+ME, this);
+//        putObject(I_Info.JMX_PREFIX+ME, this);
+        AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), ResourceServiceMBean.class, this);
 
         log.info("ResourceService started...");
     }
@@ -173,23 +191,32 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
                     Connection connection = domainAccess.getConnection();
                     stringBuffer.append("\nJDBC_DRIVER");
                     stringBuffer.append("\nSQL dialect:" + domainAccess.getDialect());
-                    stringBuffer.append("\nDB server node:" + connection.getMetaData().getURL().toString());
-                    stringBuffer.append("\nDB engine name:" + connection.getMetaData().getDatabaseProductName());
-                    stringBuffer.append("\nDB engine version:" + connection.getMetaData().getDatabaseProductVersion());
-                    stringBuffer.append("\nDB driver name:" + connection.getMetaData().getDriverName());
-                    stringBuffer.append("\nDB driver version:" + connection.getMetaData().getDriverVersion());
+                    connectionMetaData(stringBuffer, connection);
                     connection.close();
                 break;
             case PG_CONNECTION_POOL:
                 stringBuffer.append("\nPG_CONNECTION_POOL");
                 stringBuffer.append("\nSQL dialect:" + domainAccess.getDialect());
+                //display connection details
+                connectionMetaData(stringBuffer, domainAccess.getDataAccess().getConnection());
+                break;
             case DBCP2_POOL:
                 stringBuffer.append("\nPG_DBCP2");
                 stringBuffer.append("\nSQL dialect:" + domainAccess.getDialect());
-            break;
+                connectionMetaData(stringBuffer, domainAccess.getDataAccess().getConnection());
+                break;
 
         }
         return stringBuffer.toString();
+    }
+
+    private void connectionMetaData(StringBuffer stringBuffer, Connection connection) throws SQLException {
+        stringBuffer.append("\nDB server node:" + connection.getMetaData().getURL().toString());
+        stringBuffer.append("\nDB engine name:" + connection.getMetaData().getDatabaseProductName());
+        stringBuffer.append("\nDB engine version:" + connection.getMetaData().getDatabaseProductVersion());
+        stringBuffer.append("\nDB driver name:" + connection.getMetaData().getDriverName());
+        stringBuffer.append("\nDB driver version:" + connection.getMetaData().getDriverVersion());
+        stringBuffer.append("\nConnection logon:" + connection.getMetaData().getUserName());
     }
 
     @Override
@@ -204,8 +231,44 @@ public class ResourceService extends ClusterInfo implements ResourceServiceMBean
     }
 
     @Override
+    public String reload_knowledge() throws Exception {
+        //update DataAccess with the new cache
+        //retrieve instance of running KnowledgeService
+        I_CacheKnowledgeService knowledgeService = ClusterInfo.getRegisteredService(global, "CacheKnowledgeService", "1.0", new Object[] {null});
+
+        if (knowledgeService == null)
+            throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "KnowledgeService is not running, please check your configuration");
+
+        knowledgeService.reload();
+
+        this.getDomainAccess().getDataAccess().setKnowledgeManager(knowledgeService.getKnowledgeCache());
+        this.getDomainAccess().getIntrospectCache().setKnowledge(knowledgeService.getKnowledgeCache()).invalidate().synchronize();
+        return "reload knowledge cache done";
+    }
+
+    @Override
     public String restartDBConnection(){
         return "Not implemented yet, restart ethercis to reconnect do DB server";
+    }
+
+    @Override
+    public String getBuildVersion() {
+        return BuildVersion.versionNumber;
+    }
+
+    @Override
+    public String getBuildId() {
+        return BuildVersion.projectId;
+    }
+
+    @Override
+    public String getBuildDate() {
+        return BuildVersion.buildDate;
+    }
+
+    @Override
+    public String getBuildUser() {
+        return BuildVersion.buildUser;
     }
 
 }

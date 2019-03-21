@@ -456,6 +456,7 @@ public final class Constants {
 	public static final String DB_SECURITY_PRINCIPAL_PRECEDENCE = "server.security.role_precedence";
 	public static final String SQL_ENABLED     = "server.query.sql_enabled";
 	public static final String JWT_KEY     = "server.jwt.key";
+	public static final String JWT_ALGORITHM = "server.jwt.algorithm";
 	public static final String JWT_KEY_FILE_PATH     = "server.jwt.key_file_path";
 	public static final String TOKEN_TYPE_BEARER = "Bearer";
 	public static final String TOKEN_USER_SESSION = "userSession";

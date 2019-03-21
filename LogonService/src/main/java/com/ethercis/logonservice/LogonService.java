@@ -21,6 +21,7 @@ import com.ethercis.logonservice.access.ConnectProperties;
 import com.ethercis.logonservice.session.*;
 import com.ethercis.servicemanager.annotation.*;
 import com.ethercis.servicemanager.cluster.ClusterInfo;
+import com.ethercis.servicemanager.cluster.I_Info;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
 import com.ethercis.servicemanager.common.ClientProperty;
 import com.ethercis.servicemanager.common.I_SessionClientProperties;
@@ -30,6 +31,7 @@ import com.ethercis.servicemanager.common.session.I_ConnectProperties;
 import com.ethercis.servicemanager.common.session.I_SessionInfo;
 import com.ethercis.servicemanager.common.session.I_SessionProperties;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import org.apache.logging.log4j.LogManager;
@@ -63,7 +65,7 @@ import java.util.Map;
                 @ParameterDefinition(mode = I_ServiceRunMode.DialectSpace.EHRSCAPE, name = "password", type = String.class)
         })
 })
-public class LogonService extends ClusterInfo implements I_SessionManager {
+public class LogonService extends ClusterInfo implements I_SessionManager, LogonServiceMBean {
 
 	final private String ME = "LogonService";
 	final private String Version = "1.0";
@@ -93,6 +95,8 @@ public class LogonService extends ClusterInfo implements I_SessionManager {
 		// required for JMX usage
 		global.setAuthenticate(manager);
 
+//		putObject(I_Info.JMX_PREFIX+ME, this);
+		AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), LogonServiceMBean.class, this);
 		log.info("Logon service started...");
 	}
 
@@ -280,6 +284,36 @@ public class LogonService extends ClusterInfo implements I_SessionManager {
 	}
 
 	@Override
+	public String getLogonParameter() {
+		return LOGON_PARAMETER;
+	}
+
+	@Override
+	public String getPasswordParameter() {
+		return PASSWORD_PARAMETER;
+	}
+
+	@Override
+	public String getSessionIdParameter() {
+		return SESSION_ID_PARAMETER;
+	}
+
+	@Override
+	public void setLogonParameter(String val) {
+		LOGON_PARAMETER = val;
+	}
+
+	@Override
+	public void setPasswordParameter(String val) {
+		PASSWORD_PARAMETER = val;
+	}
+
+	@Override
+	public void setSessionIdParameter(String val) {
+		SESSION_ID_PARAMETER = val;
+	}
+
+	@Override
 	public I_SessionInfo unsecureCreateSession(I_SessionProperties props)
 			throws ServiceManagerException {
 		//locally typecast to avoid cross referencing between projects
@@ -355,6 +389,26 @@ public class LogonService extends ClusterInfo implements I_SessionManager {
 			throw new IllegalArgumentException("Invalid session id:"+secretSessionId);
 		}
 
+	}
+
+	@Override
+	public String getBuildVersion() {
+		return BuildVersion.versionNumber;
+	}
+
+	@Override
+	public String getBuildId() {
+		return BuildVersion.projectId;
+	}
+
+	@Override
+	public String getBuildDate() {
+		return BuildVersion.buildDate;
+	}
+
+	@Override
+	public String getBuildUser() {
+		return BuildVersion.buildUser;
 	}
 
 }

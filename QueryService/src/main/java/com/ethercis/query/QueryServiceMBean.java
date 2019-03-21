@@ -33,9 +33,14 @@ package com.ethercis.query;/*
  * limitations under the License.
  */
 
+import com.ethercis.servicemanager.jmx.BuildMetaData;
+
 /**
  * ETHERCIS Project VirtualEhr
  * Created by Christian Chevalley on 9/18/2015.
  */
-public interface QueryServiceMBean {
+public interface QueryServiceMBean extends BuildMetaData {
+    String getType();
+    String getVersion();
+    boolean getAllowSQL();
 }

@@ -18,4 +18,6 @@ package com.ethercis.vehr;
 
 public interface AccessGateServiceMBean {
 
+    String settings();
+
 }

@@ -25,11 +25,14 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <user.deploy>../../ethercis-deploy</user.deploy>
         <user.localDirectoryPath>${user.home}/.m2/repository</user.localDirectoryPath>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <pac4j.version>3.2.0</pac4j.version>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     </properties>
     <groupId>ethercis</groupId>
     <artifactId>ecis-authenticate-service</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
     <name>ecis-authenticate-service</name>
     <build>
         <plugins>
@@ -38,7 +41,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19</version>
                 <configuration>
-                    <skipTests>false</skipTests>
+                    <skipTests>true</skipTests>
                 </configuration>
             </plugin>
             <plugin>
@@ -164,6 +167,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <file>${basedir}/src/main/java/com/ethercis/authenticate/BuildVersion.java</file>
+                    <replacements>
+                        <replacement>
+                            <token>projectId = ".*"</token>
+                            <value>projectId = "${project.name}"</value>
+                        </replacement>
+                        <replacement>
+                            <token>versionNumber = ".*"</token>
+                            <value>versionNumber = "${project.version}"</value>
+                        </replacement>
+                        <replacement>
+                            <token>buildDate = ".*"</token>
+                            <value>buildDate = "${timestamp}"</value>
+                        </replacement>
+                        <replacement>
+                            <token>buildUser = ".*"</token>
+                            <value>buildUser = "${user.name}"</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <!--<repositories>-->
@@ -193,6 +230,8 @@
             <groupId>ethercis</groupId>
             <artifactId>ehrxml</artifactId>
             <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../file_repo/lib/ehrxml-1.0.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.unboundid</groupId>
@@ -203,6 +242,21 @@
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
             <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.buji</groupId>
+            <artifactId>buji-pac4j</artifactId>
+            <version>${pac4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-oauth</artifactId>
+            <version>${pac4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-oidc</artifactId>
+            <version>${pac4j.version}</version>
         </dependency>
         <dependency>
             <groupId>de.ruedigermoeller</groupId>

@@ -20,7 +20,6 @@ package com.ethercis.query;
 
 import com.ethercis.compositionservice.I_CompositionService;
 import com.ethercis.dao.access.interfaces.I_EntryAccess;
-import com.ethercis.ehr.knowledge.I_CacheKnowledgeService;
 import com.ethercis.logonservice.session.I_SessionManager;
 import com.ethercis.persistence.ServiceDataCluster;
 import com.ethercis.servicemanager.annotation.*;
@@ -31,6 +30,7 @@ import com.ethercis.servicemanager.common.def.Constants;
 import com.ethercis.servicemanager.common.def.MethodName;
 import com.ethercis.servicemanager.common.def.SysErrorCode;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import com.ethercis.systemservice.I_SystemService;
@@ -67,7 +67,7 @@ public class QueryService extends ServiceDataCluster implements QueryServiceMBea
     final private String ME = "QueryService";
     final private String Version = "1.0";
     private Logger log = LogManager.getLogger(QueryService.class);
-    private I_CacheKnowledgeService knowledgeCache;
+//    private I_CacheKnowledgeService knowledgeCache;
     private I_SystemService systemService;
     private boolean useNamespaceInCompositionId = false;
     private boolean supportCompositionXRef = false; //if set to false, will not try to link compositions
@@ -80,16 +80,16 @@ public class QueryService extends ServiceDataCluster implements QueryServiceMBea
         //get the knowledge cache for composition handlers
 //        useNamespaceInCompositionId = global.getProperty().get("composition.uid.namespace", true);
 //        supportCompositionXRef = global.getProperty().get("composition.xref", false);
-        knowledgeCache = getRegisteredService(getGlobal(), "CacheKnowledgeService", "1.0");
+//        knowledgeCache = getRegisteredService(getGlobal(), "CacheKnowledgeService", "1.0");
 
 //        if (supportCompositionXRef)
 //            log.info("Composition Service XREF support enabled");
 
-        if (knowledgeCache == null)
-            throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Cache knowledge service [CacheKnowledgeService,1.0] is not running, aborting");
+//        if (knowledgeCache == null)
+//            throw new ServiceManagerException(global, SysErrorCode.RESOURCE_CONFIGURATION, ME, "Cache knowledge service [CacheKnowledgeService,1.0] is not running, aborting");
 
-        putObject(I_Info.JMX_PREFIX + ME, this);
-
+//        putObject(I_Info.JMX_PREFIX + ME, this);
+        AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), QueryServiceMBean.class, this);
         allowSQL = Boolean.parseBoolean(get(Constants.SQL_ENABLED, "false"));
 
         log.info("QueryService service started...");
@@ -117,6 +117,11 @@ public class QueryService extends ServiceDataCluster implements QueryServiceMBea
         UUID ehrId = UUID.fromString(uuidEncoded);
 
         return ehrId;
+    }
+
+    @Override
+    public boolean getAllowSQL() {
+        return allowSQL;
     }
 
     private enum QueryMode {SQL, AQL, UNDEF}
@@ -270,5 +275,25 @@ public class QueryService extends ServiceDataCluster implements QueryServiceMBea
         } else
             throw new IllegalArgumentException("Could not identified query type (sql or aql) in content:" + content);
 
+    }
+
+    @Override
+    public String getBuildVersion() {
+        return BuildVersion.versionNumber;
+    }
+
+    @Override
+    public String getBuildId() {
+        return BuildVersion.projectId;
+    }
+
+    @Override
+    public String getBuildDate() {
+        return BuildVersion.buildDate;
+    }
+
+    @Override
+    public String getBuildUser() {
+        return BuildVersion.buildUser;
     }
 }

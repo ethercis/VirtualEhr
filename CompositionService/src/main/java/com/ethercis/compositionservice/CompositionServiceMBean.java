@@ -17,9 +17,18 @@
 //Copyright
 package com.ethercis.compositionservice;
 
+import com.ethercis.servicemanager.jmx.BuildMetaData;
+
 /**
  * ETHERCIS Project VirtualEhr
  * Created by Christian Chevalley on 9/18/2015.
  */
-public interface CompositionServiceMBean {
+public interface CompositionServiceMBean  extends BuildMetaData {
+    String getType();
+    String getVersion();
+    boolean getUseNamespaceInCompositionId();
+    boolean getSupportCompositionXRef();
+    void setUseNamespaceInCompositionId(boolean val);
+    void setSupportCompositionXRef(boolean val);
+
 }

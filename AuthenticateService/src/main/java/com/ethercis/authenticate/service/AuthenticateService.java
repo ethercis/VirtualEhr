@@ -17,6 +17,7 @@
 //Copyright
 package com.ethercis.authenticate.service;
 
+import com.ethercis.authenticate.BuildVersion;
 import com.ethercis.authenticate.interfaces.I_LookupManager;
 import com.ethercis.servicemanager.annotation.*;
 import com.ethercis.servicemanager.cluster.RunTimeSingleton;
@@ -29,6 +30,7 @@ import com.ethercis.servicemanager.common.interfaces.data.I_SubjectService;
 import com.ethercis.servicemanager.common.interfaces.data.I_User;
 import com.ethercis.servicemanager.common.security.I_Authenticate;
 import com.ethercis.servicemanager.exceptions.ServiceManagerException;
+import com.ethercis.servicemanager.jmx.AnnotatedMBean;
 import com.ethercis.servicemanager.runlevel.I_ServiceRunMode;
 import com.ethercis.servicemanager.service.ServiceInfo;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +55,8 @@ public class AuthenticateService extends ClusterInfo implements AuthenticateServ
 	protected void doInit(RunTimeSingleton global, ServiceInfo serviceInfo)
 			throws ServiceManagerException {
 		this.global=global;
-		putObject(I_Info.JMX_PREFIX + "AuthenticateService", this);
+//		putObject(I_Info.JMX_PREFIX + ME, this);
+		AnnotatedMBean.RegisterMBean(this.getClass().getCanonicalName(), AuthenticateServiceMBean.class, this);
 		String policyType = global.getProperty().get(Constants.POLICY_TYPE_TAG,
 				Constants.STR_POLICY_DEBUG);
 		try{
@@ -100,5 +103,25 @@ public class AuthenticateService extends ClusterInfo implements AuthenticateServ
 	public I_User getUser(String id) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getBuildVersion() {
+		return BuildVersion.versionNumber;
+	}
+
+	@Override
+	public String getBuildId() {
+		return BuildVersion.projectId;
+	}
+
+	@Override
+	public String getBuildDate() {
+		return BuildVersion.buildDate;
+	}
+
+	@Override
+	public String getBuildUser() {
+		return BuildVersion.buildUser;
 	}
 }
