@@ -11,7 +11,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.19</version>
         <configuration>
-          <skipTests>false</skipTests>
+          <skipTests>true</skipTests>
         </configuration>
       </plugin>
       <plugin>
@@ -176,6 +176,13 @@
       <version>4.11</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>ethercis</groupId>
+      <artifactId>ehrxml</artifactId>
+      <version>1.0.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/../file_repo/lib/ehrxml-1.0.0.jar</systemPath>
+    </dependency>
   </dependencies>
   <reporting>
     <plugins>
@@ -202,13 +209,13 @@
     </plugins>
   </reporting>
   <properties>
+    <user.localDirectoryPath>${user.home}/.m2/repository</user.localDirectoryPath>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     <user.deploy>../../ethercis-deploy</user.deploy>
     <pac4j.version>3.2.0</pac4j.version>
     <timestamp>${maven.build.timestamp}</timestamp>
-    <user.localDirectoryPath>${user.home}/.m2/repository</user.localDirectoryPath>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 </project>
 

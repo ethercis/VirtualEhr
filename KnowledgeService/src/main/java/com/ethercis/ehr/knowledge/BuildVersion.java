@@ -24,6 +24,6 @@ package com.ethercis.ehr.knowledge;
 public class BuildVersion {
     public static String projectId = "Service implementation to manage access cache knowledge";
     public static String versionNumber = "1.3.0-SNAPSHOT";
-    public static String buildDate = "2019-02-25 03:14:38";
+    public static String buildDate = "2019-03-14 07:53:17";
     public static String buildUser = "christian";
 }
