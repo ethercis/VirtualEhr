@@ -229,11 +229,11 @@
             <artifactId>ecis-knowledge-service</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq</artifactId>
-            <version>3.10.0</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.jooq</groupId>-->
+            <!--<artifactId>jooq</artifactId>-->
+            <!--<version>3.10.0</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>openehr</groupId>
             <artifactId>oet-parser</artifactId>

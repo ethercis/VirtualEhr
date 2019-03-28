@@ -58,7 +58,7 @@ public class LogonServiceTest {
         TestService.setnstart(manager, controller, "ServiceSecurityManager", "1.0",
                 new String[][]{
                         {"server.security.policy.type", "SHIRO"},
-                        {"server.security.shiro.inipath", "${user.dir}/../file_repo/authenticate.ini"}
+                        {"server.security.shiro.inipath", "./src/test/resources/authenticate.ini"}
                 }
         );
 

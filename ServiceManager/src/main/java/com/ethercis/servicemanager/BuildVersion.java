@@ -24,6 +24,6 @@ package com.ethercis.servicemanager;
 public class BuildVersion {
     public static String projectId = "Commons for vEhr services";
     public static String versionNumber = "1.3.0-SNAPSHOT";
-    public static String buildDate = "2019-03-21 03:19:39";
+    public static String buildDate = "2019-03-28 01:48:23";
     public static String buildUser = "christian";
 }
