@@ -24,6 +24,6 @@ package com.ethercis.logonservice;
 public class BuildVersion {
     public static String projectId = "Service implementation to handle connections to the platform (logon)";
     public static String versionNumber = "1.3.0-SNAPSHOT";
-    public static String buildDate = "2019-03-28 02:04:57";
+    public static String buildDate = "2019-04-01 08:52:14";
     public static String buildUser = "christian";
 }
