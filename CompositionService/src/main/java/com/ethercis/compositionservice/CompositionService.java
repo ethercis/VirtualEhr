@@ -337,6 +337,14 @@ public class CompositionService extends ServiceDataCluster implements I_Composit
             throw new ServiceManagerException(getGlobal(), SysErrorCode.USER_ILLEGALARGUMENT, ME, "A valid composition id must be supplied");
         UUID compositionId = getCompositionUid(uidStr);
 
+        if (uidStr.contains("::")) {
+            Integer version = getCompositionVersion(uidStr);
+            //check if this is actually the last version
+            Integer lastVersion = I_CompositionAccess.getLastVersionNumber(getDataAccess(), compositionId);
+            if (!version.equals(lastVersion))
+                throw new IllegalArgumentException("Provided version number is not the last version of composition, last found version="+lastVersion);
+        }//version number is inorder: 1, 2, 3 etc.
+
         I_CompositionService.CompositionFormat format = I_CompositionService.CompositionFormat.valueOf(props.getClientProperty(I_CompositionService.FORMAT, CompositionFormat.ECISFLAT.toString()));
 
         //get body stuff
